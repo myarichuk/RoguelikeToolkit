@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DefaultEcs" Version="0.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RoguelikeToolkit.Actor\RoguelikeToolkit.Actor.csproj" />
+    <ProjectReference Include="..\RoguelikeToolkit.Common\RoguelikeToolkit.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="actor.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
