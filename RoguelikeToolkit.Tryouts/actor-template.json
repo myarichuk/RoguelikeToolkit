@@ -1,0 +1,24 @@
+{
+  "Id": "Actor",
+  "Components": {
+    "Race": "Orc",
+    "Attributes": {
+      "Strength": 10,
+      "Agility": 10,
+      "Intelligence": 10 
+    },
+    "Body": {
+      "Head": {
+        "Health": 100.0
+      },
+      "LeftHand": {
+        "Health": 100.0,
+        "CanEquip": true
+      },
+      "RightHand": {
+        "Health": 100.0,
+        "CanEquip": true
+      }
+    }
+  } 
+}

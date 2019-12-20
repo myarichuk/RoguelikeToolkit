@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Common", "RoguelikeToolkit.Common\RoguelikeToolkit.Common.csproj", "{656A9F41-1001-4B37-A036-CD09A34625BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Actor", "RoguelikeToolkit.Actor\RoguelikeToolkit.Actor.csproj", "{D1BCBD88-9846-4C44-9C59-7B939B0FAB56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Actor", "RoguelikeToolkit.Actor\RoguelikeToolkit.Actor.csproj", "{D1BCBD88-9846-4C44-9C59-7B939B0FAB56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Tryouts", "RoguelikeToolkit.Tryouts\RoguelikeToolkit.Tryouts.csproj", "{005E021F-23D9-47C6-B7FE-BACC96F14D57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Tryouts", "RoguelikeToolkit.Tryouts\RoguelikeToolkit.Tryouts.csproj", "{005E021F-23D9-47C6-B7FE-BACC96F14D57}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actors", "Actors", "{7DA64782-EEDC-4052-A1C2-3BFA6805B3FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Common", "RoguelikeToolkit.Common\RoguelikeToolkit.Common.csproj", "{231F8E07-4EC5-4AA6-AE0A-CDCFAE9E6E81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{656A9F41-1001-4B37-A036-CD09A34625BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{656A9F41-1001-4B37-A036-CD09A34625BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{656A9F41-1001-4B37-A036-CD09A34625BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{656A9F41-1001-4B37-A036-CD09A34625BA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D1BCBD88-9846-4C44-9C59-7B939B0FAB56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D1BCBD88-9846-4C44-9C59-7B939B0FAB56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1BCBD88-9846-4C44-9C59-7B939B0FAB56}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,12 +23,13 @@ Global
 		{005E021F-23D9-47C6-B7FE-BACC96F14D57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{005E021F-23D9-47C6-B7FE-BACC96F14D57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{005E021F-23D9-47C6-B7FE-BACC96F14D57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{231F8E07-4EC5-4AA6-AE0A-CDCFAE9E6E81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231F8E07-4EC5-4AA6-AE0A-CDCFAE9E6E81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{231F8E07-4EC5-4AA6-AE0A-CDCFAE9E6E81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{231F8E07-4EC5-4AA6-AE0A-CDCFAE9E6E81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{D1BCBD88-9846-4C44-9C59-7B939B0FAB56} = {7DA64782-EEDC-4052-A1C2-3BFA6805B3FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32257DA0-FA47-488B-BC5D-8AF757544AB7}
