@@ -1,0 +1,10 @@
+{
+  "Id": "BodyPart",
+  "Components": {
+    "Skin": {
+      "Color": "White",
+      "Health": 100.0,
+      "Bruises": false
+    }
+  } 
+}
