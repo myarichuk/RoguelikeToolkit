@@ -5,22 +5,20 @@ using System.Linq;
 
 namespace RoguelikeToolkit.Common.EntityTemplates
 {
-    public class EntityTemplateCollection
+    public class EntityTemplateRepository
     {
-  
-
-        public readonly Dictionary<string, EntityTemplate> GlobalTemplates = 
+        public readonly Dictionary<string, EntityTemplate> Templates = 
             new Dictionary<string, EntityTemplate>(
                 Enumerable.Empty<KeyValuePair<string, EntityTemplate>>(), 
                 StringComparer.InvariantCultureIgnoreCase);
 
-        public EntityTemplateCollection(params string[] templateFolders)
+        public EntityTemplateRepository(params string[] templateFolders)
         {
             foreach (var dir in templateFolders ?? Enumerable.Empty<string>())
                 foreach(var jsonFile in Directory.EnumerateFiles(dir,"*.json", SearchOption.AllDirectories))
                     LoadTemplate(jsonFile);
 
-            foreach (var template in GlobalTemplates) 
+            foreach (var template in Templates) 
                 ProcessInheritance(template.Value);
         }
 
@@ -28,7 +26,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
         {
             var template = EntityTemplate.LoadFromFile(File.OpenRead(jsonFile));
             if (template != null && !string.IsNullOrWhiteSpace(template.Id))
-                GlobalTemplates.TryAdd(template.Id, template); //Do not override existing template. TODO: Add logging!
+                Templates.TryAdd(template.Id, template); //Do not override existing template. TODO: Add logging!
         }
 
         private void ProcessInheritance(EntityTemplate template)
@@ -36,7 +34,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
             //first, gather all instances of templates, both global and local
             //note: local template is one that is defined implicitly in the template
             //and doesn't exist in template files
-            var mergedTemplateCollection = new Dictionary<string, EntityTemplate>(GlobalTemplates, StringComparer.InvariantCultureIgnoreCase);
+            var mergedTemplateCollection = new Dictionary<string, EntityTemplate>(Templates, StringComparer.InvariantCultureIgnoreCase);
             MergeNested(mergedTemplateCollection, template);
 
             //now recursively fill in 'inherited' collection of each template
@@ -45,6 +43,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                 templateToProcess.IsInheritanceInitialized = true;
                 var inheritedComponents = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
+                //figure out inherited components and add them as needed, overwriting those from base templates with those from inherited
                 VisitInheritanceHierarchy(templateId, 
                     currentTemplate =>
                     {
@@ -57,10 +56,8 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                     });
 
                 foreach (var (key, value) in inheritedComponents)
-                {
-                    if(!templateToProcess.Components.ContainsKey(key))
+                    if (!templateToProcess.Components.ContainsKey(key))
                         templateToProcess.Components.Add(key, value);
-                }
             }
 
             //use DFS so inherited template components will hide the base definitions
