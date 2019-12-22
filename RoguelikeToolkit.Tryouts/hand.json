@@ -2,6 +2,6 @@
   "Id": "Hand",
   "InheritsFrom":  [ "BodyPart" ],
   "Components": {
-    "Capabilities" :  ["Melee", "Doors"] 
+    "Capabilities": [ "Melee", "Doors" ]
   }
 }
