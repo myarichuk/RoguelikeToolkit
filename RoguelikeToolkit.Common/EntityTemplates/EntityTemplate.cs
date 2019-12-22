@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using Utf8Json;
 using Utf8Json.Resolvers;
@@ -19,7 +20,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
 
         //Ids of templates it inherits from
         [DataMember(Name = nameof(InheritsFrom))]
-        public string[] InheritsFrom; //parent template names
+        public HashSet<string> InheritsFrom; //parent template names
 
         [DataMember(Name = nameof(Components), IsRequired = true)]
         public Dictionary<string, dynamic> Components = 
@@ -32,6 +33,9 @@ namespace RoguelikeToolkit.Common.EntityTemplates
             new Dictionary<string, EntityTemplate>(Enumerable.Empty<KeyValuePair<string, EntityTemplate>>(), 
                 StringComparer.InvariantCultureIgnoreCase);
 
+        [IgnoreDataMember]
+        public bool IsInheritanceInitialized { get; set; }
+
         public static EntityTemplate LoadFromFile(FileStream fs)
         {
             using var reader = new StreamReader(fs);
@@ -40,11 +44,27 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                 return null;
 
             if(template.InheritsFrom == null)
-                template.InheritsFrom = new string[0];
+                template.InheritsFrom = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
             return template;
         }
 
+      
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void VisitChildren(Action<EntityTemplate> visitor) => VisitChildren(this, visitor);
+
+        private void VisitChildren(EntityTemplate currentTemplate, Action<EntityTemplate> visitor)
+        {
+            foreach (var childTemplate in currentTemplate.Children.Values)
+                VisitChildren(childTemplate, visitor);
+
+            visitor(currentTemplate);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator EntityTemplate(Dictionary<string, object> templateData) => ParseTemplateFromDictionary(null, templateData);
 
         private static EntityTemplate ParseTemplateFromDictionary(string templateKey, Dictionary<string, object> templateData)
@@ -71,7 +91,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                     case nameof(Id):
                         continue;
                     case nameof(InheritsFrom):
-                        template.InheritsFrom = ((IEnumerable) value).Cast<string>().ToArray();
+                        template.InheritsFrom = new HashSet<string>(((IEnumerable) value).Cast<string>(), StringComparer.InvariantCultureIgnoreCase);
                         break;
                     case nameof(Components):
                         template.Components = (Dictionary<string, object>) value;
@@ -83,11 +103,12 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                 }
             }
             if(template.InheritsFrom == null)
-                template.InheritsFrom = new string[0];
+                template.InheritsFrom = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
             return template;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EntityTemplate LoadFromJson(string json) => 
             (EntityTemplate)JsonSerializer.Deserialize<dynamic>(json);
     }

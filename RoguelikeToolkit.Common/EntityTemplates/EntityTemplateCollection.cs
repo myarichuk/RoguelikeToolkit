@@ -9,7 +9,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
     {
   
 
-        public readonly Dictionary<string, EntityTemplate> Templates = 
+        public readonly Dictionary<string, EntityTemplate> GlobalTemplates = 
             new Dictionary<string, EntityTemplate>(
                 Enumerable.Empty<KeyValuePair<string, EntityTemplate>>(), 
                 StringComparer.InvariantCultureIgnoreCase);
@@ -20,74 +20,70 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                 foreach(var jsonFile in Directory.EnumerateFiles(dir,"*.json", SearchOption.AllDirectories))
                     LoadTemplate(jsonFile);
 
-
-            void ProcessComponentInheritance(EntityTemplate template)
-            {
-                if(template.Children?.Count > 0)
-                    //note, the 'where' is precaution, this should never be the case
-                    //TODO: add warning for 'null' child templates
-                    foreach (var childTemplate in template.Children.Where(c => c.Value != null))
-                    {
-                        childTemplate.Value.InheritsFrom = GatherInheritance(childTemplate).Distinct().ToArray();
-
-                        foreach (var inheritedTemplateId in childTemplate.Value.InheritsFrom)
-                        foreach (var component in Templates[inheritedTemplateId].Components)
-                        {
-                            //TODO: add logging if component already exists
-                            childTemplate.Value.Components.TryAdd(component.Key, component.Value);
-                        }
-
-                        IEnumerable<string> GatherInheritance(KeyValuePair<string, EntityTemplate> templateInfo)
-                        {
-                            foreach (var inheritedTemplateId in templateInfo.Value.InheritsFrom)
-                            {
-                                if (Templates.ContainsKey(inheritedTemplateId))
-                                {
-                                    foreach (var subInheritedTemplateId in
-                                        GatherInheritance(
-                                            new KeyValuePair<string, EntityTemplate>(
-                                                inheritedTemplateId, Templates[inheritedTemplateId])))
-                                    {
-                                        if (Templates.ContainsKey(subInheritedTemplateId))
-                                            yield return subInheritedTemplateId;
-                                    }
-
-                                }
-                                yield return inheritedTemplateId;
-                            }
-
-                            if (Templates.ContainsKey(templateInfo.Key))
-                            {
-                                foreach (var inheritedTemplateId in Templates[templateInfo.Key].InheritsFrom)
-                                {
-                                    if (Templates.ContainsKey(inheritedTemplateId))
-                                        yield return inheritedTemplateId;
-
-                                    foreach (var subInheritedTemplateId in
-                                        GatherInheritance(
-                                            new KeyValuePair<string, EntityTemplate>(
-                                                inheritedTemplateId, Templates[inheritedTemplateId])))
-                                    {
-                                        if (Templates.ContainsKey(subInheritedTemplateId))
-                                            yield return subInheritedTemplateId;
-                                    }
-                                }
-                            }
-                        }
-
-                        ProcessComponentInheritance(childTemplate.Value);
-                    }
-            }
-
-            foreach (var template in Templates) 
-                ProcessComponentInheritance(template.Value);
+            foreach (var template in GlobalTemplates) 
+                ProcessInheritance(template.Value);
         }
 
         private void LoadTemplate(string jsonFile)
         {
             var template = EntityTemplate.LoadFromFile(File.OpenRead(jsonFile));
             if (template != null && !string.IsNullOrWhiteSpace(template.Id))
-                Templates.TryAdd(template.Id, template); //Do not override existing template. TODO: Add logging!
+                GlobalTemplates.TryAdd(template.Id, template); //Do not override existing template. TODO: Add logging!
         }
+
+        private void ProcessInheritance(EntityTemplate template)
+        {
+            //first, gather all instances of templates, both global and local
+            //note: local template is one that is defined implicitly in the template
+            //and doesn't exist in template files
+            var mergedTemplateCollection = new Dictionary<string, EntityTemplate>(GlobalTemplates, StringComparer.InvariantCultureIgnoreCase);
+            MergeNested(mergedTemplateCollection, template);
+
+            //now recursively fill in 'inherited' collection of each template
+            foreach (var (templateId, templateToProcess) in mergedTemplateCollection.Where(t => !t.Value.IsInheritanceInitialized))
+            {
+                templateToProcess.IsInheritanceInitialized = true;
+                var inheritedComponents = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+                VisitInheritanceHierarchy(templateId, 
+                    currentTemplate =>
+                    {
+                        if (currentTemplate.Id == templateId) 
+                            return;
+
+                        templateToProcess.InheritsFrom.Add(currentTemplate.Id);
+                        foreach (var (key, value) in currentTemplate.Components)
+                            inheritedComponents.AddOrReplace(key, (object)value);
+                    });
+
+                foreach (var (key, value) in inheritedComponents)
+                {
+                    if(!templateToProcess.Components.ContainsKey(key))
+                        templateToProcess.Components.Add(key, value);
+                }
+            }
+
+            //use DFS so inherited template components will hide the base definitions
+            void VisitInheritanceHierarchy(string currentTemplateId, Action<EntityTemplate> visitor)
+            {
+                var currentTemplate = mergedTemplateCollection[currentTemplateId];
+                foreach (var baseTemplateId in currentTemplate.InheritsFrom.ToArray())
+                    VisitInheritanceHierarchy(baseTemplateId, visitor);
+
+                visitor(currentTemplate);
+            }
+
+            void MergeNested(Dictionary<string, EntityTemplate> dest, EntityTemplate currentTemplate)
+            {
+                foreach (var childTemplate in currentTemplate.Children)
+                {
+                    //TODO: add warning if failed to add because of already existing template
+                    dest.TryAdd(childTemplate.Key, childTemplate.Value);
+                    MergeNested(dest, childTemplate.Value);
+                }
+            }
+        }
+
+
     }
 }

@@ -7,7 +7,6 @@ namespace RoguelikeToolkit.Tryouts
     {
         static void Main(string[] args)
         {
-            var actorTemplate = EntityTemplate.LoadFromFile(File.OpenRead("actor.json"));
             var templateCollection = new EntityTemplateCollection(".");
         }
     }

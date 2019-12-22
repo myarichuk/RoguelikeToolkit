@@ -1,6 +1,7 @@
 {
   "Id": "BodyPart",
   "Components": {
+    "Health": 100.0,
     "Skin": {
       "Color": "White",
       "Health": 100.0,
