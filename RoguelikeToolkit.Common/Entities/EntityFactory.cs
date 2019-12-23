@@ -58,15 +58,26 @@ namespace RoguelikeToolkit.Common.Entities
                 return false;
 
             var template = _templateRepository.Templates[templateId];
-            ApplyComponents(template, ref entity);
 
-            template.VisitChildren(new ComponentsVisitorState { Current = entity }, (currentTemplate, state) =>
+            VisitTemplateHierarchy(template, ref entity);
+
+            void VisitTemplateHierarchy(EntityTemplate current, ref Entity parent)
+            {
+                ApplyComponents(current, ref parent);
+
+                if (current.Children.Count <= 0) 
+                    return;
+
+                foreach (var kvp in current.Children)
                 {
                     var childEntity = world.CreateEntity();
-                    ApplyComponents(currentTemplate, ref childEntity);
-                    state.Current.SetAsParentOf(in childEntity);
-                    state.Current = childEntity;
-                }, EntityTemplate.Traversal.BFS);
+
+                    childEntity.SetAsChildOf(in parent);
+                    parent.SetAsParentOf(in childEntity);
+
+                    VisitTemplateHierarchy(kvp.Value, ref childEntity);
+                }
+            }
 
             //TODO: finish here
 
@@ -81,7 +92,6 @@ namespace RoguelikeToolkit.Common.Entities
             bool HasInterface(object obj, Type interfaceType)
             {
                 IEnumerable<Type> interfaces = obj.GetType().GetInterfaces();
-
                 if (interfaceType.IsGenericType) interfaces = interfaces.Where(i => i.IsGenericType);
 
                 return interfaces.Any(x => (interfaceType.IsGenericType ? x.GetGenericTypeDefinition() : x) == interfaceType);
@@ -122,14 +132,29 @@ namespace RoguelikeToolkit.Common.Entities
                         {
                             try
                             {
-                                var enumType = typeAccessor[componentInstance, key].GetType();
-                                if (enumType.IsEnum && value is string str)
+                                var memberInfo = componentType.GetMember(key,MemberTypes.Property | MemberTypes.Field, BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
+                                if(memberInfo == null) //not found, nothing to do
+                                    continue;
+                                Type memberType;
+                                switch (memberInfo.MemberType)
                                 {
-                                    typeAccessor[componentInstance, key] = Str2Enum(str, enumType);
+                                    case MemberTypes.Property:
+                                        memberType = ((PropertyInfo) memberInfo).PropertyType;
+                                        break;
+                                    case MemberTypes.Field:
+                                        memberType = ((FieldInfo) memberInfo).FieldType;
+                                        break;
+                                    default:
+                                        throw new InvalidOperationException($"This should never happen. Expected '{key}' to be either field or property but it is '{memberInfo.MemberType}'"); 
+                                }
+
+                                if (memberType.IsEnum && value is string str)
+                                {
+                                    typeAccessor[componentInstance, key] = Str2Enum(str, memberType);
                                 }
                                 else
                                 {
-                                    typeAccessor[componentInstance, key] = Convert.ChangeType(value, typeAccessor[componentInstance, key].GetType());
+                                    typeAccessor[componentInstance, key] = Convert.ChangeType(value, memberType);
                                 }
                             }
                             catch (Exception e) when (e is ArgumentOutOfRangeException || e is InvalidCastException)
