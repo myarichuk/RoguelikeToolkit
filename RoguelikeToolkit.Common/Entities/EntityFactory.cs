@@ -47,11 +47,6 @@ namespace RoguelikeToolkit.Common.Entities
         public EntityFactory(EntityTemplateRepository templateRepository) => 
             _templateRepository = templateRepository;
 
-        private class ComponentsVisitorState
-        {
-            public Entity Current { get; set; }
-        }
-
         public bool TryCreate(string templateId, World world, ref Entity entity)
         {
             if (!_templateRepository.Templates.ContainsKey(templateId)) 
@@ -79,10 +74,7 @@ namespace RoguelikeToolkit.Common.Entities
                 }
             }
 
-            //TODO: finish here
-
             return true;
-
         }
 
         private static readonly object[] Parameters = new object[1];
