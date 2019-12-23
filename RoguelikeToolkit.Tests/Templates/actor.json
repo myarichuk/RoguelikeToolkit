@@ -1,0 +1,25 @@
+{
+  "Id": "Actor",
+
+  "Body": {
+    "Head": { "InheritsFrom": [ "BodyPart" ]  },
+    "LeftHand": {
+      "InheritsFrom": [ "Hand" ]
+    },
+    "RightHand": {
+      "InheritsFrom": [ "Hand" ],
+      "Components": {
+        "Health": 75.0
+      }
+    }
+  },
+
+  "Components": {
+    "Race": "Human",
+    "Attributes": {
+      "Strength": 10,
+      "Agility": 10,
+      "Intelligence": 10.5
+    }
+  }
+}

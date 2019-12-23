@@ -20,7 +20,14 @@ namespace RoguelikeToolkit.Common.Entities
         private static readonly Dictionary<Type, MethodInfo> EntitySetMethodCache = new Dictionary<Type, MethodInfo>();
         static EntityFactory()
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                                                    .Where(assembly => 
+                                                        !assembly.FullName.StartsWith("System.") &&
+                                                        !assembly.FullName.StartsWith("Microsoft.") &&
+                                                        !assembly.FullName.StartsWith("Windows.") &&
+                                                        !assembly.FullName.Contains("mscor") &&
+                                                        !assembly.FullName.Contains("xunit"))
+                                                    .ToArray();
 
             var components = 
                 (from assembly in assemblies
@@ -44,8 +51,10 @@ namespace RoguelikeToolkit.Common.Entities
 
         private readonly EntityTemplateRepository _templateRepository;
 
-        public EntityFactory(EntityTemplateRepository templateRepository) => 
+        public EntityFactory(EntityTemplateRepository templateRepository)
+        {
             _templateRepository = templateRepository;
+        }
 
         public bool TryCreate(string templateId, World world, ref Entity entity)
         {
