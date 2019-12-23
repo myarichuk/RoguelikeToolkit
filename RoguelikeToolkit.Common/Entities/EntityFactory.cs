@@ -63,19 +63,34 @@ namespace RoguelikeToolkit.Common.Entities
                             var componentInstance =
                                 FormatterServices.GetUninitializedObject(componentType);
 
-                            TypeAccessor typeAccessor;
-                            if (!_typeAccessorCache.TryGetValue(componentType, out typeAccessor))
+                            if (!_typeAccessorCache.TryGetValue(componentType, out var typeAccessor))
                             {
                                 typeAccessor = TypeAccessor.Create(componentType, true);
                                 _typeAccessorCache.Add(componentType, typeAccessor);
                             }
 
                             //TODO: handle here both primitives and nested objects
-                            var componentDataValues = (Dictionary<string, object>) componentData.Value;
-                            foreach(var (key, value) in componentDataValues)
+                            switch(Type.GetTypeCode(componentData.Value.GetType()))
                             {
-                                typeAccessor[componentInstance, key] = value;
+                                case TypeCode.Object:
+                                    var componentDataValues = (Dictionary<string, object>)componentData.Value;
+                                    foreach (var (key, value) in componentDataValues)
+                                    {
+                                        try
+                                        {
+                                            typeAccessor[componentInstance, key] = value;
+                                        }
+                                        catch(ArgumentOutOfRangeException e)
+                                        {
+                                            //don't error on non-existing properties
+                                            //TODO: add logging
+                                        }
+                                    }
+                                    break;
+                                default: //primitives and string...
+                                    break;
                             }
+
                         }
                     }
                 }
