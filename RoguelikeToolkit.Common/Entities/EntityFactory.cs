@@ -24,7 +24,10 @@ namespace RoguelikeToolkit.Common.Entities
                 (from assembly in assemblies
                  from type in assembly.GetTypes()
                  where type.Name.EndsWith("component", true, CultureInfo.InvariantCulture) ||
-                       type.GetInterfaces().Any(it => it.Name.StartsWith("IValueComponent")) || //probably there is a better way to do this
+                       type.GetInterfaces()
+                           .Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == typeof(IValueComponent<>)) ||
+                       type.GetInterfaces()
+                           .Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == typeof(ICollectionComponent<>)) ||
                        type.GetCustomAttributes(typeof(ComponentAttribute), true).Any()
                  select type).ToArray();
 
@@ -34,7 +37,6 @@ namespace RoguelikeToolkit.Common.Entities
                     x.Name, 
                 x => x);
         }
-
 
         private readonly EntityTemplateRepository _templateRepository;
 
@@ -48,6 +50,7 @@ namespace RoguelikeToolkit.Common.Entities
             if (_templateRepository.Templates.ContainsKey(templateId))
             {
                 var template = _templateRepository.Templates[templateId];
+                ApplyComponents(template, ref entity);
                 //TODO: finish here
 
                 void ApplyComponents(EntityTemplate current, ref Entity entity)

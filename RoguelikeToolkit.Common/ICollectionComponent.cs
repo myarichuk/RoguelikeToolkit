@@ -2,7 +2,7 @@
 
 namespace RoguelikeToolkit.Common
 {
-    public interface IArrayComponent<T>
+    public interface ICollectionComponent<T>
     {
         ICollection<T> Values { get; }
     }
