@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
 using DefaultEcs;
+using DefaultEcs.System;
 using FastMember;
 using RoguelikeToolkit.Common.EntityTemplates;
 
@@ -14,8 +14,10 @@ namespace RoguelikeToolkit.Common.Entities
 {
     public class EntityFactory
     {
-        private static readonly Dictionary<string, Type> _componentTypes;
-        private static readonly Dictionary<Type, TypeAccessor> _typeAccessorCache = new Dictionary<Type, TypeAccessor>();
+        private static readonly Dictionary<string, Type> ComponentTypes;
+        private static readonly Dictionary<Type, TypeAccessor> TypeAccessorCache = new Dictionary<Type, TypeAccessor>();
+        private static readonly MethodInfo EntitySetMethodInfo;
+        private static readonly Dictionary<Type, MethodInfo> EntitySetMethodCache = new Dictionary<Type, MethodInfo>();
         static EntityFactory()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -31,74 +33,152 @@ namespace RoguelikeToolkit.Common.Entities
                        type.GetCustomAttributes(typeof(ComponentAttribute), true).Any()
                  select type).ToArray();
 
-            _componentTypes = components.ToDictionary(x => 
+            ComponentTypes = components.ToDictionary(x => 
                 x.Name.EndsWith("component", true, CultureInfo.InvariantCulture) ? 
                     x.Name.Replace("component", string.Empty, true, CultureInfo.InvariantCulture) : 
                     x.Name, 
                 x => x);
+
+            EntitySetMethodInfo = typeof(Entity).GetMethod(nameof(Entity.Set));
         }
 
         private readonly EntityTemplateRepository _templateRepository;
 
-        public EntityFactory(EntityTemplateRepository templateRepository)
-        {
+        public EntityFactory(EntityTemplateRepository templateRepository) => 
             _templateRepository = templateRepository;
+
+        private class ComponentsVisitorState
+        {
+            public Entity Current { get; set; }
         }
 
-        public bool TryCreate(string templateId, ref Entity entity)
+        public bool TryCreate(string templateId, World world, ref Entity entity)
         {
-            if (_templateRepository.Templates.ContainsKey(templateId))
-            {
-                var template = _templateRepository.Templates[templateId];
-                ApplyComponents(template, ref entity);
-                //TODO: finish here
+            if (!_templateRepository.Templates.ContainsKey(templateId)) 
+                return false;
 
-                void ApplyComponents(EntityTemplate current, ref Entity entity)
+            var template = _templateRepository.Templates[templateId];
+            ApplyComponents(template, ref entity);
+
+            template.VisitChildren(new ComponentsVisitorState { Current = entity }, (currentTemplate, state) =>
                 {
-                    foreach (var componentData in current.Components)
-                    {
-                        if (_componentTypes.ContainsKey(componentData.Key))
-                        {
-                            var componentType = _componentTypes[componentData.Key];
-                            var componentInstance =
-                                FormatterServices.GetUninitializedObject(componentType);
+                    var childEntity = world.CreateEntity();
+                    ApplyComponents(currentTemplate, ref childEntity);
+                    state.Current.SetAsParentOf(in childEntity);
+                    state.Current = childEntity;
+                }, EntityTemplate.Traversal.BFS);
 
-                            if (!_typeAccessorCache.TryGetValue(componentType, out var typeAccessor))
-                            {
-                                typeAccessor = TypeAccessor.Create(componentType, true);
-                                _typeAccessorCache.Add(componentType, typeAccessor);
-                            }
+            //TODO: finish here
 
-                            //TODO: handle here both primitives and nested objects
-                            switch(Type.GetTypeCode(componentData.Value.GetType()))
-                            {
-                                case TypeCode.Object:
-                                    var componentDataValues = (Dictionary<string, object>)componentData.Value;
-                                    foreach (var (key, value) in componentDataValues)
-                                    {
-                                        try
-                                        {
-                                            typeAccessor[componentInstance, key] = value;
-                                        }
-                                        catch(ArgumentOutOfRangeException e)
-                                        {
-                                            //don't error on non-existing properties
-                                            //TODO: add logging
-                                        }
-                                    }
-                                    break;
-                                default: //primitives and string...
-                                    break;
-                            }
+            return true;
 
-                        }
-                    }
-                }
+        }
 
-                return true;
+        private static readonly object[] Parameters = new object[1];
+
+        private void ApplyComponents(EntityTemplate current, ref Entity entity)
+        {
+            bool HasInterface(object obj, Type interfaceType)
+            {
+                IEnumerable<Type> interfaces = obj.GetType().GetInterfaces();
+
+                if (interfaceType.IsGenericType) interfaces = interfaces.Where(i => i.IsGenericType);
+
+                return interfaces.Any(x => (interfaceType.IsGenericType ? x.GetGenericTypeDefinition() : x) == interfaceType);
             }
 
-            return false;
+            object Str2Enum(string str, Type enumType)
+            {
+                try
+                {
+                    var res = Enum.Parse(enumType, str);
+                    if (!Enum.IsDefined(enumType, res)) return default;
+                    return res;
+                }
+                catch
+                {
+                    return default;
+                }
+            }
+
+            foreach (var componentData in current.Components)
+            {
+                if (!ComponentTypes.ContainsKey(componentData.Key)) continue;
+
+                var componentType = ComponentTypes[componentData.Key];
+                var componentInstance = FormatterServices.GetUninitializedObject(componentType);
+
+                if (!TypeAccessorCache.TryGetValue(componentType, out var typeAccessor))
+                {
+                    typeAccessor = TypeAccessor.Create(componentType, true);
+                    TypeAccessorCache.Add(componentType, typeAccessor);
+                }
+
+                //TODO: handle here both primitives and nested objects
+                switch (componentData.Value)
+                {
+                    case Dictionary<string, object> componentDataValues:
+                        foreach (var (key, value) in componentDataValues)
+                        {
+                            try
+                            {
+                                var enumType = typeAccessor[componentInstance, key].GetType();
+                                if (enumType.IsEnum && value is string str)
+                                {
+                                    typeAccessor[componentInstance, key] = Str2Enum(str, enumType);
+                                }
+                                else
+                                {
+                                    typeAccessor[componentInstance, key] = Convert.ChangeType(value, typeAccessor[componentInstance, key].GetType());
+                                }
+                            }
+                            catch (Exception e) when (e is ArgumentOutOfRangeException || e is InvalidCastException)
+                            {
+                                //don't error on non-existing properties
+                                //TODO: add logging
+                            }
+                        }
+
+                        break;
+                    case IEnumerable collection when (collection is string): //string is also IEnumerable
+                        goto default;
+                    case IEnumerable collection:
+                        //precaution, TODO: logging if doesn't implement 
+                        if (!HasInterface(componentInstance, typeof(ICollectionComponent<>))) break;
+
+                        var dynamicCollectionComponentInstance = (dynamic) componentInstance;
+
+                        var collectionInterface = componentType.GetInterfaces()
+                                                    .First(iv => iv.IsGenericType && iv.GetGenericTypeDefinition() == typeof(ICollectionComponent<>));
+                        var collectionItemType = collectionInterface.GetGenericArguments()[0];
+                        var collectionType = typeof(List<>).MakeGenericType(collectionItemType);
+                        //TODO: use reflection libraries that make Activator.CreateInstance faster
+                        if (dynamicCollectionComponentInstance.Values == null)
+                            dynamicCollectionComponentInstance.Values = (dynamic)Activator.CreateInstance(collectionType);
+                        foreach (var item in collection) dynamicCollectionComponentInstance.Values.Add((dynamic) item);
+
+                        break;
+                    default: //primitives and string...
+                        //precaution, TODO: logging if doesn't implement 
+                        //we want to ensure - components that contain ONE primitive like string or a number
+                        // - they HAVE to implement IValueComponent
+                        if (!HasInterface(componentInstance, typeof(IValueComponent<>))) break;
+
+                        var dynamicValueComponentInstance = (dynamic) componentInstance;
+                        var @interface = componentType.GetInterfaces().First(iv => iv.IsGenericType && iv.GetGenericTypeDefinition() == typeof(IValueComponent<>));
+
+                        dynamicValueComponentInstance.Value = Convert.ChangeType(componentData.Value, @interface.GetGenericArguments()[0]);
+
+                        break;
+                }
+
+                if(!EntitySetMethodCache.ContainsKey(componentType))
+                    EntitySetMethodCache.Add(componentType, EntitySetMethodInfo.MakeGenericMethod(componentType));
+
+                var setMethod = EntitySetMethodCache[componentType];
+                Parameters[0] = componentInstance;
+                setMethod.Invoke(entity, Parameters);
+            }
         }
     }
 }

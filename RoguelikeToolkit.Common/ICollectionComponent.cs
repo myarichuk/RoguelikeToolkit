@@ -4,6 +4,6 @@ namespace RoguelikeToolkit.Common
 {
     public interface ICollectionComponent<T>
     {
-        ICollection<T> Values { get; }
+        ICollection<T> Values { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using DefaultEcs;
+﻿using DefaultEcs;
 using RoguelikeToolkit.Common.Entities;
 using RoguelikeToolkit.Common.EntityTemplates;
 
@@ -16,7 +14,7 @@ namespace RoguelikeToolkit.Tryouts
 
             var actorEntity = world.CreateEntity();
 
-            Console.WriteLine(entityFactory.TryCreate("actor", ref actorEntity));
+            entityFactory.TryCreate("actor", world, ref actorEntity);
         }
     }
 }

@@ -49,18 +49,32 @@ namespace RoguelikeToolkit.Common.EntityTemplates
             return template;
         }
 
-      
 
+        public enum Traversal
+        {
+            DFS,
+            BFS
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void VisitChildren(Action<EntityTemplate> visitor) => VisitChildren(this, visitor);
+        public void VisitChildren<TState>(TState state, Action<EntityTemplate, TState> visitor, Traversal traversal = Traversal.DFS)
+            => VisitChildren(this, state, visitor);
 
-        private void VisitChildren(EntityTemplate currentTemplate, Action<EntityTemplate> visitor)
+        private void VisitChildren<TState>(EntityTemplate currentTemplate, TState state, Action<EntityTemplate, TState> visitor, Traversal traversal = Traversal.DFS)
         {
-            foreach (var childTemplate in currentTemplate.Children.Values)
-                VisitChildren(childTemplate, visitor);
+            if (traversal == Traversal.DFS)
+            {
+                foreach (var childTemplate in currentTemplate.Children.Values)
+                    VisitChildren(childTemplate, state, visitor);
 
-            visitor(currentTemplate);
+                visitor(currentTemplate, state);
+            }
+            else
+            {
+                visitor(currentTemplate, state);
+                foreach (var childTemplate in currentTemplate.Children.Values)
+                    VisitChildren(childTemplate, state, visitor);
+            }
         }
 
 
