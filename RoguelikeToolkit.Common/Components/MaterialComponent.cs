@@ -1,5 +1,6 @@
 ﻿namespace RoguelikeToolkit.Common.Components
 {
+    [Component]
     public struct MaterialComponent
     {
         /// <summary>
