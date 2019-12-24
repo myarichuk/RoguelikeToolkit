@@ -1,4 +1,4 @@
-﻿namespace RoguelikeToolkit.Tryouts
+﻿namespace RoguelikeToolkit.Tests
 {
     public class SkinComponent
     {

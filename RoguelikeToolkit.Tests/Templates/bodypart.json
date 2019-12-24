@@ -1,5 +1,6 @@
 {
   "Id": "BodyPart",
+  "InheritsFrom": ["object"] ,
   "Components": {
     "Health": 100.0,
     "Skin": {

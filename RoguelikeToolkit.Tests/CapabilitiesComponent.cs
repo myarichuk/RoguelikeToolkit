@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using RoguelikeToolkit.Common;
 
-namespace RoguelikeToolkit.Tryouts
+namespace RoguelikeToolkit.Tests
 {
     public class CapabilitiesComponent : ICollectionComponent<string>
     {

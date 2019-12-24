@@ -36,7 +36,7 @@ namespace RoguelikeToolkit.Common.EntityTemplates
         [IgnoreDataMember]
         public bool IsInheritanceInitialized { get; set; }
 
-        public static EntityTemplate LoadFromFile(FileStream fs)
+        public static EntityTemplate LoadFromStream(Stream fs)
         {
             using var reader = new StreamReader(fs);
             var template = LoadFromJson(reader.ReadToEnd());
@@ -71,20 +71,33 @@ namespace RoguelikeToolkit.Common.EntityTemplates
 
             foreach (var (key, value) in templateData)
             {
-                switch (key)
+                try
                 {
-                    case nameof(Id):
-                        continue;
-                    case nameof(InheritsFrom):
-                        template.InheritsFrom = new HashSet<string>(((IEnumerable) value).Cast<string>(), StringComparer.InvariantCultureIgnoreCase);
-                        break;
-                    case nameof(Components):
-                        template.Components = (Dictionary<string, object>) value;
-                        break;
-                    default:
-                        //note: because of implicit operator this is recursive call
-                        template.Children.Add(key, ParseTemplateFromDictionary(key, (Dictionary<string, object>)value));
-                        break;
+                    switch (key)
+                    {
+                        case nameof(Id):
+                            continue;
+
+                        //just in case, take possible typos in account...
+                        case "Inherits":
+                        case "inherits":
+                        case nameof(InheritsFrom):
+                            template.InheritsFrom = new HashSet<string>(((IEnumerable) value).Cast<string>(),
+                                StringComparer.InvariantCultureIgnoreCase);
+                            break;
+                        case nameof(Components):
+                            template.Components = (Dictionary<string, object>) value;
+                            break;
+                        default:
+                            //note: because of implicit operator this is recursive call
+                            template.Children.Add(key,
+                                ParseTemplateFromDictionary(key, (Dictionary<string, object>) value));
+                            break;
+                    }
+                }
+                catch (InvalidCastException e)
+                {
+                    //TODO: log this, but do not fail on invalid properties
                 }
             }
             if(template.InheritsFrom == null)

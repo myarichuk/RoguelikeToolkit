@@ -1,6 +1,6 @@
 ﻿using RoguelikeToolkit.Common;
 
-namespace RoguelikeToolkit.Tryouts
+namespace RoguelikeToolkit.Tests
 {
     public class RaceComponent : IValueComponent<string>
     {

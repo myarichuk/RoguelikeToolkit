@@ -2,7 +2,6 @@ using System;
 using DefaultEcs;
 using RoguelikeToolkit.Common.Entities;
 using RoguelikeToolkit.Common.EntityTemplates;
-using RoguelikeToolkit.Tryouts;
 using Xunit;
 
 namespace RoguelikeToolkit.Tests

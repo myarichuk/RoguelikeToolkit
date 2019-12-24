@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Common.EntityTemplates
 {
@@ -14,6 +16,28 @@ namespace RoguelikeToolkit.Common.EntityTemplates
 
         public EntityTemplateRepository(params string[] templateFolders)
         {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => 
+                    !assembly.FullName.StartsWith("System.") &&
+                    !assembly.FullName.StartsWith("Microsoft.") &&
+                    !assembly.FullName.StartsWith("Windows.") &&
+                    !assembly.FullName.Contains("mscor") &&
+                    !assembly.FullName.Contains("xunit") &&
+                     assembly.IsDynamic == false)
+                .ToArray();
+
+            foreach (var assembly in assemblies)
+            {
+                var embeddedTemplateResourceNames =
+                    assembly.GetManifestResourceNames().Where(rn => rn.EndsWith(".json")).ToArray();
+
+                foreach (var templateName in embeddedTemplateResourceNames)
+                {
+                    using var templateStream = assembly.GetManifestResourceStream(templateName);
+                    LoadTemplate(templateStream);
+                }
+            }
+
             foreach (var dir in templateFolders ?? Enumerable.Empty<string>())
                 foreach(var jsonFile in Directory.EnumerateFiles(dir,"*.json", SearchOption.AllDirectories))
                     LoadTemplate(jsonFile);
@@ -22,9 +46,16 @@ namespace RoguelikeToolkit.Common.EntityTemplates
                 ProcessInheritance(template.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LoadTemplate(string jsonFile)
         {
-            var template = EntityTemplate.LoadFromFile(File.OpenRead(jsonFile));
+            using var fileStream = File.OpenRead(jsonFile);
+            LoadTemplate(fileStream);
+        }
+
+        private void LoadTemplate(Stream fileStream)
+        {
+            var template = EntityTemplate.LoadFromStream(fileStream);
             if (template != null && !string.IsNullOrWhiteSpace(template.Id))
                 Templates.TryAdd(template.Id, template); //Do not override existing template. TODO: Add logging!
         }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -42,6 +43,15 @@ namespace RoguelikeToolkit.Common.Entities
                        type.GetCustomAttributes(typeof(ComponentAttribute), true).Any()
                  select type).ToArray();
 
+            //precaution to prevent multiple components with the same name
+            var componentsWithTheSameName = 
+                components.GroupBy(x => x.Name)
+                          .Where(g => g.Count() >= 2)
+                          .ToArray();
+
+            if(componentsWithTheSameName.Length > 0)
+                throw new InvalidDataException("Found multiple declarations of components with the same name. The component object names must be unique! The problematic component(s): " + string.Join(",", componentsWithTheSameName.Select(x => x.Key)));
+
             ComponentTypes = components.ToDictionary(x => 
                 x.Name.EndsWith("component", true, CultureInfo.InvariantCulture) ? 
                     x.Name.Replace("component", string.Empty, true, CultureInfo.InvariantCulture) : 
@@ -55,7 +65,11 @@ namespace RoguelikeToolkit.Common.Entities
         private readonly EntityTemplateRepository _templateRepository;
         private readonly List<IEntityTransformer> _entityTransformers = new List<IEntityTransformer>();
 
-        public EntityFactory(EntityTemplateRepository templateRepository) => _templateRepository = templateRepository;
+        public EntityFactory(EntityTemplateRepository templateRepository)
+        {
+            _templateRepository = templateRepository;
+        }
+
         public ICollection<IEntityTransformer> EntityTransformers => _entityTransformers;
 
         public bool TryCreate(string templateId, World world, ref Entity entity)
