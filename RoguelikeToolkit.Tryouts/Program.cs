@@ -8,13 +8,7 @@ namespace RoguelikeToolkit.Tryouts
     {
         static void Main(string[] args)
         {
-            var templateRepository = new EntityTemplateRepository(".");
-            var entityFactory = new EntityFactory(templateRepository);
-            var world = new World();
-
-            var actorEntity = world.CreateEntity();
-
-            entityFactory.TryCreate("actor", world, ref actorEntity);
+         
         }
     }
 }

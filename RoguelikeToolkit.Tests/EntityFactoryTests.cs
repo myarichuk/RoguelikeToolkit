@@ -28,6 +28,8 @@ namespace RoguelikeToolkit.Tests
             Assert.Equal(10, attributesComponent.Strength);
             Assert.Equal("10", attributesComponent.Agility);
             Assert.Equal(10.5, attributesComponent.Intelligence);
+            Assert.Equal(12.34, attributesComponent.Endurance);
+            Assert.Equal(0, attributesComponent.NonExistingProperty);
         }
     }
 }

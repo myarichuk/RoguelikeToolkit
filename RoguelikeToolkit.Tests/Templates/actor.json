@@ -19,7 +19,8 @@
     "Attributes": {
       "Strength": 10,
       "Agility": 10,
-      "Intelligence": 10.5
+      "Intelligence": 10.5,
+      "Endurance":  "12.34" 
     }
   }
 }

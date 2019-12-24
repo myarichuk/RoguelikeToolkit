@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using DefaultEcs;
-using DefaultEcs.System;
 using FastMember;
 using RoguelikeToolkit.Common.EntityTemplates;
 
@@ -15,6 +15,8 @@ namespace RoguelikeToolkit.Common.Entities
     public class EntityFactory
     {
         private static readonly Dictionary<string, Type> ComponentTypes;
+
+        #region Reflection Stuff
         private static readonly Dictionary<Type, TypeAccessor> TypeAccessorCache = new Dictionary<Type, TypeAccessor>();
         private static readonly MethodInfo EntitySetMethodInfo;
         private static readonly Dictionary<Type, MethodInfo> EntitySetMethodCache = new Dictionary<Type, MethodInfo>();
@@ -48,13 +50,13 @@ namespace RoguelikeToolkit.Common.Entities
 
             EntitySetMethodInfo = typeof(Entity).GetMethod(nameof(Entity.Set));
         }
+        #endregion
 
         private readonly EntityTemplateRepository _templateRepository;
+        private readonly List<IEntityTransformer> _entityTransformers = new List<IEntityTransformer>();
 
-        public EntityFactory(EntityTemplateRepository templateRepository)
-        {
-            _templateRepository = templateRepository;
-        }
+        public EntityFactory(EntityTemplateRepository templateRepository) => _templateRepository = templateRepository;
+        public ICollection<IEntityTransformer> EntityTransformers => _entityTransformers;
 
         public bool TryCreate(string templateId, World world, ref Entity entity)
         {
@@ -68,6 +70,7 @@ namespace RoguelikeToolkit.Common.Entities
             void VisitTemplateHierarchy(EntityTemplate current, ref Entity parent)
             {
                 ApplyComponents(current, ref parent);
+                TransformIfRelevant(world, ref parent);
 
                 if (current.Children.Count <= 0) 
                     return;
@@ -84,6 +87,20 @@ namespace RoguelikeToolkit.Common.Entities
             }
 
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void TransformIfRelevant(World world, ref Entity entity)
+        {
+            if (EntityTransformers.Count <= 0) 
+                return;
+
+            for (var i = 0; i < _entityTransformers.Count; i++)
+            {
+                var transformer = _entityTransformers[i];
+                if(transformer.ShouldTransform(world, ref entity))
+                    transformer.Tranform(world, ref entity);
+            }
         }
 
         private static readonly object[] Parameters = new object[1];

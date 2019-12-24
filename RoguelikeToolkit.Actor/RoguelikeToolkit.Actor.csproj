@@ -8,4 +8,8 @@
     <PackageReference Include="DefaultEcs" Version="0.13.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RoguelikeToolkit.Common\RoguelikeToolkit.Common.csproj" />
+  </ItemGroup>
+
 </Project>
