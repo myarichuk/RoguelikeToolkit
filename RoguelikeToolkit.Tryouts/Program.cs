@@ -1,6 +1,4 @@
-﻿using DefaultEcs;
-using RoguelikeToolkit.Common.Entities;
-using RoguelikeToolkit.Common.EntityTemplates;
+﻿using RoguelikeToolkit.Entities;
 
 namespace RoguelikeToolkit.Tryouts
 {
@@ -8,7 +6,8 @@ namespace RoguelikeToolkit.Tryouts
     {
         static void Main(string[] args)
         {
-         
+            var templateContainer = new EntityTemplateContainer();
+            templateContainer.LoadTemplate("object.json");
         }
     }
 }
