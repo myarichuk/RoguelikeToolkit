@@ -12,10 +12,10 @@ object
 
 field
    :
-        COMPONENTS ':' '[' object (',' object)* ']'  #ComponentsField
-   |    INHERITS ':'  ('[' baseTemplates += STRING (',' baseTemplates += STRING)* ']' | '[' ']') #InheritsField
-   |    IDENTIFIER ':' id = STRING #IdentifierField
-   |    STRING ':' value #JsonField
+        key = COMPONENTS ':' '[' object (',' object)* ']'  #ComponentsField
+   |    key = INHERITS ':'  ('[' baseTemplates += STRING (',' baseTemplates += STRING)* ']' | '[' ']') #InheritsField
+   |    key = IDENTIFIER ':' id = STRING #IdentifierField
+   |    key = STRING ':' value #RegularField
    ;
 
 array

@@ -1,4 +1,4 @@
-using System;
+using System.Linq;
 using Antlr4.Runtime;
 using Xunit;
 
@@ -6,6 +6,82 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public class EntityTemplateParsingTests
     {
+        [Fact]
+        public void CanDetectDuplicateFieldsInDifferentContexts()
+        {
+            var template = @"
+            {
+              ""Id"": ""object"",
+              ""Inherits"": [],
+              ""Components"": [
+                { ""Health"": 100.0 },
+                { ""Inherits"": [""A""] }
+              ]
+            }
+            ";
+
+            var template2 = @"
+            {
+              ""Id"": ""object"",
+              ""Inherits"": [],
+              ""Components"": [
+                { ""Health"": 100.0, ""Health"": 100.0 },
+                { ""Inherits"": [""A""] }
+              ],
+              ""Id"": ""object""
+            }
+            ";
+
+            var lexer = new EntityTemplateLexer(new AntlrInputStream(template));
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
+
+            var validationVisitor = new EntityTemplateValidationVisitor();
+            var ast = parser.template();
+
+            Assert.True(validationVisitor.Visit(ast));
+
+            Assert.Empty(validationVisitor.DuplicateFields);
+            lexer.SetInputStream(new AntlrInputStream(template2));
+            parser.SetInputStream(new CommonTokenStream(lexer));
+            var ast2 = parser.template();
+            validationVisitor.Reset();
+            Assert.False(validationVisitor.Visit(ast2));
+            Assert.Equal(2, validationVisitor.DuplicateFields.Count());
+            Assert.Contains(validationVisitor.DuplicateFields, x => x == "Health" || x == "Id");
+        }
+
+        [Fact]
+        public void CanDetectDuplicateFields()
+        {
+            //template with duplicate fields
+            var template = @"
+            {
+              ""Inherits"": [],
+              ""Components"": [
+                { ""Health"": 100.0 },
+                { ""Weight"": 0.0 }
+              ],
+              ""Inherits"": [""A""]              
+            }
+            ";
+
+            var lexer = new EntityTemplateLexer(new AntlrInputStream(template));
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
+
+            var validationVisitor = new EntityTemplateValidationVisitor();
+            var ast = parser.template();
+
+            Assert.False(validationVisitor.Visit(ast));
+            Assert.Single(validationVisitor.DuplicateFields);
+            Assert.Contains(validationVisitor.DuplicateFields, x => x == "Inherits");
+        }
+
         [Fact]
         public void CanVerifyMandatoryFields()
         {
@@ -41,8 +117,10 @@ namespace RoguelikeToolkit.Entities.Tests
             ";
 
             var lexer = new EntityTemplateLexer(new AntlrInputStream(template1));
-            var parser = new EntityTemplateParser(new CommonTokenStream(lexer));
-            parser.ErrorHandler = new BailErrorStrategy();
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
             var validationVisitor = new EntityTemplateValidationVisitor();
             var ast1 = parser.template();
 
