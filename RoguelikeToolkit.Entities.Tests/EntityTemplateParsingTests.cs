@@ -12,11 +12,11 @@ namespace RoguelikeToolkit.Entities.Tests
             var template = @"
             {
               ""Id"": ""object"",
-              ""ChildEntity"": { ""Components"": [ { ""Health"": 100.0 } ] },
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Weight"": 0.0 }
-              ],
+              ""ChildEntity"": { ""Components"": { ""Health"": 100.0 } },
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Weight"": 0.5
+              },
               ""Inherits"": [""A""]              
             }
             ";
@@ -33,7 +33,14 @@ namespace RoguelikeToolkit.Entities.Tests
             var entityTemplate = parserVisitor.Visit(ast);
             
             Assert.True(entityTemplate.Children.ContainsKey("ChildEntity"));
+            Assert.Single(entityTemplate.Children["ChildEntity"].Components);
+            Assert.Equal(100.0, entityTemplate.Children["ChildEntity"].Components["Health"]);
+
+            Assert.Equal(2, entityTemplate.Components.Count);
+            Assert.Equal(100.0, entityTemplate.Components["Health"]);
+            Assert.Equal(0.5, entityTemplate.Components["Weight"]);
         }
+
         [Fact]
         public void CanDetectDuplicateFieldsInDifferentContexts()
         {
@@ -41,10 +48,10 @@ namespace RoguelikeToolkit.Entities.Tests
             {
               ""Id"": ""object"",
               ""Inherits"": [],
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Inherits"": [""A""] }
-              ]
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              }
             }
             ";
 
@@ -52,10 +59,10 @@ namespace RoguelikeToolkit.Entities.Tests
             {
               ""Id"": ""object"",
               ""Inherits"": [],
-              ""Components"": [
-                { ""Health"": 100.0, ""Health"": 100.0 },
-                { ""Inherits"": [""A""] }
-              ],
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              },
               ""Id"": ""object""
             }
             ";
@@ -88,10 +95,10 @@ namespace RoguelikeToolkit.Entities.Tests
             var template = @"
             {
               ""Inherits"": [],
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Weight"": 0.0 }
-              ],
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              },
               ""Inherits"": [""A""]              
             }
             ";
@@ -117,10 +124,10 @@ namespace RoguelikeToolkit.Entities.Tests
             var template = @"
             {
               ""Inherits"": [],
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Weight"": 0.0 }
-              ],
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              },
               ""Foo"": 100.0,
               ""FooBar"" : { ""Health"": 100.0 },
               ""Bar"": [""A""]              
@@ -149,10 +156,10 @@ namespace RoguelikeToolkit.Entities.Tests
             {
               ""Id"": ""object"",
               ""Inherits"": [],
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Weight"": 0.0 }
-              ]
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              }
             }
             ";
 
@@ -160,10 +167,10 @@ namespace RoguelikeToolkit.Entities.Tests
             var template2 = @"
             {
               ""Id"": ""object"",
-              ""Components"": [
-                { ""Health"": 100.0 },
-                { ""Weight"": 0.0 }
-              ]
+              ""Components"": {
+                ""Health"": 100.0,
+                ""Inherits"": [""A""]
+              }
             }
             ";
 

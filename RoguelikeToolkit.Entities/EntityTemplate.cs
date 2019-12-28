@@ -8,7 +8,7 @@ namespace RoguelikeToolkit.Entities
         public string Id { get; set; }
         public HashSet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, EntityTemplate> Children { get; set; } = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
-        public List<Dictionary<string, object>> Components { get; set; } = new List<Dictionary<string, object>>();
+        public Dictionary<string, object> Components { get; set; }
 
         #region IEquatable Implementation
 

@@ -24,37 +24,31 @@ namespace RoguelikeToolkit.Entities
 
         public override EntityTemplate VisitComponentsField(EntityTemplateParser.ComponentsFieldContext context)
         {
-            foreach (var component in context.@object())
-            {
-                var componentData = JsonSerializer.Deserialize<Dictionary<string,object>>(component.GetText());
-                DefaultResult.Components.Add(componentData);
-            }
+            var componentData = JsonSerializer.Deserialize<Dictionary<string,object>>(context.componentsObject.GetText());
+            DefaultResult.Components = componentData;
             return DefaultResult;
         }
 
         public override EntityTemplate VisitRegularField(EntityTemplateParser.RegularFieldContext context)
         {
             //we only care about entity template child objects, since they define entity hierarchy.
-            if (context.value().@object() != null)
-            {
-                var childParserVisitor = new EntityTemplateParserVisitor();
-                var childEntityTemplate = childParserVisitor.Visit(context.value().@object());
+            if (context.value().@object() == null)
+                throw new InvalidDataException(
+                    $"Expected from the field '{context.key.Text[1..^1]}' to be an object but it wasn't");
 
-                var childParserValidator = new EntityTemplateValidationVisitor();
-                childParserValidator.Visit(context.value().@object());
-                if (!childParserValidator.HasIdentifierField)
-                    childEntityTemplate.Id = context.key.Text[1..^1];
+            var childParserVisitor = new EntityTemplateParserVisitor();
+            var childEntityTemplate = childParserVisitor.Visit(context.value().@object());
 
-                if (!DefaultResult.Children.TryAdd(context.key.Text[1..^1], childEntityTemplate))
-                    throw new InvalidDataException(
-                        $"Found duplicate child entity template field. ('{context.key.Text[1..^1]}'). Did you execute template validation visitor?");
-            }
-            else
-            {
-                throw new InvalidDataException($"Expected from the field '{context.key.Text[1..^1]}' to be an object but it wasn't");
-            }
+            var childParserValidator = new EntityTemplateValidationVisitor();
+            childParserValidator.Visit(context.value().@object());
+            if (!childParserValidator.HasIdentifierField)
+                childEntityTemplate.Id = context.key.Text[1..^1];
 
-            return DefaultResult;
+            return !DefaultResult.Children.TryAdd(context.key.Text[1..^1], childEntityTemplate)
+                ? throw new InvalidDataException(
+                    $"Found duplicate child entity template field. ('{context.key.Text[1..^1]}'). Did you execute template validation visitor?")
+                : DefaultResult;
+
         }
 
         public override EntityTemplate VisitObject(EntityTemplateParser.ObjectContext context)

@@ -12,8 +12,8 @@ object
 
 field
    :
-        key = COMPONENTS ':' '[' object (',' object)* ']'  #ComponentsField
-   |    key = INHERITS ':'  ('[' baseTemplates += STRING (',' baseTemplates += STRING)* ']' | '[' ']') #InheritsField
+        key = COMPONENTS ':' componentsObject = object  #ComponentsField
+   |    key = INHERITS ':' ('[' baseTemplates += STRING (',' baseTemplates += STRING)* ']' | '[' ']') #InheritsField
    |    key = IDENTIFIER ':' id = STRING #IdentifierField
    |    key = STRING ':' value #RegularField
    ;
