@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Antlr4.Runtime;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -9,6 +10,20 @@ namespace RoguelikeToolkit.Entities
         public HashSet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, EntityTemplate> Children { get; set; } = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, object> Components { get; set; }
+
+        public static EntityTemplate Parse(string templateJson, IAntlrErrorStrategy errorStrategy = null)
+        {
+            var lexer = new EntityTemplateLexer(new AntlrInputStream(templateJson));
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = errorStrategy ?? new BailErrorStrategy()
+            };
+
+            var parserVisitor = new EntityTemplateParserVisitor();
+            var ast = parser.template();
+
+            return parserVisitor.Visit(ast);
+        }
 
         #region IEquatable Implementation
 

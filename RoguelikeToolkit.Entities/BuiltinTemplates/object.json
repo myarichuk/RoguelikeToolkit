@@ -1,0 +1,8 @@
+﻿{
+  "Id": "object",
+  "Inherits": [],
+  "Components": {
+    "Health": 100.0 ,
+    "Weight": 0.0 
+  }
+}

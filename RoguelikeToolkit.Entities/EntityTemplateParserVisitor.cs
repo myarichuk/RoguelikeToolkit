@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Utf8Json;
 
@@ -10,14 +11,14 @@ namespace RoguelikeToolkit.Entities
 
         public override EntityTemplate VisitIdentifierField(EntityTemplateParser.IdentifierFieldContext context)
         {
-            DefaultResult.Id = context.id.Text[1..^1]; //remove quotes from start and end of the token
+            DefaultResult.Id = context.id.Text.Trim(1,1); //remove quotes from start and end of the token
             return DefaultResult;
         }
 
         public override EntityTemplate VisitInheritsField(EntityTemplateParser.InheritsFieldContext context)
         {
             foreach (var inherited in context._baseTemplates)
-                DefaultResult.Inherits.Add(inherited.Text[1..^1]); //remove quotes as well
+                DefaultResult.Inherits.Add(inherited.Text.Trim(1,1)); //remove quotes as well
 
             return DefaultResult;
         }
@@ -34,7 +35,7 @@ namespace RoguelikeToolkit.Entities
             //we only care about entity template child objects, since they define entity hierarchy.
             if (context.value().@object() == null)
                 throw new InvalidDataException(
-                    $"Expected from the field '{context.key.Text[1..^1]}' to be an object but it wasn't");
+                    $"Expected from the field '{context.key.Text.Trim(1,1)}' to be an object but it wasn't");
 
             var childParserVisitor = new EntityTemplateParserVisitor();
             var childEntityTemplate = childParserVisitor.Visit(context.value().@object());
@@ -42,13 +43,19 @@ namespace RoguelikeToolkit.Entities
             var childParserValidator = new EntityTemplateValidationVisitor();
             childParserValidator.Visit(context.value().@object());
             if (!childParserValidator.HasIdentifierField)
-                childEntityTemplate.Id = context.key.Text[1..^1];
+                childEntityTemplate.Id = context.key.Text.Trim(1,1);
 
-            return !DefaultResult.Children.TryAdd(context.key.Text[1..^1], childEntityTemplate)
-                ? throw new InvalidDataException(
-                    $"Found duplicate child entity template field. ('{context.key.Text[1..^1]}'). Did you execute template validation visitor?")
-                : DefaultResult;
+            try
+            {
+                DefaultResult.Children.Add(context.key.Text.Trim(1, 1), childEntityTemplate);
+            }
+            catch (ArgumentException e)
+            {
+                throw new InvalidDataException(
+                    $"Found duplicate child entity template field. ('{context.key.Text.Trim(1, 1)}'). Did you execute template validation visitor?", e);
+            }
 
+            return DefaultResult;
         }
 
         public override EntityTemplate VisitObject(EntityTemplateParser.ObjectContext context)

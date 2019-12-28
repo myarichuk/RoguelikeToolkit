@@ -44,24 +44,24 @@ namespace RoguelikeToolkit.Entities
 
         public override bool VisitRegularField(EntityTemplateParser.RegularFieldContext context)
         {
-            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text[1..^1]}", existing => ++existing);
+            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Trim(1,1)}", existing => ++existing);
 
             if (context.value().@object() == null && _embeddedObjectContext.Count == 1)
-                _nonObjectFieldKeys.Add(context.key.Text[1..^1]);
+                _nonObjectFieldKeys.Add(context.key.Text.Trim(1,1));
 
             return base.VisitRegularField(context);
         }
 
         public override bool VisitIdentifierField(EntityTemplateParser.IdentifierFieldContext context)
         {
-            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text[1..^1]}", existing => ++existing);
+            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Trim(1,1)}", existing => ++existing);
             HasIdentifierField = true;
             return base.VisitIdentifierField(context);
         }
 
         public override bool VisitInheritsField(EntityTemplateParser.InheritsFieldContext context)
         {
-            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text[1..^1]}", existing => ++existing);
+            _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Trim(1,1)}", existing => ++existing);
             HasInheritsField = true;
             return base.VisitInheritsField(context);
         }

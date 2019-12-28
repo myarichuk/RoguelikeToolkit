@@ -6,8 +6,8 @@ namespace RoguelikeToolkit.Tryouts
     {
         static void Main(string[] args)
         {
-            var templateContainer = new EntityTemplateContainer();
-            templateContainer.LoadTemplate("object.json");
+            var templateCollection = new EntityTemplateCollection();
+            var entityFactory = new EntityFactory(templateCollection);
         }
     }
 }
