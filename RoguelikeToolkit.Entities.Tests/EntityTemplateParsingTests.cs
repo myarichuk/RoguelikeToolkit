@@ -7,6 +7,34 @@ namespace RoguelikeToolkit.Entities.Tests
     public class EntityTemplateParsingTests
     {
         [Fact]
+        public void CanParseTemplate()
+        {
+            var template = @"
+            {
+              ""Id"": ""object"",
+              ""ChildEntity"": { ""Components"": [ { ""Health"": 100.0 } ] },
+              ""Components"": [
+                { ""Health"": 100.0 },
+                { ""Weight"": 0.0 }
+              ],
+              ""Inherits"": [""A""]              
+            }
+            ";
+
+            var lexer = new EntityTemplateLexer(new AntlrInputStream(template));
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
+
+            var parserVisitor = new EntityTemplateParserVisitor();
+            var ast = parser.template();
+
+            var entityTemplate = parserVisitor.Visit(ast);
+            
+            Assert.True(entityTemplate.Children.ContainsKey("ChildEntity"));
+        }
+        [Fact]
         public void CanDetectDuplicateFieldsInDifferentContexts()
         {
             var template = @"
@@ -80,6 +108,37 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.False(validationVisitor.Visit(ast));
             Assert.Single(validationVisitor.DuplicateFields);
             Assert.Contains(validationVisitor.DuplicateFields, x => x == "Inherits");
+        }
+
+        [Fact]
+        public void CanDetectNonObjectNonMandatoryRootFields()
+        {
+            //template with duplicate fields
+            var template = @"
+            {
+              ""Inherits"": [],
+              ""Components"": [
+                { ""Health"": 100.0 },
+                { ""Weight"": 0.0 }
+              ],
+              ""Foo"": 100.0,
+              ""FooBar"" : { ""Health"": 100.0 },
+              ""Bar"": [""A""]              
+            }
+            ";
+
+            var lexer = new EntityTemplateLexer(new AntlrInputStream(template));
+            var parser = new EntityTemplateParser(new CommonTokenStream(lexer))
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
+
+            var validationVisitor = new EntityTemplateValidationVisitor();
+            var ast = parser.template();
+
+            Assert.False(validationVisitor.Visit(ast));
+            Assert.Equal(2, validationVisitor.NonObjectFieldKeys.Count());
+            Assert.Contains(validationVisitor.NonObjectFieldKeys, x => x == "Foo" || x == "Bar");
         }
 
         [Fact]
