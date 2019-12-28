@@ -6,6 +6,7 @@ namespace RoguelikeToolkit.Entities
 {
     public class EntityTemplate : IEquatable<EntityTemplate>
     {
+        private static readonly EntityTemplateValidatorVisitor ValidatorVisitor = new EntityTemplateValidatorVisitor();
         public string Id { get; set; }
         public HashSet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, EntityTemplate> Children { get; set; } = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
@@ -19,9 +20,13 @@ namespace RoguelikeToolkit.Entities
                 ErrorHandler = errorStrategy ?? new BailErrorStrategy()
             };
 
-            var parserVisitor = new EntityTemplateParserVisitor();
             var ast = parser.template();
 
+            ValidatorVisitor.Reset();
+            ValidatorVisitor.Visit(ast);
+            ValidatorVisitor.ThrowExceptionIfErrors();
+
+            var parserVisitor = new EntityTemplateParserVisitor();
             return parserVisitor.Visit(ast);
         }
 

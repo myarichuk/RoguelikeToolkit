@@ -40,7 +40,7 @@ namespace RoguelikeToolkit.Entities
             var childParserVisitor = new EntityTemplateParserVisitor();
             var childEntityTemplate = childParserVisitor.Visit(context.value().@object());
 
-            var childParserValidator = new EntityTemplateValidationVisitor();
+            var childParserValidator = new EntityTemplateValidatorVisitor();
             childParserValidator.Visit(context.value().@object());
             if (!childParserValidator.HasIdentifierField)
                 childEntityTemplate.Id = context.key.Text.Trim(1,1);

@@ -73,7 +73,7 @@ namespace RoguelikeToolkit.Entities.Tests
                 ErrorHandler = new BailErrorStrategy()
             };
 
-            var validationVisitor = new EntityTemplateValidationVisitor();
+            var validationVisitor = new EntityTemplateValidatorVisitor();
             var ast = parser.template();
 
             Assert.True(validationVisitor.Visit(ast));
@@ -109,7 +109,7 @@ namespace RoguelikeToolkit.Entities.Tests
                 ErrorHandler = new BailErrorStrategy()
             };
 
-            var validationVisitor = new EntityTemplateValidationVisitor();
+            var validationVisitor = new EntityTemplateValidatorVisitor();
             var ast = parser.template();
 
             Assert.False(validationVisitor.Visit(ast));
@@ -140,7 +140,7 @@ namespace RoguelikeToolkit.Entities.Tests
                 ErrorHandler = new BailErrorStrategy()
             };
 
-            var validationVisitor = new EntityTemplateValidationVisitor();
+            var validationVisitor = new EntityTemplateValidatorVisitor();
             var ast = parser.template();
 
             Assert.False(validationVisitor.Visit(ast));
@@ -187,7 +187,7 @@ namespace RoguelikeToolkit.Entities.Tests
             {
                 ErrorHandler = new BailErrorStrategy()
             };
-            var validationVisitor = new EntityTemplateValidationVisitor();
+            var validationVisitor = new EntityTemplateValidatorVisitor();
             var ast1 = parser.template();
 
             Assert.True(validationVisitor.Visit(ast1));

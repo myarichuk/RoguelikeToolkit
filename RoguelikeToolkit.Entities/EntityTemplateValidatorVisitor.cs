@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace RoguelikeToolkit.Entities
 {
-    public class EntityTemplateValidationVisitor : EntityTemplateBaseVisitor<bool>
+    public class EntityTemplateValidatorVisitor : EntityTemplateBaseVisitor<bool>
     {
         public bool HasComponentsField { get; set; }
         public bool HasInheritsField { get; set; }
@@ -23,6 +24,25 @@ namespace RoguelikeToolkit.Entities
             HasIdentifierField = false;
             HasInheritsField = false;
             _doubleFieldCount.Clear();
+        }
+
+        public void ThrowExceptionIfErrors()
+        {
+            void ThrowMissingFieldException(string field) =>                 
+                throw new InvalidDataException($"Expected for the template to have '{field}' field, but found none");
+
+            if(!HasComponentsField)
+                ThrowMissingFieldException(nameof(EntityTemplate.Components));
+            if(!HasIdentifierField)
+                ThrowMissingFieldException(nameof(EntityTemplate.Id));
+            if(!HasInheritsField)
+                ThrowMissingFieldException(nameof(EntityTemplate.Inherits));
+
+            if(_doubleFieldCount.Any(x => x.Value > 1))
+                throw new InvalidDataException($"Found one or more fields with duplicate names. Problematic fields: {string.Join(",",_doubleFieldCount.Keys)}");
+
+            if(_nonObjectFieldKeys.Count > 0)
+                throw new InvalidDataException($"Found one or more non-object fields in the root of the template object. Problematic fields: {string.Join(",",_nonObjectFieldKeys)}");
         }
 
         public IEnumerable<string> DuplicateFields => _doubleFieldCount.Where(x => x.Value > 1).Select(x => x.Key.Substring(x.Key.LastIndexOf('.') + 1));
