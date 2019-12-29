@@ -6,7 +6,7 @@ namespace RoguelikeToolkit.Tryouts
     {
         static void Main(string[] args)
         {
-            var templateCollection = new EntityTemplateCollection();
+            var templateCollection = new EntityTemplateCollection("Templates");
             var entityFactory = new EntityFactory(templateCollection);
         }
     }

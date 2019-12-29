@@ -10,7 +10,7 @@ namespace RoguelikeToolkit.Entities
     {
         private readonly Dictionary<string, EntityTemplate> _loadedTemplates = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
 
-        public EntityTemplateCollection()
+        public EntityTemplateCollection(params string[] templateFolders)
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
             var embeddedTemplateResourceNames = currentAssembly.GetManifestResourceNames().Where(n => n.EndsWith(".json"));
@@ -28,9 +28,15 @@ namespace RoguelikeToolkit.Entities
                                         throw new InvalidDataException($"Error loading embedded template '{embeddedResourceName}'. Expected for its ID to be non null, but it wasn't"), 
                                      template);
             }
+
+            foreach(var folder in templateFolders.Where(Directory.Exists))
+                foreach(var templateFilename in Directory.EnumerateFiles(folder, "*.json", SearchOption.AllDirectories))
+                    LoadTemplate(templateFilename);
         }
 
-        public void LoadTemplate(string filename)
+        public IReadOnlyDictionary<string, EntityTemplate> LoadedTemplates => _loadedTemplates;
+
+        private void LoadTemplate(string filename)
         {
             if(!File.Exists(filename))
                 throw new FileNotFoundException("Couldn't find template file.", filename);
@@ -43,6 +49,11 @@ namespace RoguelikeToolkit.Entities
             if(!_loadedTemplates.ContainsKey(template.Id))
                 _loadedTemplates.Add(template.Id, template);
             #endif
+        }
+
+        public void InitializeInheritChains()
+        {
+
         }
     }
 }

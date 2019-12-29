@@ -57,20 +57,5 @@ namespace RoguelikeToolkit.Entities
 
             return DefaultResult;
         }
-
-        public override EntityTemplate VisitObject(EntityTemplateParser.ObjectContext context)
-        {
-            return base.VisitObject(context);
-        }
-
-        public override EntityTemplate VisitField(EntityTemplateParser.FieldContext context)
-        {
-            return base.VisitField(context);
-        }
-
-        public override EntityTemplate VisitArray(EntityTemplateParser.ArrayContext context)
-        {
-            return base.VisitArray(context);
-        }
     }
 }

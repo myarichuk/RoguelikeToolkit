@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -51,10 +52,12 @@ namespace RoguelikeToolkit.Entities
 
         private static string DefaultComponentNameExtractor(Type componentType)
         {
+            string DefaultGetComponentName() => componentType.Name.Replace("Component", string.Empty);
+
             var componentAttribute = componentType.GetCustomAttribute<ComponentAttribute>();
             return componentAttribute != null ? 
-                componentAttribute.Name :
-                componentType.Name.Replace("Component", string.Empty);
+                componentAttribute.Name ?? DefaultGetComponentName() :
+                DefaultGetComponentName();
         }
     }
 }

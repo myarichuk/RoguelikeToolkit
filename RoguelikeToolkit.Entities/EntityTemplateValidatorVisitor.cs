@@ -51,7 +51,15 @@ namespace RoguelikeToolkit.Entities
 
         public override bool VisitObject(EntityTemplateParser.ObjectContext context)
         {
-            _embeddedObjectContext.Push($"obj{context.Depth()}");
+            string objectName = string.Empty;
+            var parent = context.parent;
+            if (parent is EntityTemplateParser.ValueContext valueContext)
+            {
+                var field = (dynamic)(EntityTemplateParser.FieldContext) valueContext.parent;
+                objectName = (string)field.key.Text;
+            }
+
+            _embeddedObjectContext.Push($"{objectName}{context.Depth()}");
             try
             {
                 return base.VisitObject(context);
