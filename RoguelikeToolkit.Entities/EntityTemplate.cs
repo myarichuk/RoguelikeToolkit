@@ -10,7 +10,7 @@ namespace RoguelikeToolkit.Entities
         public string Id { get; set; }
         public HashSet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, EntityTemplate> Children { get; set; } = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
-        public Dictionary<string, object> Components { get; set; }
+        public Dictionary<string, object> Components { get; set; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         public static EntityTemplate Parse(string templateJson, IAntlrErrorStrategy errorStrategy = null)
         {
