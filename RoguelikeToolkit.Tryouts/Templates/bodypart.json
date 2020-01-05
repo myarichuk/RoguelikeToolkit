@@ -2,6 +2,6 @@
   "Id": "bodypart",
   "Inherits": [ "object" ],
   "Components": {
-    "Dirt": 0.0 
+    "Dirt": 0.0
   }
 }

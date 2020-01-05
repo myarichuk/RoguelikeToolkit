@@ -33,54 +33,8 @@ namespace RoguelikeToolkit.Entities
                 foreach(var templateFilename in Directory.EnumerateFiles(folder, "*.json", SearchOption.AllDirectories))
                     LoadTemplate(templateFilename);
 
-            AddChildTemplatesToLoadedList();
-            foreach (var template in _loadedTemplates)
-                AddChildInheritedComponents(template.Value);
-        }
-
-        private void AddChildInheritedComponents(EntityTemplate template)
-        {
-            foreach(var child in template.Children)
-            {
-                AddInheritedComponents(child.Value);
-                AddChildInheritedComponents(child.Value);
-            }
-        }
-
-        private void AddInheritedComponents(EntityTemplate template)
-        {
-            foreach(var component in GetInheritedComponents(template))
-            {
-                if (template.Components.ContainsKey(component.Key))
-                    continue;
-                template.Components.Add(component.Key, component.Value);
-            }
-        }
-
-        private IEnumerable<KeyValuePair<string, object>> GetInheritedComponents(EntityTemplate template)
-        {
-            foreach(var inherited in template.Inherits)
-            {
-                if(_loadedTemplates.TryGetValue(inherited, out var inheritedTemplate))
-                {
-                    foreach (var c in inheritedTemplate.Components)
-                        yield return c;
-                    foreach (var inheritedC in GetInheritedComponents(inheritedTemplate))
-                        yield return inheritedC;
-                }
-            }
-        }
-
-        private void AddChildTemplatesToLoadedList()
-        {
-            foreach (var template in _loadedTemplates.ToDictionary(x => x.Key, x => x.Value))
-            {
-                foreach (var childTemplate in template.Value.Children)
-                {
-                    if (!_loadedTemplates.ContainsKey(childTemplate.Key))
-                        _loadedTemplates.Add(childTemplate.Key, childTemplate.Value);
-                }
-            }
+            foreach(var template in _loadedTemplates.OrderBy(x => x.Value.Inherits.Count))
+                InitializeInheritChains(template.Value);
         }
 
         public IReadOnlyDictionary<string, EntityTemplate> LoadedTemplates => _loadedTemplates;
@@ -100,5 +54,38 @@ namespace RoguelikeToolkit.Entities
             #endif
         }
 
+        public void InitializeInheritChains(EntityTemplate template)
+        {
+            foreach(var childTemplate in template.Children)
+                InitializeInheritChains(childTemplate.Value);
+
+            foreach (var inherits in template.Inherits)
+            {
+                if (!_loadedTemplates.TryGetValue(inherits, out var parentTemplate))
+                    continue;
+                InitializeInheritChains(parentTemplate);
+                ApplyInheritance(template, parentTemplate);
+            }
+        }
+
+        private void ApplyInheritance(EntityTemplate template, EntityTemplate parentTemplate)
+        {
+            foreach (var parentComponent in parentTemplate.Components)
+            {
+                //don't override existing components
+                if(template.Components.ContainsKey(parentComponent.Key))
+                    continue;
+
+                template.Components.Add(parentComponent.Key, parentComponent.Value);
+            }
+
+            foreach (var childrenTemplate in parentTemplate.Children)
+            {
+                if(template.Children.ContainsKey(childrenTemplate.Key))
+                    continue;
+
+                template.Children.Add(childrenTemplate.Key, childrenTemplate.Value);
+            }
+        }
     }
 }

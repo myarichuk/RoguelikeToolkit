@@ -1,14 +1,17 @@
 ﻿{
   "Id": "Actor",
-  "Body": {
-    "LeftArm": { "Inherits": [ "bodyPart" ] },
-    "RightArm": { "Inherits": [ "bodyPart" ] }
+  "LeftArm": {
+    "Inherits": [ "bodyPart" ],
+    "Components": { "Weight": 10.0 }
   },
-  "Inherits": [ "object" ],
+  "RightArm": {
+    "Inherits": [ "bodyPart" ],
+    "Components": { "Weight": 10.0 }
+  },
   "Components": {
     "Attributes": {
       "Strength": 5,
-      "Agility": 7 
-    } 
+      "Agility": 7
+    }
   }
 }
