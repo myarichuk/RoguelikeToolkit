@@ -13,7 +13,7 @@ namespace RoguelikeToolkit.Entities
         public class TemplateParseFailedInfo
         {
             public string TemplateFilePath { get; set; }
-            public InvalidDataException Exception { get; set; }
+            public Exception Exception { get; set; }
         }
 
         private readonly List<TemplateParseFailedInfo> _parsingFailures = new List<TemplateParseFailedInfo>();
@@ -59,13 +59,20 @@ namespace RoguelikeToolkit.Entities
                 var template = EntityTemplate.Parse(File.ReadAllText(filename));
 
 #if NETSTANDARD2_1
-            _loadedTemplates.TryAdd(template.Id, template);
+            if(!_loadedTemplates.TryAdd(template.Id, template))
+            {
+                throw new DuplicateTemplateException(template.Id, filename);
+            }
 #else
-                if (!_loadedTemplates.ContainsKey(template.Id))
-                    _loadedTemplates.Add(template.Id, template);
+            if (!_loadedTemplates.ContainsKey(template.Id))
+                _loadedTemplates.Add(template.Id, template);
+            else
+            {
+                throw new DuplicateTemplateException(template.Id, filename);
+            }
 #endif
             }
-            catch(InvalidDataException e)
+            catch (Exception e)
             {
                 _parsingFailures.Add(new TemplateParseFailedInfo
                 {

@@ -1,6 +1,7 @@
 ﻿using RoguelikeToolkit.Entities.BuiltinComponents;
 using System.Linq;
 using Xunit;
+using DefaultEcs;
 
 namespace RoguelikeToolkit.Entities.Tests
 {
@@ -35,7 +36,11 @@ namespace RoguelikeToolkit.Entities.Tests
         public void Can_build_complex_entity()
         {
             Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));
+            ValidateActorEntity(actorEntity);
+        }
 
+        private static void ValidateActorEntity(Entity actorEntity)
+        {
             Assert.True(actorEntity.Has<AttributesComponent>());
             Assert.Equal(5, actorEntity.Get<AttributesComponent>().Strength);
             Assert.Equal(7, actorEntity.Get<AttributesComponent>().Agility);
@@ -52,6 +57,13 @@ namespace RoguelikeToolkit.Entities.Tests
                 Assert.Equal(10.0, childEntity.Get<WeightComponent>().Value);
                 Assert.Equal(100.0, childEntity.Get<HealthComponent>().Value);
             }
+        }
+
+        [Fact]
+        public void Can_ignore_non_existing_component_fields()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor2", out var actorEntity));
+            ValidateActorEntity(actorEntity);
         }
     }
 }
