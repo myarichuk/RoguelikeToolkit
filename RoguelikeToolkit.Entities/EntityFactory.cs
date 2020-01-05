@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using AutoMapper;
 using DefaultEcs;
 using Utf8Json;
 
@@ -17,6 +18,11 @@ namespace RoguelikeToolkit.Entities
         private readonly EntityTemplateCollection _templateCollection;
         private readonly Dictionary<string, Type> _components;
         private static readonly MethodInfo EntitySetMethodInfo;
+
+        private readonly Mapper _mapper = new Mapper(new MapperConfiguration(cfg =>
+        {
+            cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
+        }));
 
         static EntityFactory()
         {
@@ -78,20 +84,14 @@ namespace RoguelikeToolkit.Entities
                     componentInstance = FormatterServices.GetUninitializedObject(componentType);
                     ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, ((dynamic) componentInstance).Value.GetType());
                 }
+                else if(component.Value is Dictionary<string, object> dict)
+                {
+                    componentInstance = FormatterServices.GetUninitializedObject(componentType);
+                    _mapper.Map(dict, componentInstance, typeof(Dictionary<string, object>), componentType);
+                }
                 else
                 {
-                    //TODO: consider refactoring this part for cases where type of field in template json mismatches the type defined in component class/struct
-                    //Ideally, this will try to convert between types (double can be converted to int for example) or ignore types that cannot be converted
-                    //(for now, if Attributes have "int" field but in JSON template its default is defined as "double", this part will throw InvalidDataException
-                    try
-                    {
-                        componentInstance = JsonSerializer.NonGeneric.Deserialize(componentType,
-                            JsonSerializer.Serialize(component.Value));
-                    }
-                    catch (JsonParsingException e)
-                    {
-                        throw new InvalidDataException($"Failed to instantiate component instance of type '{componentType.FullName}'. Perhaps field types of the component don't match the defaults defined in the template?", e);
-                    }
+                    throw new InvalidDataException($"Expected deserialized component to be of type Dictionary<string, object>, but it was of type '{componentType.FullName}' - this is probably a bug.");
                 }
                 var entitySetMethod = EntitySetMethodInfo.MakeGenericMethod(componentType);
                 entitySetMethod.Invoke(entity, new[] {componentInstance});

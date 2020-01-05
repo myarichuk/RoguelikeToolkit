@@ -1,7 +1,7 @@
-﻿using RoguelikeToolkit.Entities.BuiltinComponents;
+﻿using DefaultEcs;
+using RoguelikeToolkit.Entities.BuiltinComponents;
 using System.Linq;
 using Xunit;
-using DefaultEcs;
 
 namespace RoguelikeToolkit.Entities.Tests
 {
@@ -64,6 +64,27 @@ namespace RoguelikeToolkit.Entities.Tests
         {
             Assert.True(entityFactory.TryCreateEntity("actor2", out var actorEntity));
             ValidateActorEntity(actorEntity);
+        }
+
+
+        [Fact]
+        public void Can_convert_int_to_double_when_loading()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor3", out var actorEntity));
+            Assert.True(actorEntity.Has<Attributes2Component>());
+            Assert.Equal(5, actorEntity.Get<Attributes2Component>().Strength);
+            Assert.Equal(7, actorEntity.Get<Attributes2Component>().Agility);
+            Assert.Equal(10.0, actorEntity.Get<Attributes2Component>().Wisdom);
+        }
+
+        [Fact]
+        public void Can_convert_double_to_int_when_loading()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor4", out var actorEntity));
+            Assert.True(actorEntity.Has<Attributes3Component>());
+            Assert.Equal(5, actorEntity.Get<Attributes3Component>().Strength);
+            Assert.Equal(7, actorEntity.Get<Attributes3Component>().Agility);
+            Assert.Equal(10, actorEntity.Get<Attributes3Component>().Wisdom);
         }
     }
 }

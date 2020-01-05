@@ -58,19 +58,15 @@ namespace RoguelikeToolkit.Entities
             {
                 var template = EntityTemplate.Parse(File.ReadAllText(filename));
 
-#if NETSTANDARD2_1
-            if(!_loadedTemplates.TryAdd(template.Id, template))
-            {
-                throw new DuplicateTemplateException(template.Id, filename);
-            }
-#else
-            if (!_loadedTemplates.ContainsKey(template.Id))
-                _loadedTemplates.Add(template.Id, template);
-            else
-            {
-                throw new DuplicateTemplateException(template.Id, filename);
-            }
-#endif
+    #if NETSTANDARD2_1
+                if(!_loadedTemplates.TryAdd(template.Id, template))
+                    throw new DuplicateTemplateException(template.Id, filename);
+    #else
+                if (!_loadedTemplates.ContainsKey(template.Id))
+                    _loadedTemplates.Add(template.Id, template);
+                else
+                    throw new DuplicateTemplateException(template.Id, filename);
+    #endif
             }
             catch (Exception e)
             {
