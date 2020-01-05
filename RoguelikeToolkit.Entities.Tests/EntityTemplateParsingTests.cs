@@ -84,8 +84,8 @@ namespace RoguelikeToolkit.Entities.Tests
             var ast2 = parser.template();
             validationVisitor.Reset();
             Assert.False(validationVisitor.Visit(ast2));
-            Assert.Equal(2, validationVisitor.DuplicateFields.Count());
-            Assert.Contains(validationVisitor.DuplicateFields, x => x == "Health" || x == "Id");
+            Assert.Single(validationVisitor.DuplicateFields);
+            Assert.Contains(validationVisitor.DuplicateFields, x => x == "Id");
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void CanVerifyMandatoryFields()
         {
-            //with mandatory fields
+            //with mandatory fields present
             var template1 = @"
             {
               ""Id"": ""object"",

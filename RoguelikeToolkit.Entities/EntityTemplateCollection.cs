@@ -10,6 +10,14 @@ namespace RoguelikeToolkit.Entities
     {
         private readonly Dictionary<string, EntityTemplate> _loadedTemplates = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
 
+        public class EntityTemplateParsingFailedArgs : EventArgs
+        {
+            public string TemplateFilePath { get; set; }
+            public InvalidDataException Exception { get; set; }
+        }
+
+        public event EventHandler<EntityTemplateParsingFailedArgs> TemplateParseFailed;
+
         public EntityTemplateCollection(params string[] templateFolders)
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
@@ -44,14 +52,25 @@ namespace RoguelikeToolkit.Entities
             if(!File.Exists(filename))
                 throw new FileNotFoundException("Couldn't find template file.", filename);
 
-            var template = EntityTemplate.Parse(File.ReadAllText(filename));
+            try
+            {
+                var template = EntityTemplate.Parse(File.ReadAllText(filename));
 
-            #if NETSTANDARD2_1
+#if NETSTANDARD2_1
             _loadedTemplates.TryAdd(template.Id, template);
-            #else
-            if(!_loadedTemplates.ContainsKey(template.Id))
-                _loadedTemplates.Add(template.Id, template);
-            #endif
+#else
+                if (!_loadedTemplates.ContainsKey(template.Id))
+                    _loadedTemplates.Add(template.Id, template);
+#endif
+            }
+            catch(InvalidDataException e)
+            {
+                TemplateParseFailed?.Invoke(this, new EntityTemplateParsingFailedArgs
+                {
+                    Exception = e,
+                    TemplateFilePath = filename
+                });
+            }
         }
 
         public void InitializeInheritChains(EntityTemplate template)

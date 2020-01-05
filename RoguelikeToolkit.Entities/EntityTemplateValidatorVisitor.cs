@@ -18,6 +18,8 @@ namespace RoguelikeToolkit.Entities
         private readonly Stack<string> _embeddedObjectContext = new Stack<string>();
         private readonly Dictionary<string, int> _doubleFieldCount = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 
+        private string _rootObjectContext;
+
         public void Reset()
         {
             HasComponentsField = false;
@@ -59,6 +61,9 @@ namespace RoguelikeToolkit.Entities
                 objectName = (string)field.key.Text;
             }
 
+            if(_rootObjectContext == null)
+                _rootObjectContext = $"{objectName}{context.Depth()}";
+
             _embeddedObjectContext.Push($"{objectName}{context.Depth()}");
             try
             {
@@ -83,21 +88,24 @@ namespace RoguelikeToolkit.Entities
         public override bool VisitIdentifierField(EntityTemplateParser.IdentifierFieldContext context)
         {
             _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Trim(1,1)}", existing => ++existing);
-            HasIdentifierField = true;
+            if (_embeddedObjectContext.Peek() == _rootObjectContext)
+                HasIdentifierField = true;
             return base.VisitIdentifierField(context);
         }
 
         public override bool VisitInheritsField(EntityTemplateParser.InheritsFieldContext context)
         {
             _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Trim(1,1)}", existing => ++existing);
-            HasInheritsField = true;
+            if(_embeddedObjectContext.Peek() == _rootObjectContext)
+                HasInheritsField = true;
             return base.VisitInheritsField(context);
         }
 
         public override bool VisitComponentsField(EntityTemplateParser.ComponentsFieldContext context)
         {
             _doubleFieldCount.AddOrSet($"{string.Join(".",_embeddedObjectContext)}.{context.key.Text.Replace("\"",string.Empty)}", existing => ++existing);
-            HasComponentsField = true;
+            if (_embeddedObjectContext.Peek() == _rootObjectContext)
+                HasComponentsField = true;
             return base.VisitComponentsField(context);
         }
 
