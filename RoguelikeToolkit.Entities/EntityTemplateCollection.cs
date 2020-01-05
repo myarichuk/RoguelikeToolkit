@@ -10,13 +10,15 @@ namespace RoguelikeToolkit.Entities
     {
         private readonly Dictionary<string, EntityTemplate> _loadedTemplates = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
 
-        public class EntityTemplateParsingFailedArgs : EventArgs
+        public class TemplateParseFailedInfo
         {
             public string TemplateFilePath { get; set; }
             public InvalidDataException Exception { get; set; }
         }
 
-        public event EventHandler<EntityTemplateParsingFailedArgs> TemplateParseFailed;
+        private readonly List<TemplateParseFailedInfo> _parsingFailures = new List<TemplateParseFailedInfo>();
+
+        public IReadOnlyList<TemplateParseFailedInfo> TemplatesFailedToParse => _parsingFailures;
 
         public EntityTemplateCollection(params string[] templateFolders)
         {
@@ -65,7 +67,7 @@ namespace RoguelikeToolkit.Entities
             }
             catch(InvalidDataException e)
             {
-                TemplateParseFailed?.Invoke(this, new EntityTemplateParsingFailedArgs
+                _parsingFailures.Add(new TemplateParseFailedInfo
                 {
                     Exception = e,
                     TemplateFilePath = filename

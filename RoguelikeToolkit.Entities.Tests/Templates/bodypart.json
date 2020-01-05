@@ -1,0 +1,7 @@
+﻿{
+  "Id": "bodypart",
+  "Inherits": [ "object" ],
+  "Components": {
+    "Dirt": 0.0
+  }
+}
