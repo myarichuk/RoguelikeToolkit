@@ -1,7 +1,7 @@
 # The What
 This is a loosely coupled collection of tool libs I wrote to myself for a roguelike I hopefully will finish in the future. 
 
-## RoguelikeToolkit Entities
+## RoguelikeToolkit.Entities
 This is a library to allow resolve entity templates for Entity Component System in a similar way [Ultimate Adom](https://www.ultimate-adom.com/index.php/2018/10/25/making-ultimate-adom-moddable-by-using-entity-component-systems/) is doing.
 Supports entity template inheritance and creation of entity hierarchies.  
 At the moment hardcoded support for the awesome [DefaultEcs](https://github.com/Doraku/DefaultEcs) but it can be converted to support other systems.
