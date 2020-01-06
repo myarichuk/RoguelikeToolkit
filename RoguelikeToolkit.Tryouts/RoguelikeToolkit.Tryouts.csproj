@@ -18,6 +18,9 @@
     <None Update="hand.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Templates\actor2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Templates\actor.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Antlr4.Runtime;
 
 namespace RoguelikeToolkit.Entities
@@ -24,8 +25,15 @@ namespace RoguelikeToolkit.Entities
 
             ValidatorVisitor.Reset();
             ValidatorVisitor.Visit(ast);
-            ValidatorVisitor.ThrowExceptionIfErrors();
 
+            try
+            {
+                ValidatorVisitor.ThrowExceptionIfErrors();
+            }
+            catch(Exception e)
+            {
+                throw new InvalidDataException($"Tried to parse template from json: '{templateJson}' but failed. See inner exception for details", e);
+            }
             var parserVisitor = new EntityTemplateParserVisitor();
             return parserVisitor.Visit(ast);
         }

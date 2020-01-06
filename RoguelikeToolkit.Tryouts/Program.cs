@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using DefaultEcs;
+﻿using DefaultEcs;
 using RoguelikeToolkit.Entities;
 
 namespace RoguelikeToolkit.Tryouts

@@ -10,6 +10,16 @@ namespace RoguelikeToolkit.Entities
     {
         private readonly Dictionary<string, EntityTemplate> _loadedTemplates = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
 
+        public class TemplateParseFailedInfo
+        {
+            public string TemplateFilePath { get; set; }
+            public Exception Exception { get; set; }
+        }
+
+        private readonly List<TemplateParseFailedInfo> _parsingFailures = new List<TemplateParseFailedInfo>();
+
+        public IReadOnlyList<TemplateParseFailedInfo> TemplatesFailedToParse => _parsingFailures;
+
         public EntityTemplateCollection(params string[] templateFolders)
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
@@ -44,14 +54,28 @@ namespace RoguelikeToolkit.Entities
             if(!File.Exists(filename))
                 throw new FileNotFoundException("Couldn't find template file.", filename);
 
-            var template = EntityTemplate.Parse(File.ReadAllText(filename));
+            try
+            {
+                var template = EntityTemplate.Parse(File.ReadAllText(filename));
 
-            #if NETSTANDARD2_1
-            _loadedTemplates.TryAdd(template.Id, template);
-            #else
-            if(!_loadedTemplates.ContainsKey(template.Id))
-                _loadedTemplates.Add(template.Id, template);
-            #endif
+    #if NETSTANDARD2_1
+                if(!_loadedTemplates.TryAdd(template.Id, template))
+                    throw new DuplicateTemplateException(template.Id, filename);
+    #else
+                if (!_loadedTemplates.ContainsKey(template.Id))
+                    _loadedTemplates.Add(template.Id, template);
+                else
+                    throw new DuplicateTemplateException(template.Id, filename);
+    #endif
+            }
+            catch (Exception e)
+            {
+                _parsingFailures.Add(new TemplateParseFailedInfo
+                {
+                    Exception = e,
+                    TemplateFilePath = filename
+                });
+            }
         }
 
         public void InitializeInheritChains(EntityTemplate template)

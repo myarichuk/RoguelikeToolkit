@@ -3,6 +3,6 @@
   "Inherits": [],
   "Components": {
     "Health": 100.0 ,
-    "Weight": 0.0 
+    "Weight": 1.0 
   }
 }
