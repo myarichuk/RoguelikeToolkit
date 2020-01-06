@@ -3,10 +3,23 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8</LangVersion>
+    <Authors>Michael Yarichuk</Authors>
+    <Description>A library to handle Adom Ultimate style templates for game entities. Designed to create DefaultEcs entities from JSON templates.</Description>
+    <Copyright>Michael Yarichuk</Copyright>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/myarichuk/RoguelikeToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/myarichuk/RoguelikeToolkit</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageTags>ecs, entity template, roguelike</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="BuiltinTemplates\object.json" />
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
