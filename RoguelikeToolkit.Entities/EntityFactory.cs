@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -79,7 +80,12 @@ namespace RoguelikeToolkit.Entities
                 if (componentType.GetInterfaces().Any(@interface => @interface.Name.StartsWith("IValueComponent")))
                 {
                     componentInstance = FormatterServices.GetUninitializedObject(componentType);
-                    ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, componentType);
+                    var propInfo = componentType.GetProperty("Value");
+                    if(propInfo == null)
+                        throw new InvalidOperationException($"Tried to get Value property from {componentType.Name} but failed. This is not something that is supposed to happen and should be reported in the Github repo as an issue.");
+
+                    var propertyType = propInfo.PropertyType;
+                    ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, propertyType);
                 }
                 else if(component.Value is Dictionary<string, object> dict)
                 {
