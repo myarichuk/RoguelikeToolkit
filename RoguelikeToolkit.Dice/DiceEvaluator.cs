@@ -4,7 +4,7 @@ using Antlr4.Runtime.Tree;
 
 namespace RoguelikeToolkit.DiceExpression
 {
-    public unsafe class DiceEvaluator : DiceBaseVisitor<int>
+    public class DiceEvaluator : DiceBaseVisitor<int>
     {
         protected override int AggregateResult(int aggregate, int nextResult) => aggregate + nextResult;
 
