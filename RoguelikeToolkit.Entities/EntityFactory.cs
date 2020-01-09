@@ -79,7 +79,7 @@ namespace RoguelikeToolkit.Entities
                 if (componentType.GetInterfaces().Any(@interface => @interface.Name.StartsWith("IValueComponent")))
                 {
                     componentInstance = FormatterServices.GetUninitializedObject(componentType);
-                    ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, ((dynamic) componentInstance).Value.GetType());
+                    ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, componentType);
                 }
                 else if(component.Value is Dictionary<string, object> dict)
                 {
