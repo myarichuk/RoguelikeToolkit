@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -85,7 +86,22 @@ namespace RoguelikeToolkit.Entities
                         throw new InvalidOperationException($"Tried to get Value property from {componentType.Name} but failed. This is not something that is supposed to happen and should be reported in the Github repo as an issue.");
 
                     var propertyType = propInfo.PropertyType;
-                    ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value, propertyType);
+                    if (propertyType.IsClass)
+                    {
+                        dynamic dest = Activator.CreateInstance(propertyType);
+                        if(!(component.Value is Dictionary<string, object> dict))
+                            throw new InvalidDataException(
+                                $"Expected deserialized component to be of type Dictionary<string, object>, but it was of type '{componentType.FullName}' - this is probably a bug.");
+
+                        _mapper.Map(dict,dest, typeof(Dictionary<string, object>), propertyType);
+                        ((dynamic) componentInstance).Value = Convert.ChangeType(dest, propertyType);
+                    }
+                    else
+                    {
+                        componentInstance = FormatterServices.GetUninitializedObject(componentType);
+                        ((dynamic) componentInstance).Value = Convert.ChangeType(component.Value,
+                            ((dynamic) componentInstance).Value.GetType());
+                    }
                 }
                 else if(component.Value is Dictionary<string, object> dict)
                 {

@@ -33,6 +33,16 @@ namespace RoguelikeToolkit.Entities.Tests
         }
 
         [Fact]
+        public void Can_build_value_component_with_dictionary_as_value()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor5", out var actorEntity));
+            var valueComponent = actorEntity.Get<AttributesAsValueTypeComponent>();
+            Assert.Equal(1,valueComponent.Value["Foo"]);
+            Assert.Equal(2,valueComponent.Value["Bar"]);
+            Assert.Equal(123,valueComponent.Value["Baz"]);
+        }
+
+        [Fact]
         public void Can_build_complex_entity()
         {
             Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));

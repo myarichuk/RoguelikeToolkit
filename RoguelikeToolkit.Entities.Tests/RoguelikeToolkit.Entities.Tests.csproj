@@ -24,6 +24,9 @@
     <None Update="Templates\actor.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Templates\actor5.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Templates\actor4.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
