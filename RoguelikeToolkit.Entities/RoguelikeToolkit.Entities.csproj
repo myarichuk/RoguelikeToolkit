@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/myarichuk/RoguelikeToolkit</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>ecs, entity template, roguelike</PackageTags>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
