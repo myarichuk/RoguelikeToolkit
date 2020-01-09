@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Runtime.CompilerServices;
 using Antlr4.Runtime;
 
 // ReSharper disable once IdentifierTypo
@@ -21,12 +22,15 @@ namespace RoguelikeToolkit.DiceExpression
 
         internal Dice(DiceParser.RootContext diceAst) => _diceAst = diceAst;
 
+        //relevant for resolving as a component of RoguelikeToolkit.Entities
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Dice(string diceExpression) => Parse(diceExpression);
+
         public static Dice Parse(string diceExpression)
         {
             Lexer.SetInputStream(new AntlrInputStream(diceExpression));
             Parser.SetInputStream(new CommonTokenStream(Lexer));
-            
-            
+
             var diceAst = Parser.root();
             return new Dice(diceAst);
         }

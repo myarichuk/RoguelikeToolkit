@@ -1,5 +1,6 @@
 ﻿{
-  "Id": "Actor",
+  "Id": "Actor2",
+  "Inherits": [],
   "LeftArm": {
     "Inherits": [ "bodyPart" ],
     "Components": { "Weight": 10.0 }
@@ -9,6 +10,10 @@
     "Components": { "Weight": 10.0 }
   },
   "Components": {
+    "Foobar": {
+      "Dice1": "2d6",
+      "Dice2": "2d4 + 5"
+    },
     "Attributes": {
       "Strength": 5,
       "Agility": 7,
