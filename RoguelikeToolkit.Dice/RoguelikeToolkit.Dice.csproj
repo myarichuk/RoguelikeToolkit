@@ -11,6 +11,8 @@
     <RepositoryUrl>https://github.com/myarichuk/rogueliketoolkit</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>dicenotation, dice, dice notation, roguelike, rogueliketoolkit</PackageTags>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,7 +29,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
-    <PackageReference Include="Troschuetz.Random" Version="4.3.1" />
+    <PackageReference Include="Troschuetz.Random" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

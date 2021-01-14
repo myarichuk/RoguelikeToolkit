@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Michael Yarichuk</Authors>
+    <Company>Michael Yarichuk</Company>
+    <Description>A library containing tools to run C# scripts on DefaultEcs entities or their components - this can be useful to implement data-driven games with external interaction scripts</Description>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/myarichuk/rogueliketoolkit</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageTags>scripts, scripting, data-driven, data driven, roguelike, rogueliketoolkit</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DefaultEcs" Version="0.14.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RoguelikeToolkit.Dice\RoguelikeToolkit.Dice.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

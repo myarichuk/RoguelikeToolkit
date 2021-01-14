@@ -1,11 +1,10 @@
 ﻿using RoguelikeToolkit.DiceExpression;
 
-namespace RoguelikeToolkit.Tryouts
+namespace RoguelikeToolkit
 {
-    public class FoobarComponent
+    public class TestComponent
     {
         public Dice Dice1;
-        public Dice Dice2;
 
         public int RollResult;
     }
