@@ -14,7 +14,7 @@ namespace RoguelikeToolkit.Scripts
             _compiledScript = ScriptFactory.CreateCompiled<EntityParam>(actionScript);
 
         public Task RunAsyncOn(Entity entity, CancellationToken? ct = null) =>
-            //TODO: object pool creation  of ActionParams to conserve GC (no need to new-it-up it each time...)
+            //TODO: object pool creation of ActionParams to conserve GC (no need to new-it-up it each time...)
             _compiledScript.RunAsync(new EntityParam
             {
                 entity = entity
