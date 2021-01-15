@@ -1,24 +1,40 @@
 ﻿using DefaultEcs;
-using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.Extensions.ObjectPool;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace RoguelikeToolkit.Scripts
 {
-    public class EntityComponentScript
+    public class EntityComponentScript : EntityScript<ComponentParam>
     {
-        private readonly Script<object> _compiledScript;
-        public EntityComponentScript(string actionScript) =>
-            _compiledScript = ScriptFactory.CreateCompiled<ComponentParam>(actionScript);
+        private readonly static ObjectPool<ComponentParam> ParamPool = new DefaultObjectPool<ComponentParam>(new DefaultPooledObjectPolicy<ComponentParam>());
+
+        public EntityComponentScript(string actionScript) : base(actionScript)
+        {
+        }
 
         public Task RunAsyncOn<TComponent>(in Entity entity, CancellationToken? ct = null)
         {
-            var component = entity.Get<TComponent>();
-            //TODO: object pool creation  of ComponentParam to conserve GC (no need to new-it-up it each time...)
-            return _compiledScript.RunAsync(new ComponentParam
+            if (!entity.Has<TComponent>())
+                return Task.CompletedTask;
+
+            ComponentParam param = null;
+            try
             {
-                component = component
-            }, ct ?? CancellationToken.None);
+                var component = entity.Get<TComponent>();
+                param = ParamPool.Get();
+                param.component = component;
+
+                return _compiledScript.RunAsync(param, ct ?? CancellationToken.None);
+            }
+            finally
+            {
+                if (param != null)
+                {
+                    param.component = default;
+                    ParamPool.Return(param);
+                }
+            }
         }
     }
 }

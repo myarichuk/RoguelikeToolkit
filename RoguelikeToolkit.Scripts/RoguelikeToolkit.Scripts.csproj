@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="DefaultEcs" Version="0.14.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.8.0" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
