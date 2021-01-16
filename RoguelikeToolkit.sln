@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Scripts", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{61267C72-6B79-4451-B189-8B5B0CE82F32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Scripts.Tests", "RoguelikeToolkit.Scripts.Tests\RoguelikeToolkit.Scripts.Tests.csproj", "{1F2ED674-071B-4B83-A78F-D178DB2C1662}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Scripts.Tests", "RoguelikeToolkit.Scripts.Tests\RoguelikeToolkit.Scripts.Tests.csproj", "{1F2ED674-071B-4B83-A78F-D178DB2C1662}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

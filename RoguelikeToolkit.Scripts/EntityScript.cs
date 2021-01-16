@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.ObjectPool;
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,8 +13,8 @@ namespace RoguelikeToolkit.Scripts
     {
         protected readonly Script<object> _compiledScript;
 
-        public EntityScript(string actionScript) =>
-            _compiledScript = ScriptFactory.CreateCompiled<TScriptParam>(actionScript);
+        public EntityScript(string actionScript, params Assembly[] referenceAssemblies) =>
+            _compiledScript = ScriptFactory.CreateCompiled<TScriptParam>(actionScript, referenceAssemblies);
         public Task RunAsyncOn(in Entity entity, Func<Entity, TScriptParam> paramFactory, CancellationToken? ct = null) =>
             _compiledScript.RunAsync(paramFactory(entity), ct ?? CancellationToken.None);
     }
@@ -22,7 +23,7 @@ namespace RoguelikeToolkit.Scripts
     {
         private readonly static ObjectPool<EntityParam> ParamPool = new DefaultObjectPool<EntityParam>(new DefaultPooledObjectPolicy<EntityParam>());
 
-        public EntityScript(string actionScript) : base(actionScript)
+        public EntityScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
         {
         }
 

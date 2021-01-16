@@ -2,6 +2,7 @@
 using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace RoguelikeToolkit.Scripts
     {
         private readonly static ObjectPool<EntityInteractionParam> ParamPool = new DefaultObjectPool<EntityInteractionParam>(new DefaultPooledObjectPolicy<EntityInteractionParam>());
 
-        public EntityInteractionScript(string actionScript) : base(actionScript)
+        public EntityInteractionScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
         {
         }
 

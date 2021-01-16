@@ -1,5 +1,6 @@
 ﻿using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace RoguelikeToolkit.Scripts
     {
         private readonly static ObjectPool<ComponentParam> ParamPool = new DefaultObjectPool<ComponentParam>(new DefaultPooledObjectPolicy<ComponentParam>());
 
-        public EntityComponentScript(string actionScript) : base(actionScript)
+        public EntityComponentScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
         {
         }
 

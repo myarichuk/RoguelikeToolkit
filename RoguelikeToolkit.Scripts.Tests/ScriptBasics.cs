@@ -1,7 +1,6 @@
 using DefaultEcs;
 using RoguelikeToolkit.DiceExpression;
-using System;
-using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -28,7 +27,7 @@ namespace RoguelikeToolkit.Scripts.Tests
                                 var c = entity.Get<TestComponent>();
                                 c.RollResult = c.Dice1.Roll();
                             }
-                        ");
+                        ", Assembly.GetExecutingAssembly());
 
             await changeScript.RunAsyncOn(entity);
 
@@ -46,7 +45,7 @@ namespace RoguelikeToolkit.Scripts.Tests
             //sanity
             Assert.Equal(0, c.RollResult);
 
-            var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
+            var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();", Assembly.GetExecutingAssembly());
             await changeScript.RunAsyncOn<TestComponent>(entity);
 
             Assert.NotEqual(0, c.RollResult);
@@ -68,7 +67,7 @@ namespace RoguelikeToolkit.Scripts.Tests
 
                     sourceHealth.Health += 50;
                     targetHealth.Health -= 50;
-                ");
+                ", Assembly.GetExecutingAssembly());
 
             await healthStealSpell.RunAsyncOn(caster, target);
 
