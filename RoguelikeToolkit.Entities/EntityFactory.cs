@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,7 +24,7 @@ namespace RoguelikeToolkit.Entities
         static EntityFactory()
         {
             var entityType = typeof(Entity);
-            EntitySetMethodInfo = entityType.GetMethod("Set", BindingFlags.Instance | BindingFlags.Public);
+             EntitySetMethodInfo = entityType.GetMethod("Set", BindingFlags.Instance | BindingFlags.Public);
         }
 
         public Func<Type, string> ComponentNameExtractor { get; set; }
@@ -69,8 +67,10 @@ namespace RoguelikeToolkit.Entities
         //TODO: think of generic interface to build ECS entity from the template-instantiated data
         private void InstantiateTemplate(EntityTemplate template, Entity entity, Entity? parentEntity)
         {
-            if (parentEntity.HasValue) 
+            if (parentEntity.HasValue)
+            {
                 entity.SetAsChildOf(parentEntity.Value);
+            }
 
             foreach (var component in template.Components)
             {
@@ -140,7 +140,7 @@ namespace RoguelikeToolkit.Entities
             string DefaultGetComponentName() => componentType.Name.Replace("Component", string.Empty);
 
             var componentAttribute = componentType.GetCustomAttribute<ComponentAttribute>();
-            return componentAttribute != null ? 
+            return componentAttribute != null ?
                 componentAttribute.Name ?? DefaultGetComponentName() :
                 DefaultGetComponentName();
         }
