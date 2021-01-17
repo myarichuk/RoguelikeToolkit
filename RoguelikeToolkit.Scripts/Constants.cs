@@ -1,5 +1,4 @@
 ﻿using DefaultEcs;
-using RoguelikeToolkit.DiceExpression;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -13,8 +12,7 @@ namespace RoguelikeToolkit.Scripts
                 Assembly.GetCallingAssembly(),
                 Assembly.GetEntryAssembly(),
                 typeof(Entity).Assembly,
-                typeof(IEnumerable<>).Assembly,
-                typeof(Dice).Assembly
+                typeof(IEnumerable<>).Assembly
            };
     }
 }
