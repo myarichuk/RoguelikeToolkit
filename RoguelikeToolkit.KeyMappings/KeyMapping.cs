@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace RoguelikeToolkit.KeyboardActions
@@ -36,14 +37,14 @@ namespace RoguelikeToolkit.KeyboardActions
 
         public static KeyMapping<KeyEnum, ActionEnum> FromJson(string json)
         {
-            var loadedDict = JsonSerializer.Deserialize<IDictionary<KeyEnum, ActionEnum>>(json, _serializerOptions);
-            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict);
+            var loadedDict = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<KeyEnum, ActionEnum>>>(json, _serializerOptions);
+            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict.ToDictionary(x => x.Key, x => x.Value));
         }
 
         public static KeyMapping<KeyEnum, ActionEnum> FromBytes(in ReadOnlySpan<byte> jsonBytes)
         {
-            var loadedDict = JsonSerializer.Deserialize<IDictionary<KeyEnum, ActionEnum>>(jsonBytes, _serializerOptions);
-            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict);
+            var loadedDict = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<KeyEnum, ActionEnum>>>(jsonBytes, _serializerOptions);
+            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict.ToDictionary(x => x.Key, x => x.Value));
         }
     }
 }

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DefaultEcs;
 using RoguelikeToolkit.DiceExpression;
@@ -7,10 +10,25 @@ using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Tryouts
 {
+    public enum ActionList
+    {
+        Left,
+        Right
+    }
+
     class Program
     {
+
+        public static Dictionary<ConsoleKey, ActionList> KeyMappings = new Dictionary<ConsoleKey, ActionList>
+        {
+            { ConsoleKey.LeftArrow, ActionList.Left },
+            { ConsoleKey.RightArrow, ActionList.Right }
+        };
+
         static async Task Main(string[] args)
         {
+            var json = JsonSerializer.Serialize(KeyMappings.ToArray());
+
             //while (true)
             //{
             //    var dice = Dice.Parse(Console.ReadLine());
