@@ -4,19 +4,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace RoguelikeToolkit.KeyboardActions
+namespace RoguelikeToolkit.KeyMapping
 {
     public class KeyMapping<KeyEnum, ActionEnum>
         where KeyEnum : Enum
         where ActionEnum : Enum
     {
         private readonly ConcurrentDictionary<KeyEnum, ActionEnum> _keymap;
-        private readonly static JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
+        private readonly static JsonSerializerOptions _serializerOptions;
+
+        static KeyMapping()
         {
-            AllowTrailingCommas = true,
-            PropertyNameCaseInsensitive = true
-        };
+            _serializerOptions = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                PropertyNameCaseInsensitive = true
+            };
+
+            _serializerOptions.Converters.Add(new JsonStringEnumConverter());
+        }
 
         internal KeyMapping(IDictionary<KeyEnum, ActionEnum> keymap) =>
             _keymap = new ConcurrentDictionary<KeyEnum, ActionEnum>(keymap) ?? new ConcurrentDictionary<KeyEnum, ActionEnum>();

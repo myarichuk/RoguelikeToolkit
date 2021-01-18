@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DefaultEcs;
 using RoguelikeToolkit.DiceExpression;
@@ -27,8 +28,11 @@ namespace RoguelikeToolkit.Tryouts
 
         static async Task Main(string[] args)
         {
-            var json = JsonSerializer.Serialize(KeyMappings.ToArray());
+            var jsonSerializerOptions = new JsonSerializerOptions();
+            jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 
+            var json = JsonSerializer.Serialize(KeyMappings.ToArray(), jsonSerializerOptions);
+            var col = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<ConsoleKey, ActionList>>>(json, jsonSerializerOptions);
             //while (true)
             //{
             //    var dice = Dice.Parse(Console.ReadLine());
