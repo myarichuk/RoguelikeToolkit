@@ -12,7 +12,7 @@ namespace RoguelikeToolkit.KeyMapping
         where KeyEnum : Enum
         where ActionEnum : Enum
     {
-        private readonly ConcurrentDictionary<KeyEnum, ActionEnum> _keymap;
+        private readonly ConcurrentDictionary<KeyCombination<KeyEnum>, ActionEnum> _keymap;
         private readonly static JsonSerializerOptions _serializerOptions;
 
         static KeyMapping()
@@ -26,14 +26,26 @@ namespace RoguelikeToolkit.KeyMapping
             _serializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
-        internal KeyMapping(IDictionary<KeyEnum, ActionEnum> keymap) =>
-            _keymap = new ConcurrentDictionary<KeyEnum, ActionEnum>(keymap) ?? new ConcurrentDictionary<KeyEnum, ActionEnum>();
+        public bool TrySetKeyAction(string id, ActionEnum action)
+        {
+            var key = _keymap.FirstOrDefault(x => x.Key.Id.Equals(id, StringComparison.InvariantCultureIgnoreCase)).Key;
+            if (key == null)
+                return false;
 
-        public void SetKeyAction(KeyEnum key, ActionEnum action) =>
             _keymap.AddOrUpdate(key, action, (existingKey, _) => action);
+            return true;
+        }
 
-        public bool TryGetActionFor(KeyEnum key, out ActionEnum action) =>
-            _keymap.TryGetValue(key, out action);
+        public bool TryGetActionFor(string id, out ActionEnum action)
+        {
+            action = default;
+            var kvp = _keymap.FirstOrDefault(x => x.Key.Id.Equals(id, StringComparison.InvariantCultureIgnoreCase));
+            if (kvp.Key == null)
+                return false;
+
+            action = kvp.Value;
+            return true;
+        }
 
         public static KeyMapping<KeyEnum, ActionEnum> FromFile(string filename)
         {
@@ -43,16 +55,10 @@ namespace RoguelikeToolkit.KeyMapping
             return FromJson(File.ReadAllText(filename));
         }
 
-        public static KeyMapping<KeyEnum, ActionEnum> FromJson(string json)
-        {
-            var loadedDict = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<KeyEnum, ActionEnum>>>(json, _serializerOptions);
-            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict.ToDictionary(x => x.Key, x => x.Value));
-        }
+        public static KeyMapping<KeyEnum, ActionEnum> FromJson(string json) =>
+            JsonSerializer.Deserialize<KeyMapping<KeyEnum, ActionEnum>>(json, _serializerOptions);
 
-        public static KeyMapping<KeyEnum, ActionEnum> FromBytes(in ReadOnlySpan<byte> jsonBytes)
-        {
-            var loadedDict = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<KeyEnum, ActionEnum>>>(jsonBytes, _serializerOptions);
-            return new KeyMapping<KeyEnum, ActionEnum>(loadedDict.ToDictionary(x => x.Key, x => x.Value));
-        }
+        public static KeyMapping<KeyEnum, ActionEnum> FromBytes(in ReadOnlySpan<byte> jsonBytes) =>
+            JsonSerializer.Deserialize<KeyMapping<KeyEnum, ActionEnum>>(jsonBytes, _serializerOptions);
     }
 }
