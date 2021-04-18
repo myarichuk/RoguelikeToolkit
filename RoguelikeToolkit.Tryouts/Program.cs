@@ -28,6 +28,7 @@ namespace RoguelikeToolkit.Tryouts
 
         static async Task Main(string[] args)
         {
+            Console.ReadLine();
             var jsonSerializerOptions = new JsonSerializerOptions();
             jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 
