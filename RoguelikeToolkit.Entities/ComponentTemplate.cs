@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Utf8Json;
 
 namespace RoguelikeToolkit.Entities
@@ -44,7 +45,7 @@ namespace RoguelikeToolkit.Entities
         public object CreateInstance(Type type)
         {
             var typeAccessor = MemberAccessor.Get(type);
-            var instance = typeAccessor.CreateNew();
+            var instance = FormatterServices.GetUninitializedObject(type);
             
             ApplyPropertyValuesRecursive(instance, typeAccessor);
 

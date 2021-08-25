@@ -5,6 +5,7 @@
         public string Str;
         public double Num;
     }
+
     public class Attributes3Component
     {
         public int Strength;
