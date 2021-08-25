@@ -43,9 +43,9 @@ namespace RoguelikeToolkit.Tryouts
         {
             using var world = new World();
             var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
-            var foobarTemplate = ComponentTemplate.Parse(foobarAsString);
+            var foobarTemplate = ComponentTemplate.ParseFromString(foobarAsString);
 
-            var newInstance = foobarTemplate.CreateNew(typeof(FooBar));
+            var newInstance = foobarTemplate.CreateInstance(typeof(FooBar));
 
             //while (true)
             //{
