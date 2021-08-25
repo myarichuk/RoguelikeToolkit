@@ -71,12 +71,46 @@ namespace RoguelikeToolkit.Entities
                     throw new InvalidDataException($"Field or property by name of {prop.Key} wasn't found in the type. This is probably a misuse or you are using an incorrect type");
                 var memberType = member.GetUnderlyingType();
 
-                typeAccessor[instance, prop.Key] = 
-                    prop.Value switch
+                if (memberType.IsPointer) //we don't care about unmanaged types, this is an edge case!
+                    continue;                
+
+                if (prop.Value is ComponentTemplate embeddedTemplate)
+                    typeAccessor[instance, prop.Key] = embeddedTemplate.CreateInstance(memberType);
+                else
+                {
+                    if (prop.Value == null)
+                        typeAccessor[instance, prop.Key] = default;
+                    else
                     {
-                        ComponentTemplate embeddedTemplate => embeddedTemplate.CreateInstance(memberType),
-                        _ => Convert.ChangeType(prop.Value, memberType), //TODO: don't forget to test limits of this ChangeType, edge cases, etc
-                    };
+                        try
+                        {
+                            typeAccessor[instance, prop.Key] = Convert.ChangeType(prop.Value, memberType);
+                        }
+                        catch (OverflowException e) 
+                        {
+                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to incorrect component type being specified. ", e);
+                        }
+                        catch (FormatException e)
+                        {
+                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to weird value format that wasn't recognized. ", e);
+                        }
+                        catch (InvalidCastException e)
+                        {
+                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
+                        }
+
+                    }
+
+
+                }
+
+                //typeAccessor[instance, prop.Key] =
+                //    prop.Value switch
+                //    {
+                //        ComponentTemplate embeddedTemplate => embeddedTemplate.CreateInstance(memberType),
+
+                    //        _ => Convert.ChangeType(prop.Value, memberType), //TODO: don't forget to test limits of this ChangeType, edge cases, etc
+                    //    };
             }
         }
 
