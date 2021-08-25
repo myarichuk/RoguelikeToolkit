@@ -26,40 +26,53 @@ namespace RoguelikeToolkit.Tryouts
             { ConsoleKey.RightArrow, ActionList.Right }
         };
 
-        static async Task Main(string[] args)
+        public class FooBar
         {
-            Console.ReadLine();
-            var jsonSerializerOptions = new JsonSerializerOptions();
-            jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            public string Name {  get; set; }
+            public EmbeddedFoobar Embedded { get; set; }
+            public int Number {  get; set; }
+            public bool Flag { get; set; }
+        }
 
-            var json = JsonSerializer.Serialize(KeyMappings.ToArray(), jsonSerializerOptions);
-            var col = JsonSerializer.Deserialize<IEnumerable<KeyValuePair<ConsoleKey, ActionList>>>(json, jsonSerializerOptions);
+        public class EmbeddedFoobar
+        {
+            public int Number { get; set; }
+        }
+
+        static void Main(string[] args)
+        {
+            using var world = new World();
+            var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
+            var foobarTemplate = ComponentTemplate.Parse(foobarAsString);
+
+            var newInstance = foobarTemplate.CreateNew(typeof(FooBar));
+
             //while (true)
             //{
             //    var dice = Dice.Parse(Console.ReadLine());
             //    var value = dice.Roll();
             //    Console.WriteLine(value);
             //}
-            var templateCollection = new EntityTemplateCollection(".");
-            var entityFactory = new EntityFactory(new World(), templateCollection);
+            //var templateCollection = new EntityTemplateCollection(".");
+            //var entityFactory = new EntityFactory(new World(), templateCollection);
 
-            var success = entityFactory.TryCreateEntity("actor2", out var actorEntity);
-            Console.WriteLine(success);
-            var foobarComponent = actorEntity.Get<FoobarComponent>();
-            Console.WriteLine(foobarComponent.Dice1.Roll());
-            Console.WriteLine(foobarComponent.Dice2.Roll());
+            //var success = entityFactory.TryCreateEntity("actor2", out var actorEntity);
+            //Console.WriteLine(success);
+            //var foobarComponent = actorEntity.Get<FoobarComponent>();
+            //Console.WriteLine(foobarComponent.Dice1.Roll());
+            //Console.WriteLine(foobarComponent.Dice2.Roll());
 
-            actorEntity.Set(new FoobarComponent { Dice1 = Dice.Parse("2d+5") });
-            var c = actorEntity.Get<FoobarComponent>();
+            //actorEntity.Set(new FoobarComponent { Dice1 = Dice.Parse("2d+5") });
+            //var c = actorEntity.Get<FoobarComponent>();
 
-            var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
-            await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
+            //var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
+            //await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
 
-            Console.WriteLine();
-            Console.WriteLine(c.RollResult);
+            //Console.WriteLine();
+            //Console.WriteLine(c.RollResult);
 
-            await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
-            Console.WriteLine(c.RollResult);
+            //await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
+            //Console.WriteLine(c.RollResult);
         }
     }
 }
