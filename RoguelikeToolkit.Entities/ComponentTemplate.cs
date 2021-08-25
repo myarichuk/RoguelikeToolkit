@@ -47,7 +47,7 @@ namespace RoguelikeToolkit.Entities
             var typeAccessor = MemberAccessor.Get(type);
             var instance = FormatterServices.GetUninitializedObject(type);
             
-            ApplyPropertyValuesRecursive(instance, typeAccessor);
+            ApplyPropertyValues(instance, typeAccessor);
 
             return instance;
         }
@@ -57,7 +57,7 @@ namespace RoguelikeToolkit.Entities
         private static void ThrowNotFound(string jsonFile) => 
             throw new ArgumentException($"The file {jsonFile} was not found", nameof(jsonFile));
 
-        private void ApplyPropertyValuesRecursive(object instance, TypeAccessor typeAccessor)
+        private void ApplyPropertyValues(object instance, TypeAccessor typeAccessor)
         {
             var type = instance.GetType();
             var membersByName = _membersCache.GetOrAdd(type, 

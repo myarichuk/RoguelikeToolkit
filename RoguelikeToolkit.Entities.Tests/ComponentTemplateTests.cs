@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Utf8Json;
+﻿using Utf8Json;
 using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests
@@ -116,6 +113,22 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
             Assert.Equal(component.Bar.Str, reconstructedComponent.Bar.Str);
+        }
+
+        [Fact]
+        public void Can_handle_null_field_values()
+        {
+            var component = new Foo2
+            {
+                Num = 234,
+                Str = null
+            };
+
+            var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
+            var reconstructedComponent = template.CreateInstance<Foo2>();
+
+            Assert.Equal(component.Num, reconstructedComponent.Num);
+            Assert.Null(reconstructedComponent.Str);
         }
     }
 }
