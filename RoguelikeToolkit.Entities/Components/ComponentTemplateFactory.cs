@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,10 +11,18 @@ using System.Runtime.Serialization;
 
 namespace RoguelikeToolkit.Entities
 {
+    public struct ComponentFactoryOptions
+    {
+        public bool IgnoreMissingFields;
+
+    }
     public class ComponentFactory
     {
         private readonly static ConcurrentDictionary<Type, Dictionary<string, MemberInfo>> _membersCache = 
             new ConcurrentDictionary<Type, Dictionary<string, MemberInfo>>();
+        private readonly ComponentFactoryOptions _options;
+
+        public ComponentFactory(ComponentFactoryOptions options = default) => _options = options;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TInstance CreateInstance<TInstance>(ComponentTemplate template) => (TInstance)CreateInstance(typeof(TInstance), template);
@@ -27,14 +36,55 @@ namespace RoguelikeToolkit.Entities
                 throw new InvalidOperationException($"Cannot create component instance with a specified type. The type should *not* be a primitive, enum, by-ref type or a pointer (specified type = {type.FullName})");
 
             var typeAccessor = MemberAccessor.Get(type);
-            var instance = FormatterServices.GetUninitializedObject(type);
 
-            ApplyPropertyValues(type, instance, template.PropertyValues, typeAccessor);
+            object instance;
+            //if true, we are either using dynamics or just plain System.Object
+            // (in any case, in this case we shouldn't use an System.Object type)
+            if (typeof(object) == type) 
+            {
+                instance = new ExpandoObject();
+                ApplyPropertyValuesForExpando((IDictionary<string, object>)instance, template.PropertyValues);
+            }
+            else
+            {
+                instance = FormatterServices.GetUninitializedObject(type);
+                ApplyPropertyValuesForConcreteType(type, instance, template.PropertyValues, typeAccessor);
+            }
+            
 
             return instance;
         }
 
-        private void ApplyPropertyValues(Type type,
+        private void ApplyPropertyValuesForExpando(
+                                 IDictionary<string, object> instance,
+                                 IReadOnlyDictionary<string, object> propertyValues)
+        {
+            foreach (var prop in propertyValues)
+            {
+                switch (prop.Value)
+                {
+                    case ComponentTemplate embeddedTemplate:
+                        instance.Add(prop.Key, CreateInstance<dynamic>(embeddedTemplate));
+                        break;
+                    default:
+                        {
+                            switch (prop.Value)
+                            {
+                                case null:
+                                    instance.Add(prop.Key, default);
+                                    break;
+                                default:
+                                    instance.Add(prop.Key, prop.Value);
+                                    break;
+                            }
+
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void ApplyPropertyValuesForConcreteType(Type type,
                                          object instance,
                                          IReadOnlyDictionary<string, object> propertyValues,
                                          TypeAccessor typeAccessor)
@@ -50,7 +100,12 @@ namespace RoguelikeToolkit.Entities
             foreach (var prop in propertyValues)
             {
                 if (!membersByName.TryGetValue(prop.Key, out var member))
+                {
+                    if (_options.IgnoreMissingFields)
+                        continue;
+                    
                     throw new InvalidDataException($"Field or property by name of {prop.Key} wasn't found in the type. It *is* possible to have duck-typing, but still at least the names of fields should be the same and types should be convertible (for example, int <-> double)");
+                }
                 var memberType = member.GetUnderlyingType();
 
                 if (memberType.IsPointer) //we don't care about unmanaged types, this is an edge case!

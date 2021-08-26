@@ -42,14 +42,38 @@ namespace RoguelikeToolkit.Entities.Tests
         }
 
         [Fact]
-        public void Dynamic_component_type_should_throw()
+        public void Dynamic_component_type_should_work()
         {
             var component = new AttributesComponent { Agility = 12, Strength = 23 };
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
 
-            Assert.Throws<InvalidDataException>(() => _factory.CreateInstance<dynamic>(template));
+            var reconstructedComponent = _factory.CreateInstance<dynamic>(template);
+
+            Assert.Equal(component.Agility, reconstructedComponent.Agility);
+            Assert.Equal(component.Strength, reconstructedComponent.Strength);
         }
 
+        [Fact]
+        public void Dynamic_component_type_with_embedded_objects_should_work()
+        {
+            var component = new Attributes3Component 
+            { 
+                Agility = 12, 
+                Strength = 23, 
+                Bar = new Foo { Num = 123, Str = "ABC" } 
+            };
+
+            var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
+
+            var reconstructedComponent = _factory.CreateInstance<dynamic>(template);
+
+            Assert.Equal(component.Agility, reconstructedComponent.Agility);
+            Assert.Equal(component.Strength, reconstructedComponent.Strength);
+            Assert.Equal(component.Bar.Str, reconstructedComponent.Bar.Str);
+            Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
+        }
+
+        //
         [Fact]
         public void Struct_component_template_should_work()
         {
