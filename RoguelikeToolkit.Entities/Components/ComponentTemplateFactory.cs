@@ -29,16 +29,16 @@ namespace RoguelikeToolkit.Entities
             var typeAccessor = MemberAccessor.Get(type);
             var instance = FormatterServices.GetUninitializedObject(type);
 
-            ApplyPropertyValues(instance, template.PropertyValues, typeAccessor);
+            ApplyPropertyValues(type, instance, template.PropertyValues, typeAccessor);
 
             return instance;
         }
 
-        private void ApplyPropertyValues(object instance,
+        private void ApplyPropertyValues(Type type,
+                                         object instance,
                                          IReadOnlyDictionary<string, object> propertyValues,
                                          TypeAccessor typeAccessor)
         {
-            var type = instance.GetType();
             var membersByName = _membersCache.GetOrAdd(type,
                                     newType =>
                                         newType.GetMembers()

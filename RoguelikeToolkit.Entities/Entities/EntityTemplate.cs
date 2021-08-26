@@ -6,16 +6,13 @@ namespace RoguelikeToolkit.Entities
 {
     public class EntityTemplate
     {
-        private const string InheritsMalformedMessage = "'Inherits' property is malformed - it should be a collection of strings, no more, no less!";
+        private const string StringCollectionMalformed = "The property is malformed - it should be a collection of strings";
         private const string IdMissingMessage = "Missing required field -> 'Id'";
         private const string ComponentsMalformedMessage = "'Components' property is malformed - it should be an object where each field is a component";
 
         public string Id { get; private set; }
-        
         public Dictionary<string, ComponentTemplate> Components { get; } = new Dictionary<string, ComponentTemplate>(StringComparer.InvariantCultureIgnoreCase);
-
         public HashSet<string> Inherits { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-
         public HashSet<string> Tags { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
         public static EntityTemplate ParseFromString(string json)
@@ -28,19 +25,23 @@ namespace RoguelikeToolkit.Entities
                 throw new InvalidDataException(IdMissingMessage);
 
             if(data.TryGetValue(nameof(Inherits), out var inherits))
-                ParseInheritsField(template, inherits);
+                ParseStringArrayField(inherits, template.Inherits);
 
             if(data.TryGetValue(nameof(Components), out var components))
                 ParseComponentsField(template, components);
 
+            if (data.TryGetValue(nameof(Tags), out var tags))
+                ParseStringArrayField(tags, template.Tags);
+
             return template;
         }
+
+        #region Helpers
 
         private static void ParseComponentsField(EntityTemplate template, object components)
         {
             if (components is IDictionary<string, object> componentsStronglyTyped)
             {
-                //TODO: finish implementing this
                 foreach (var componentKV in componentsStronglyTyped)
                 {
                     if (componentKV.Value is IDictionary<string, object> componentProps)
@@ -62,19 +63,21 @@ namespace RoguelikeToolkit.Entities
             }
         }
 
-        private static void ParseInheritsField(EntityTemplate template, object inherits)
+        private static void ParseStringArrayField(object valuesList, ICollection<string> destination)
         {
-            if (!(inherits is List<object> inheritsAsObjects))
-                throw new InvalidDataException(InheritsMalformedMessage);
+            if (!(valuesList is List<object> valuesAsObjectList))
+                throw new InvalidDataException(StringCollectionMalformed);
 
-            for (int i = 0; i < inheritsAsObjects.Count; i++)
+            for (int i = 0; i < valuesAsObjectList.Count; i++)
             {
-                object idAsObject = inheritsAsObjects[i];
-                if (idAsObject is string id)
-                    template.Inherits.Add(id);
+                object valAsObject = valuesAsObjectList[i];
+                if (valAsObject is string valAsString)
+                    destination.Add(valAsString);
                 else
-                    throw new InvalidDataException(InheritsMalformedMessage);
+                    throw new InvalidDataException(StringCollectionMalformed);
             }
         }
+
+        #endregion
     }
 }
