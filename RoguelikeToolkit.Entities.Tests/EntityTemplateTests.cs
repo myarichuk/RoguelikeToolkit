@@ -36,8 +36,7 @@ namespace RoguelikeToolkit.Entities.Tests
         public void Can_parse_components()
         {
             var template = EntityTemplate.ParseFromString(
-                @"
-                    {
+                @"{
                         ""Id"":""FooBar"",
                         ""Components"": {
                             ""Foo"": {
@@ -46,11 +45,11 @@ namespace RoguelikeToolkit.Entities.Tests
                             },
                             ""Bar"": 1.5
                         }
-                    }
+                   }
                  ");
 
             Assert.NotEmpty(template.Components);
-        }
+        }       
 
         [Fact]
         public void Can_parse_empty_inherits()

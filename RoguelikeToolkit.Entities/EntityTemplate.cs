@@ -9,6 +9,7 @@ namespace RoguelikeToolkit.Entities
     {
         private const string InheritsMalformedMessage = "'Inherits' property is malformed - it should be a collection of strings, no more, no less!";
         private const string IdMissingMessage = "Missing required field -> 'Id'";
+        private const string ComponentsMalformedMessage = "'Components' property is malformed - it should be an object where each field is a component";
 
         public string Id { get; private set; }
         
@@ -21,7 +22,8 @@ namespace RoguelikeToolkit.Entities
         public static EntityTemplate ParseFromString(string json)
         {
             var template = new EntityTemplate();
-            var data = (IDictionary<string, object>)JsonSerializer.Deserialize<dynamic>(json);
+            if (!json.TryDeserialize(out var data))
+                throw new InvalidDataException("Failed to parse malformed json");
 
             if (data.ContainsKey(nameof(Id)) == false)
                 throw new InvalidDataException(IdMissingMessage);
@@ -31,7 +33,14 @@ namespace RoguelikeToolkit.Entities
 
             if(data.TryGetValue(nameof(Components), out var components))
             {
+                if(components is IDictionary<string, object> componentsAsObject)
+                {
 
+                }
+                else
+                {
+                    throw new InvalidDataException(ComponentsMalformedMessage);
+                }
             }
 
             return template;

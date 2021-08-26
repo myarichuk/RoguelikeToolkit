@@ -16,7 +16,7 @@ namespace RoguelikeToolkit.Entities
         private readonly IReadOnlyDictionary<string, object> _propertyValues;
         private readonly static ConcurrentDictionary<Type, Dictionary<string, MemberInfo>> _membersCache = new ConcurrentDictionary<Type, Dictionary<string, MemberInfo>>();
 
-        internal ComponentTemplate(IReadOnlyDictionary<string, object> propertyValues) => 
+        internal ComponentTemplate(IDictionary<string, object> propertyValues) => 
             _propertyValues = InitializeEmbeddedTemplates(propertyValues);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,7 +37,9 @@ namespace RoguelikeToolkit.Entities
         {
             //note: Utf8Json embeds IReadOnlyDictionary<string, object> for embedded objects
             // *IF* it is set to deserialize as *dynamic*
-            var data = (IReadOnlyDictionary<string, object>)JsonSerializer.Deserialize<dynamic>(json);
+            if (!json.TryDeserialize(out var data))
+                throw new InvalidDataException("Failed to parse malformed json");
+
             return new ComponentTemplate(data);
         }
 
@@ -119,14 +121,14 @@ namespace RoguelikeToolkit.Entities
             }
         }
 
-        private static IReadOnlyDictionary<string, object> InitializeEmbeddedTemplates(IReadOnlyDictionary<string, object> data)
+        private static IReadOnlyDictionary<string, object> InitializeEmbeddedTemplates(IDictionary<string, object> data)
         {
             var dataWithEmbeddedTemplates = new Dictionary<string, object>();
             foreach (var item in data)
             {
                 switch (item.Value)
                 {
-                    case IReadOnlyDictionary<string, object> embedded:
+                    case IDictionary<string, object> embedded:
                         dataWithEmbeddedTemplates.Add(item.Key, new ComponentTemplate(embedded));
                         break;
                     default:

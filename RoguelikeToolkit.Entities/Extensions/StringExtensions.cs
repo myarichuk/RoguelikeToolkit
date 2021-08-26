@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Utf8Json;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -13,5 +15,21 @@ namespace RoguelikeToolkit.Entities
             return str.Substring(before, str.Length - after);
             #endif
         }
+
+        public static bool TryDeserialize(this string json, out IDictionary<string, object> data)
+        {
+            data = null;
+            try
+            {
+                data = (IDictionary<string, object>)JsonSerializer.Deserialize<dynamic>(json);
+            }
+            catch (JsonParsingException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
