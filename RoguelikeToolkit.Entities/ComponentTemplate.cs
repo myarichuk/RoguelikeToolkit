@@ -30,6 +30,9 @@ namespace RoguelikeToolkit.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ComponentTemplate(string json) => ParseFromString(json);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ComponentTemplate ParseFromString(string json)
         {
             //note: Utf8Json embeds IReadOnlyDictionary<string, object> for embedded objects
