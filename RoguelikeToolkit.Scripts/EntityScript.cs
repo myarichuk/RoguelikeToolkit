@@ -15,8 +15,9 @@ namespace RoguelikeToolkit.Scripts
 
         public EntityScript(string actionScript, params Assembly[] referenceAssemblies) =>
             _compiledScript = ScriptFactory.CreateCompiled<TScriptParam>(actionScript, referenceAssemblies);
-        public Task RunAsyncOn(in Entity entity, Func<Entity, TScriptParam> paramFactory, CancellationToken? ct = null) =>
-            _compiledScript.RunAsync(paramFactory(entity), ct ?? CancellationToken.None);
+
+        public Task RunAsyncOn(in Entity entity, Func<Entity, TScriptParam> paramFactory, CancellationToken ct = default) =>
+            _compiledScript.RunAsync(paramFactory(entity), ct);
     }
 
     public class EntityScript : EntityScript<EntityParam>
@@ -27,7 +28,7 @@ namespace RoguelikeToolkit.Scripts
         {
         }
 
-        public Task RunAsyncOn(Entity entity, CancellationToken? ct = null)
+        public Task RunAsyncOn(in Entity entity, CancellationToken ct = default)
         {
             EntityParam @param = null;
             try
@@ -35,10 +36,7 @@ namespace RoguelikeToolkit.Scripts
                 param = ParamPool.Get();
                 param.entity = entity;
 
-                return _compiledScript.RunAsync(new EntityParam
-                {
-                    entity = entity
-                }, ct ?? CancellationToken.None);
+                return _compiledScript.RunAsync(param, ct);
             }
             finally
             {
