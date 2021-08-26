@@ -8,6 +8,12 @@ namespace RoguelikeToolkit.Entities.Tests
         public double Value {  get; set; }
     }
 
+    public struct Bar2 : IValueComponent<string>
+    {
+        public string Value { get; set; }
+    }
+
+
     public class EntityTemplateTests
     {
         [Fact]
@@ -41,21 +47,37 @@ namespace RoguelikeToolkit.Entities.Tests
                         ""Components"": {
                             ""Foo"": {
                                 ""Strength"": 1.0,
-                                ""Agility"": 1.0
+                                ""Agility"": 2.5
                             },
-                            ""Bar"": 1.5
+                            ""Bar"": 1.5,
+                            ""Bar2"": ""This is a test!""
                         }
                    }
                  ");
 
             Assert.NotEmpty(template.Components);
+            Assert.False(template.Components["Foo"].IsValueComponent);
+            Assert.True(template.Components["Bar"].IsValueComponent);
+            Assert.True(template.Components["Bar2"].IsValueComponent);
+
+            var componentFactory = new ComponentFactory();
+            var fooX = componentFactory.CreateInstance<Foo>(template.Components["Foo"]);
+            var foo = componentFactory.CreateInstance<AttributesComponent>(template.Components["Foo"]);
+            var bar = componentFactory.CreateInstance<Bar>(template.Components["Bar"]);
+            var bar2 = componentFactory.CreateInstance<Bar2>(template.Components["Bar2"]);
+
+            Assert.Equal(1.0, foo.Strength);
+            Assert.Equal(2.5, foo.Agility);
+
+            Assert.Equal(1.5, bar.Value);
+            Assert.Equal("This is a test!", bar2.Value);
         }
 
         [Fact]
         public void Can_parse_empty_components()
         {
             var template = EntityTemplate.ParseFromString(
-                @"{
+                 @"{
                         ""Id"":""FooBar"",
                         ""Components"": { }
                    }

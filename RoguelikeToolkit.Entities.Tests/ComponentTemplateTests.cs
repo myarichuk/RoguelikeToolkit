@@ -6,7 +6,7 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public class ComponentTemplateTests
     {
-        private readonly ComponentTemplateFactory _factory = new ComponentTemplateFactory();
+        private readonly ComponentFactory _factory = new();
 
         [Fact]
         public void Should_throw_if_invalid_json() =>

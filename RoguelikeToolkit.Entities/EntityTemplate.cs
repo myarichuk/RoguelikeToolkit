@@ -45,9 +45,14 @@ namespace RoguelikeToolkit.Entities
                 {
                     if (componentKV.Value is IDictionary<string, object> componentProps)
                         template.Components.AddOrSet(componentKV.Key, _ => new ComponentTemplate(componentProps));
-                    else if (componentKV.Value.GetType().IsPrimitive)
+                    else if (componentKV.Value is string || componentKV.Value.GetType().IsPrimitive)
                     {
-                        //TODO: add IValueComponent<T> for the value...
+                        template.Components.AddOrSet(componentKV.Key, _ => 
+                            new ComponentTemplate(new Dictionary<string, object> { { "Value", componentKV.Value } }));
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("Invalid component, it must be either a primitive value or an object");
                     }
                 }
             }

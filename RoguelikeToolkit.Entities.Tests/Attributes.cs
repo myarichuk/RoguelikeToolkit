@@ -2,7 +2,7 @@
 {
     public class AttributesComponent
     {
-        public int Strength;
-        public int Agility;
+        public double Strength;
+        public double Agility;
     }
 }

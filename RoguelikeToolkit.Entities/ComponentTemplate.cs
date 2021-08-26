@@ -34,9 +34,6 @@ namespace RoguelikeToolkit.Entities
 
         #region Helpers
 
-        private static void ThrowNotFound(string jsonFile) => 
-            throw new ArgumentException($"The file {jsonFile} was not found", nameof(jsonFile));
-
         private static IReadOnlyDictionary<string, object> BuildEmbeddedTemplates(IDictionary<string, object> data)
         {
             var dataWithEmbeddedTemplates = new Dictionary<string, object>();
