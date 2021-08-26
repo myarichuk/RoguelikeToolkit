@@ -41,11 +41,11 @@ namespace RoguelikeToolkit.Tryouts
 
         static void Main(string[] args)
         {
-            using var world = new World();
-            var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
-            var foobarTemplate = ComponentTemplate.ParseFromString(foobarAsString);
+            //using var world = new World();
+            //var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
+            //var foobarTemplate = ComponentTemplate.ParseFromString(foobarAsString);
 
-            var newInstance = foobarTemplate.CreateInstance(typeof(FooBar));
+            //var newInstance = foobarTemplate.CreateInstance(typeof(FooBar));
 
             //while (true)
             //{

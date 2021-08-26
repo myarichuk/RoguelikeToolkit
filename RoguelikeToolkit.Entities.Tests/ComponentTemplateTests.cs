@@ -5,13 +5,15 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public class ComponentTemplateTests
     {
+        private readonly ComponentTemplateFactory _factory = new ComponentTemplateFactory();
+
         [Fact]
         public void Class_component_template_should_work()
         {
             var component = new AttributesComponent { Agility = 12, Strength = 23 };
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
 
-            var reconstructedComponent = template.CreateInstance<AttributesComponent>();
+            var reconstructedComponent = _factory.CreateInstance<AttributesComponent>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Strength, reconstructedComponent.Strength);
@@ -23,7 +25,7 @@ namespace RoguelikeToolkit.Entities.Tests
             var component = new Attributes2Component { Agility = 12, Strength = 23 };
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
 
-            var reconstructedComponent = template.CreateInstance<Attributes2Component>();
+            var reconstructedComponent = _factory.CreateInstance<Attributes2Component>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Strength, reconstructedComponent.Strength);
@@ -43,7 +45,7 @@ namespace RoguelikeToolkit.Entities.Tests
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
-            var reconstructedComponent = template.CreateInstance<Attributes4Component>();
+            var reconstructedComponent = _factory.CreateInstance<Attributes4Component>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
@@ -65,7 +67,7 @@ namespace RoguelikeToolkit.Entities.Tests
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
-            var reconstructedComponent = template.CreateInstance<Attributes3Component>();
+            var reconstructedComponent = _factory.CreateInstance<Attributes3Component>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
@@ -87,7 +89,7 @@ namespace RoguelikeToolkit.Entities.Tests
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
-            var reconstructedComponent = template.CreateInstance<Attributes4Component>();
+            var reconstructedComponent = _factory.CreateInstance<Attributes4Component>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
@@ -108,7 +110,7 @@ namespace RoguelikeToolkit.Entities.Tests
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
-            var reconstructedComponent = template.CreateInstance<Attributes5Component>();
+            var reconstructedComponent = _factory.CreateInstance<Attributes5Component>(template);
 
             Assert.Equal(component.Agility, reconstructedComponent.Agility);
             Assert.Equal(component.Bar.Num, reconstructedComponent.Bar.Num);
@@ -125,7 +127,7 @@ namespace RoguelikeToolkit.Entities.Tests
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
-            var reconstructedComponent = template.CreateInstance<Foo2>();
+            var reconstructedComponent = _factory.CreateInstance<Foo2>(template);
 
             Assert.Equal(component.Num, reconstructedComponent.Num);
             Assert.Null(reconstructedComponent.Str);

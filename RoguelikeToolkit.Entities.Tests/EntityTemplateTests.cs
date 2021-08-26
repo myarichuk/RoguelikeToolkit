@@ -49,7 +49,29 @@ namespace RoguelikeToolkit.Entities.Tests
                  ");
 
             Assert.NotEmpty(template.Components);
-        }       
+        }
+
+        [Fact]
+        public void Can_parse_empty_components()
+        {
+            var template = EntityTemplate.ParseFromString(
+                @"{
+                        ""Id"":""FooBar"",
+                        ""Components"": { }
+                   }
+                 ");
+
+            Assert.Empty(template.Components);
+        }
+
+        [Fact]
+        public void Should_throw_invalid_components_type() =>
+            Assert.Throws<InvalidDataException>(() => EntityTemplate.ParseFromString(
+                @"{
+                        ""Id"":""FooBar"",
+                        ""Components"": ""This is invalid property type...""
+                   }
+                 "));           
 
         [Fact]
         public void Can_parse_empty_inherits()

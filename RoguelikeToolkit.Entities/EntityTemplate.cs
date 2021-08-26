@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Utf8Json;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -28,22 +27,34 @@ namespace RoguelikeToolkit.Entities
             if (data.ContainsKey(nameof(Id)) == false)
                 throw new InvalidDataException(IdMissingMessage);
 
-            if(data.TryGetValue(nameof(Inherits), out object inherits))
+            if(data.TryGetValue(nameof(Inherits), out var inherits))
                 ParseInheritsField(template, inherits);
 
             if(data.TryGetValue(nameof(Components), out var components))
-            {
-                if(components is IDictionary<string, object> componentsAsObject)
-                {
-
-                }
-                else
-                {
-                    throw new InvalidDataException(ComponentsMalformedMessage);
-                }
-            }
+                ParseComponentsField(template, components);
 
             return template;
+        }
+
+        private static void ParseComponentsField(EntityTemplate template, object components)
+        {
+            if (components is IDictionary<string, object> componentsStronglyTyped)
+            {
+                //TODO: finish implementing this
+                foreach (var componentKV in componentsStronglyTyped)
+                {
+                    if (componentKV.Value is IDictionary<string, object> componentProps)
+                        template.Components.AddOrSet(componentKV.Key, _ => new ComponentTemplate(componentProps));
+                    else if (componentKV.Value.GetType().IsPrimitive)
+                    {
+                        //TODO: add IValueComponent<T> for the value...
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidDataException(ComponentsMalformedMessage);
+            }
         }
 
         private static void ParseInheritsField(EntityTemplate template, object inherits)
