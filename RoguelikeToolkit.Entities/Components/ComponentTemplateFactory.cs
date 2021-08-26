@@ -23,7 +23,7 @@ namespace RoguelikeToolkit.Entities
             if (type.IsInterface) //precaution!
                 throw new InvalidOperationException($"Cannot create component instance with interface type. (specified type = {type.FullName})");
 
-            if (type.IsPrimitive || type.IsEnum || type.IsPointer || type.IsCOMObject || type.IsByRef)
+            if (type == typeof(string) || type.IsPrimitive || type.IsEnum || type.IsPointer || type.IsCOMObject || type.IsByRef)
                 throw new InvalidOperationException($"Cannot create component instance with a specified type. The type should *not* be a primitive, enum, by-ref type or a pointer (specified type = {type.FullName})");
 
             var typeAccessor = MemberAccessor.Get(type);
