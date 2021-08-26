@@ -19,16 +19,6 @@ namespace RoguelikeToolkit.Entities
             _propertyValues.ContainsKey(nameof(IValueComponent<object>.Value));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ComponentTemplate ParseFromFile(string jsonFile)
-        {
-            if (!File.Exists(jsonFile))
-                ThrowNotFound(jsonFile);
-
-            //not very efficient (memory allocations!) but more efficiency is unlikely to be needed *here*
-            return ParseFromString(File.ReadAllText(jsonFile));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ComponentTemplate(string json) => ParseFromString(json);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
-﻿using Utf8Json;
+﻿using System.IO;
+using Utf8Json;
 using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests
@@ -6,6 +7,10 @@ namespace RoguelikeToolkit.Entities.Tests
     public class ComponentTemplateTests
     {
         private readonly ComponentTemplateFactory _factory = new ComponentTemplateFactory();
+
+        [Fact]
+        public void Should_throw_if_invalid_json() =>
+            Assert.Throws<InvalidDataException>(() => ComponentTemplate.ParseFromString("This is not json!!"));
 
         [Fact]
         public void Class_component_template_should_work()

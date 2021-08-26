@@ -22,6 +22,8 @@ namespace RoguelikeToolkit.Entities
             try
             {
                 data = (IDictionary<string, object>)JsonSerializer.Deserialize<dynamic>(json);
+                if (data == null)
+                    return false;
             }
             catch (JsonParsingException)
             {
