@@ -61,26 +61,10 @@ namespace RoguelikeToolkit.Entities
         {
             foreach (var prop in propertyValues)
             {
-                switch (prop.Value)
-                {
-                    case ComponentTemplate embeddedTemplate:
-                        instance.Add(prop.Key, CreateInstance<dynamic>(embeddedTemplate));
-                        break;
-                    default:
-                        {
-                            switch (prop.Value)
-                            {
-                                case null:
-                                    instance.Add(prop.Key, default);
-                                    break;
-                                default:
-                                    instance.Add(prop.Key, prop.Value);
-                                    break;
-                            }
-
-                            break;
-                        }
-                }
+                if(prop.Value is ComponentTemplate embeddedTemplate)
+                    instance.Add(prop.Key, CreateInstance<dynamic>(embeddedTemplate));
+                else
+                    instance.Add(prop.Key, prop.Value ?? default);
             }
         }
 
@@ -111,43 +95,28 @@ namespace RoguelikeToolkit.Entities
                 if (memberType.IsPointer) //we don't care about unmanaged types, this is an edge case!
                     continue;
 
-                switch (prop.Value)
+                if (prop.Value is ComponentTemplate embeddedTemplate)
+                    typeAccessor[instance, prop.Key] = CreateInstance(memberType, embeddedTemplate);
+                else
                 {
-                    case ComponentTemplate embeddedTemplate:
-                        typeAccessor[instance, prop.Key] = CreateInstance(memberType, embeddedTemplate);
-                        break;
-                    default:
-                        {
-                            switch (prop.Value)
-                            {
-                                case null:
-                                    typeAccessor[instance, prop.Key] = default;
-                                    break;
-                                default:
-                                    {
-                                        try
-                                        {
-                                            typeAccessor[instance, prop.Key] = Convert.ChangeType(prop.Value, memberType);
-                                        }
-                                        catch (OverflowException e)
-                                        {
-                                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to incorrect component type being specified. ", e);
-                                        }
-                                        catch (FormatException e)
-                                        {
-                                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to weird value format that wasn't recognized. ", e);
-                                        }
-                                        catch (InvalidCastException e)
-                                        {
-                                            throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
-                                        }
-
-                                        break;
-                                    }
-                            }
-
-                            break;
-                        }
+                    try
+                    {
+                        typeAccessor[instance, prop.Key] = prop.Value != null ? 
+                            Convert.ChangeType(prop.Value, memberType) :
+                            default;
+                    }
+                    catch (OverflowException e)
+                    {
+                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to incorrect component type being specified. ", e);
+                    }
+                    catch (FormatException e)
+                    {
+                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to weird value format that wasn't recognized. ", e);
+                    }
+                    catch (InvalidCastException e)
+                    {
+                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
+                    }
                 }
             }
         }
