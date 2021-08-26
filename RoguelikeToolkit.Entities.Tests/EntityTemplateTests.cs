@@ -61,7 +61,6 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.True(template.Components["Bar2"].IsValueComponent);
 
             var componentFactory = new ComponentFactory();
-            var fooX = componentFactory.CreateInstance<Foo>(template.Components["Foo"]);
             var foo = componentFactory.CreateInstance<AttributesComponent>(template.Components["Foo"]);
             var bar = componentFactory.CreateInstance<Bar>(template.Components["Bar"]);
             var bar2 = componentFactory.CreateInstance<Bar2>(template.Components["Bar2"]);
