@@ -30,6 +30,7 @@
     
     <PackageReference Include="DefaultEcs" Version="*" />
     <PackageReference Include="FastMember" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="5.0.9" />
     <PackageReference Include="Utf8Json" Version="*" />
   </ItemGroup>
 

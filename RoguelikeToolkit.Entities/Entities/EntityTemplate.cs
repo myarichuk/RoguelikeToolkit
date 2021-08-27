@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Entities
 {
-    public class EntityTemplate
+    public class EntityTemplate : IEquatable<EntityTemplate>
     {
         private const string StringCollectionMalformed = "The property is malformed - it should be a collection of strings";
         private const string IdMissingMessage = "Missing required field -> 'Id'";
@@ -21,8 +22,10 @@ namespace RoguelikeToolkit.Entities
             if (!json.TryDeserialize(out var data))
                 throw new InvalidDataException("Failed to parse malformed json");
 
-            if (data.ContainsKey(nameof(Id)) == false)
+            if (data.TryGetValue(nameof(Id), out var idAsObj) == false || !(idAsObj is string id))
                 throw new InvalidDataException(IdMissingMessage);
+            else
+                template.Id = id;
 
             if(data.TryGetValue(nameof(Inherits), out var inherits))
                 ParseStringArrayField(inherits, template.Inherits);
@@ -77,6 +80,21 @@ namespace RoguelikeToolkit.Entities
                     throw new InvalidDataException(StringCollectionMalformed);
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object obj) =>
+            Equals(obj as EntityTemplate);
+
+        public bool Equals(EntityTemplate other) =>
+            other != null &&
+            Id == other.Id;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => 2108858624 + EqualityComparer<string>.Default.GetHashCode(Id);
+
+        public static bool operator ==(EntityTemplate left, EntityTemplate right) => EqualityComparer<EntityTemplate>.Default.Equals(left, right);
+
+        public static bool operator !=(EntityTemplate left, EntityTemplate right) => !(left == right);
 
         #endregion
     }
