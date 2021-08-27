@@ -20,18 +20,13 @@ namespace RoguelikeToolkit.Entities
 
         public InheritanceGraph(IEnumerable<EntityTemplate> templates)
         {
-            //sanity check, this shouldn't happen!
-            if (templates.Any(t => t.Inherits.Contains(t.Id)))
-                throw new InvalidOperationException($"Self-inheritance is now allowed as it is silly. (self-inheritance found in tempalte with Id = {templates.First(t => t.Inherits.Contains(t.Id)).Id}");
-            
-            if (templates.Count(t => t.Inherits.Count == 0) == 0)
-                throw new InvalidOperationException("No roots are found for the inheritance graph. In order to create proper inheritance graph for the entity templates, there should be at least one template *WITHOUT* any inheritance, so the inheritance could be resolved for each template.");
-            
+            ValidateAndThrowIfNeeded(templates);
+
             //index inheritance
             _adjacencyList = templates.ToDictionary(
-                t => t.Id, 
+                t => t.Id,
                 t => t.Inherits.ToList());
-            
+
             _templates = templates.ToDictionary(t => t.Id, t => t);
         }
 
@@ -86,8 +81,19 @@ namespace RoguelikeToolkit.Entities
             }
         }
 
+        #region Helpers
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void ThrowIrrelevantTemplate(EntityTemplate template) => 
             throw new InvalidOperationException("Cannot resolve dependency graph from irrelevant template");
+
+        private static void ValidateAndThrowIfNeeded(IEnumerable<EntityTemplate> templates)
+        {
+            //sanity check, this shouldn't happen!
+            if (templates.Any(t => t.Inherits.Contains(t.Id)))
+                throw new InvalidOperationException($"Self-inheritance is now allowed as it is silly. (self-inheritance found in tempalte with Id = {templates.First(t => t.Inherits.Contains(t.Id)).Id}");
+        }
+
+        #endregion
     }
 }
