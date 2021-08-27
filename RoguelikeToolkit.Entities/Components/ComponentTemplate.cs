@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Entities
@@ -34,23 +35,11 @@ namespace RoguelikeToolkit.Entities
 
         #region Helpers
 
-        private static IReadOnlyDictionary<string, object> BuildEmbeddedTemplates(IDictionary<string, object> data)
-        {
-            var dataWithEmbeddedTemplates = new Dictionary<string, object>();
-            foreach (var item in data)
-            {
-                switch (item.Value)
-                {
-                    case IDictionary<string, object> embedded:
-                        dataWithEmbeddedTemplates.Add(item.Key, new ComponentTemplate(embedded));
-                        break;
-                    default:
-                        dataWithEmbeddedTemplates.Add(item.Key, item.Value);
-                        break;
-                }
-            }
-            return dataWithEmbeddedTemplates;
-        }
+        private static IReadOnlyDictionary<string, object> BuildEmbeddedTemplates(IDictionary<string, object> data) =>
+                    data.ToDictionary(item => item.Key,
+                        item => item.Value is IDictionary<string, object> embedded ? 
+                            new ComponentTemplate(embedded) : 
+                            item.Value);
 
         #endregion
     }
