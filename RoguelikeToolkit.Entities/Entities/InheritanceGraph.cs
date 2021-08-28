@@ -18,6 +18,16 @@ namespace RoguelikeToolkit.Entities
         {
         }
 
+        public InheritanceGraph(IReadOnlyDictionary<string, EntityTemplate> templates)
+        {
+            ValidateAndThrowIfNeeded(templates.Values);
+
+            _templates = templates;
+            _adjacencyList = templates.Values
+                .ToDictionary(t => t.Id,
+                              t => t.Inherits.ToList());
+        }
+
         public InheritanceGraph(IEnumerable<EntityTemplate> templates)
         {
             ValidateAndThrowIfNeeded(templates);

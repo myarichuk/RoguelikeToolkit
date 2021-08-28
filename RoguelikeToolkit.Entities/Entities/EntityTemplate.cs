@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Entities
 {
-    public class EntityTemplate : IEquatable<EntityTemplate>
+    public class EntityTemplate : IEquatable<EntityTemplate>, IEntityTemplate
     {
         private const string StringCollectionMalformed = "The property is malformed - it should be a collection of strings";
         private const string IdMissingMessage = "Missing required field -> 'Id'";
@@ -15,6 +15,10 @@ namespace RoguelikeToolkit.Entities
         public Dictionary<string, ComponentTemplate> Components { get; } = new Dictionary<string, ComponentTemplate>(StringComparer.InvariantCultureIgnoreCase);
         public HashSet<string> Inherits { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public HashSet<string> Tags { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EntityTemplate ParseFromFile(string jsonFile) =>
+            ParseFromString(File.ReadAllText(jsonFile));
 
         public static EntityTemplate ParseFromString(string json)
         {
@@ -27,10 +31,10 @@ namespace RoguelikeToolkit.Entities
             else
                 template.Id = id;
 
-            if(data.TryGetValue(nameof(Inherits), out var inherits))
+            if (data.TryGetValue(nameof(Inherits), out var inherits))
                 ParseStringArrayField(inherits, template.Inherits);
 
-            if(data.TryGetValue(nameof(Components), out var components))
+            if (data.TryGetValue(nameof(Components), out var components))
                 ParseComponentsField(template, components);
 
             if (data.TryGetValue(nameof(Tags), out var tags))
@@ -51,7 +55,7 @@ namespace RoguelikeToolkit.Entities
                         template.Components.AddOrSet(componentKV.Key, _ => new ComponentTemplate(componentProps));
                     else if (componentKV.Value is string || componentKV.Value.GetType().IsPrimitive)
                     {
-                        template.Components.AddOrSet(componentKV.Key, _ => 
+                        template.Components.AddOrSet(componentKV.Key, _ =>
                             new ComponentTemplate(new Dictionary<string, object> { { "Value", componentKV.Value } }));
                     }
                     else

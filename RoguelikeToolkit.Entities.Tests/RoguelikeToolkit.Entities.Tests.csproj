@@ -36,6 +36,9 @@
     <None Update="Templates\actor2.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Templates\object.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Templates\bodypart.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
