@@ -1,6 +1,8 @@
 ﻿using DefaultEcs;
 using RoguelikeToolkit.Entities.Entities;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -77,6 +79,10 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(2, valueComponent.Value[1]);
             Assert.Equal(1, valueComponent.Value[2]);
         }
+
+        [Fact]
+        public void Should_throw_when_value_component_with_interface_as_value() => 
+            Assert.Throws<InvalidOperationException>(() => entityFactory.TryCreateEntity("actor10", out var actorEntity));
 
         [Fact]
         public void Can_build_value_component_with_hashset_of_enums_as_value()
