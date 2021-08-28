@@ -14,6 +14,7 @@ namespace RoguelikeToolkit.Entities
     public struct ComponentFactoryOptions
     {
         public bool IgnoreMissingFields;
+        public bool IgnoreInvalidEnumFields;
 
     }
     public class ComponentFactory
@@ -91,14 +92,22 @@ namespace RoguelikeToolkit.Entities
                 }
 
                 //special case...
-                //note: contains rather ugly code, need to figure out a better way :)
-                if(valueComponentInterface.GenericTypeArguments[0].Name == "Dictionary`2")
+                //note: this is rather ugly code, need to figure out a better way :)
+                if(valueComponentInterface.GenericTypeArguments[0]
+                    .GetInterfaces()
+                    .Any(i => i.FullName.StartsWith("System.Collections.Generic.IDictionary`2")))
                 {
                     ApplyPropertyValuesToDictionary(type, instance, propertyValues, valueComponentInterface);
                     return;
                 }
+                else if(valueComponentInterface.GenericTypeArguments[0]
+                        .GetInterfaces()
+                        .Any(i => i.FullName.StartsWith("System.Collections.Generic.ICollection`1")))
+                {
+                    ApplyPropertyValuesToCollection(instance, propertyValues, valueComponentInterface);
+                    return;
+                }
             }
-
 
             foreach (var prop in propertyValues)
             {
@@ -114,36 +123,58 @@ namespace RoguelikeToolkit.Entities
                 if (memberType.IsPointer) //we don't care about unmanaged types, this is an edge case!
                     continue;
 
-                if (prop.Value is ComponentTemplate embeddedTemplate)
-                    typeAccessor[instance, prop.Key] = CreateInstance(memberType, embeddedTemplate);
-                else
+                ApplyPropertyValue(instance, typeAccessor, prop, memberType);
+            }
+        }
+
+        #region Helpers
+
+        private void ApplyPropertyValue(object instance, TypeAccessor typeAccessor, KeyValuePair<string, object> prop, Type memberType)
+        {
+            if (prop.Value is ComponentTemplate embeddedTemplate)
+                typeAccessor[instance, prop.Key] = CreateInstance(memberType, embeddedTemplate);
+            else
+            {
+                try
                 {
-                    try
+                    if (prop.Value == null)
+                        typeAccessor[instance, prop.Key] = default;
+                    else if(memberType.IsEnum)
                     {
-                        typeAccessor[instance, prop.Key] = prop.Value != null ?
-                            Convert.ChangeType(prop.Value, memberType) :
-                            default;
+                        try
+                        {
+                            var @enum = Enum.Parse(memberType, prop.Value.ToString());
+                            typeAccessor[instance, prop.Key] = Convert.ChangeType(@enum, memberType);
+                        }
+                        catch(Exception e) when (e is ArgumentException || e is ArgumentNullException || e is OverflowException)
+                        {
+                            if (_options.IgnoreInvalidEnumFields == false)
+                                throw new InvalidOperationException($"Failed to parse enum of type {memberType.FullName} (value = {prop.Value})", e);
+                        }
                     }
-                    catch (OverflowException e)
+                    else
                     {
-                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to incorrect component type being specified. ", e);
+                        typeAccessor[instance, prop.Key] = Convert.ChangeType(prop.Value, memberType);
                     }
-                    catch (FormatException e)
-                    {
-                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to weird value format that wasn't recognized. ", e);
-                    }
-                    catch (InvalidCastException e)
-                    {
-                        throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
-                    }
+                }
+                catch (OverflowException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to incorrect component type being specified. ", e);
+                }
+                catch (FormatException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, this is most likely due to weird value format that wasn't recognized. ", e);
+                }
+                catch (InvalidCastException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
                 }
             }
         }
 
         private static void ApplyPropertyValuesToDictionary(Type type, object instance, IReadOnlyDictionary<string, object> propertyValues, Type valueComponentInterface)
         {
-
-            ((dynamic)instance).Value = (dynamic)FormatterServices.GetUninitializedObject(valueComponentInterface.GenericTypeArguments[0]);
+            ((dynamic)instance).Value = (dynamic)MemberAccessor.Get(valueComponentInterface.GenericTypeArguments[0]).CreateNew();
 
             var valueType = valueComponentInterface.GenericTypeArguments[0].GenericTypeArguments[1];
             //by now we know that the Value is a dictionary, so...
@@ -152,7 +183,15 @@ namespace RoguelikeToolkit.Entities
             {
                 try
                 {
-                    component.Add(prop.Key, (dynamic)Convert.ChangeType(prop.Value, valueType));
+                    if (valueType.IsEnum)
+                    {
+                        var @enum = Enum.Parse(valueType, prop.Value.ToString());
+                        component.Add(prop.Key, (dynamic)Convert.ChangeType(@enum, valueType));
+                    }
+                    else
+                    {
+                        component.Add(prop.Key, (dynamic)Convert.ChangeType(prop.Value, valueType));
+                    }
                 }
                 catch (OverflowException e)
                 {
@@ -168,5 +207,44 @@ namespace RoguelikeToolkit.Entities
                 }
             }
         }
+
+        private static void ApplyPropertyValuesToCollection(object instance, IReadOnlyDictionary<string, object> propertyValues, Type valueComponentInterface)
+        {
+            ((dynamic)instance).Value = (dynamic)MemberAccessor.Get(valueComponentInterface.GenericTypeArguments[0]).CreateNew();
+
+            var valueType = valueComponentInterface.GenericTypeArguments[0].GenericTypeArguments[0];
+
+            //by now we know that the Value is a ICollection<T>, so...
+            var component = ((dynamic)instance).Value;
+            foreach (var val in (dynamic)propertyValues["Value"])
+            {
+                try
+                {
+                    if (valueType.IsEnum)
+                    {
+                        var @enum = Enum.Parse(valueType, val.ToString());
+                        component.Add((dynamic)Convert.ChangeType(@enum, valueType));
+                    }
+                    else
+                    {
+                        component.Add((dynamic)Convert.ChangeType(val, valueType));
+                    }
+                }
+                catch (OverflowException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {val} to {valueType}, this is most likely due to incorrect component type being specified. ", e);
+                }
+                catch (FormatException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {val} to {valueType}, this is most likely due to weird value format that wasn't recognized. ", e);
+                }
+                catch (InvalidCastException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {val} to {valueType}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
+                }
+            }
+        }
+
+        #endregion
     }
 }

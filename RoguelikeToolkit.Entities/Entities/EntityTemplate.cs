@@ -87,7 +87,10 @@ namespace RoguelikeToolkit.Entities
                 {
                     if (componentKV.Value is IDictionary<string, object> componentProps)
                         template.Components.AddOrSet(componentKV.Key, _ => new ComponentTemplate(componentProps));
-                    else if (componentKV.Value is string || componentKV.Value.GetType().IsPrimitive)
+                    else if (componentKV.Value is string || 
+                             componentKV.Value.GetType().IsPrimitive || 
+                             componentKV.Value.GetType().GetInterfaces().Any(i => i.FullName.StartsWith("System.Collections.Generic.ICollection`1")) ||
+                             componentKV.Value.GetType().GetInterfaces().Any(i => i.FullName.StartsWith("System.Collections.Generic.IDictionary`2")))
                     {
                         template.Components.AddOrSet(componentKV.Key, _ =>
                             new ComponentTemplate(new Dictionary<string, object> { { "Value", componentKV.Value } }));

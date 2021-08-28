@@ -1,5 +1,6 @@
 ﻿using DefaultEcs;
 using RoguelikeToolkit.Entities.Entities;
+using System.Drawing;
 using System.Linq;
 using Xunit;
 
@@ -52,6 +53,51 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(1, valueComponent.Value["Foo"]);
             Assert.Equal(2, valueComponent.Value["Bar"]);
             Assert.Equal(123, valueComponent.Value["Baz"]);
+        }
+
+        [Fact]
+        public void Can_build_value_component_with_dictionary_with_enum_as_value()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor9", out var actorEntity));
+            var valueComponent = actorEntity.Get<AttributesWithEnumAsValueTypeComponent>();
+
+            Assert.Equal(KnownColor.Indigo, valueComponent.Value["Foo"]);
+            Assert.Equal(KnownColor.Azure, valueComponent.Value["Bar"]);
+        }
+
+
+        [Fact]
+        public void Can_build_value_component_with_list_as_value()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor6", out var actorEntity));
+            
+            var valueComponent = actorEntity.Get<AttributeAsListComponent>();
+
+            Assert.Equal(3, valueComponent.Value[0]);
+            Assert.Equal(2, valueComponent.Value[1]);
+            Assert.Equal(1, valueComponent.Value[2]);
+        }
+
+        [Fact]
+        public void Can_build_value_component_with_hashset_of_enums_as_value()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor8", out var actorEntity));
+
+            var valueComponent = actorEntity.Get<AttributeAsHashSetComponent>();
+
+            Assert.Equal(2, valueComponent.Value.Count);
+            Assert.Equal(KnownColor.Azure, valueComponent.Value.First());
+            Assert.Equal(KnownColor.Indigo, valueComponent.Value.Last());
+        }
+
+        [Fact]
+        public void Can_build_value_component_with_enum_as_value()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor7", out var actorEntity));
+
+            var valueComponent = actorEntity.Get<AttributeAsEnumComponent>();
+
+            Assert.Equal(KnownColor.Azure, valueComponent.Value);
         }
 
         [Fact]
