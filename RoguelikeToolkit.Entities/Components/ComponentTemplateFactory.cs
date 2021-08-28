@@ -76,10 +76,29 @@ namespace RoguelikeToolkit.Entities
             var membersByName = _membersCache.GetOrAdd(type,
                                     newType =>
                                         newType.GetMembers()
-                                               .Where(m => 
-                                                    m.MemberType == MemberTypes.Field || 
+                                               .Where(m =>
+                                                    m.MemberType == MemberTypes.Field ||
                                                     m.MemberType == MemberTypes.Property)
                                                .ToDictionary(m => m.Name, m => m));
+
+            var valueComponentInterface = type.GetInterfaces().FirstOrDefault(i => i.FullName.Contains("RoguelikeToolkit.Entities.IValueComponent"));
+            if (valueComponentInterface != null)
+            {
+                if (valueComponentInterface.GenericTypeArguments[0].IsInterface ||
+                    valueComponentInterface.GenericTypeArguments[0].IsPointer)
+                {
+                    throw new InvalidOperationException($"Unexpected IValueComponent argument, it should not be an interface or a pointer (but it is {valueComponentInterface.GenericTypeArguments[0].FullName} for the type {type.FullName}) ");
+                }
+
+                //special case...
+                //note: contains rather ugly code, need to figure out a better way :)
+                if(valueComponentInterface.GenericTypeArguments[0].Name == "Dictionary`2")
+                {
+                    ApplyPropertyValuesToDictionary(type, instance, propertyValues, valueComponentInterface);
+                    return;
+                }
+            }
+
 
             foreach (var prop in propertyValues)
             {
@@ -87,7 +106,7 @@ namespace RoguelikeToolkit.Entities
                 {
                     if (_options.IgnoreMissingFields)
                         continue;
-                    
+
                     throw new InvalidDataException($"Field or property by name of {prop.Key} wasn't found in the type. It *is* possible to have duck-typing, but still at least the names of fields should be the same and types should be convertible (for example, int <-> double)");
                 }
                 var memberType = member.GetUnderlyingType();
@@ -101,7 +120,7 @@ namespace RoguelikeToolkit.Entities
                 {
                     try
                     {
-                        typeAccessor[instance, prop.Key] = prop.Value != null ? 
+                        typeAccessor[instance, prop.Key] = prop.Value != null ?
                             Convert.ChangeType(prop.Value, memberType) :
                             default;
                     }
@@ -117,6 +136,35 @@ namespace RoguelikeToolkit.Entities
                     {
                         throw new InvalidOperationException($"Failed to convert {prop.Value} to {memberType.Name}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
                     }
+                }
+            }
+        }
+
+        private static void ApplyPropertyValuesToDictionary(Type type, object instance, IReadOnlyDictionary<string, object> propertyValues, Type valueComponentInterface)
+        {
+
+            ((dynamic)instance).Value = (dynamic)FormatterServices.GetUninitializedObject(valueComponentInterface.GenericTypeArguments[0]);
+
+            var valueType = valueComponentInterface.GenericTypeArguments[0].GenericTypeArguments[1];
+            //by now we know that the Value is a dictionary, so...
+            var component = ((dynamic)instance).Value;
+            foreach (var prop in propertyValues)
+            {
+                try
+                {
+                    component.Add(prop.Key, (dynamic)Convert.ChangeType(prop.Value, valueType));
+                }
+                catch (OverflowException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {valueType}, this is most likely due to incorrect component type being specified. ", e);
+                }
+                catch (FormatException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {valueType}, this is most likely due to weird value format that wasn't recognized. ", e);
+                }
+                catch (InvalidCastException e)
+                {
+                    throw new InvalidOperationException($"Failed to convert {prop.Value} to {valueType}, the conversion is most likely not supported. Try implementing IConvertible to solve this...", e);
                 }
             }
         }
