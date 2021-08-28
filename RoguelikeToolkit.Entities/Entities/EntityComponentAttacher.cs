@@ -1,7 +1,6 @@
 ﻿using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -66,12 +65,7 @@ namespace RoguelikeToolkit.Entities.Entities
                 ThrowFailedToFindComponentType(componentName);
 
             var componentInstance = _componentFactory.CreateInstance(componentType, template);
-
-            if(!_entitySetByTypeCache.TryGetValue(componentType, out var entitySetMethod))
-            {
-                entitySetMethod = EntitySetMethodInfo.MakeGenericMethod(componentType);
-                _entitySetByTypeCache.Add(componentType, entitySetMethod);
-            }
+            var entitySetMethod = GetOrCacheEntitySetMethod(componentType);
 
             object[] @params = null;
             try
@@ -87,7 +81,22 @@ namespace RoguelikeToolkit.Entities.Entities
             }
         }
 
+        #region Helpers
+
+        private MethodInfo GetOrCacheEntitySetMethod(Type componentType)
+        {
+            if (!_entitySetByTypeCache.TryGetValue(componentType, out var entitySetMethod))
+            {
+                entitySetMethod = EntitySetMethodInfo.MakeGenericMethod(componentType);
+                _entitySetByTypeCache.Add(componentType, entitySetMethod);
+            }
+
+            return entitySetMethod;
+        }
+
         private static void ThrowFailedToFindComponentType(string componentName) =>
             throw new InvalidOperationException($"Failed to find type for component name = {componentName}, this is not supposed to happen and is likely a bug.");
+
+        #endregion
     }
 }

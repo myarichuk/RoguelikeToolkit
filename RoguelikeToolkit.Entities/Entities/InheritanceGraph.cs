@@ -25,7 +25,7 @@ namespace RoguelikeToolkit.Entities
             _templates = templates;
             _adjacencyList = templates.Values
                 .ToDictionary(t => t.Id,
-                              t => t.Inherits.ToList());
+                              t => t.Inherits.ToList(), StringComparer.InvariantCultureIgnoreCase);
         }
 
         public InheritanceGraph(IEnumerable<EntityTemplate> templates)
@@ -34,9 +34,9 @@ namespace RoguelikeToolkit.Entities
 
             _adjacencyList = templates
                 .ToDictionary(t => t.Id,
-                              t => t.Inherits.ToList());
+                              t => t.Inherits.ToList(), StringComparer.InvariantCultureIgnoreCase);
 
-            _templates = templates.ToDictionary(t => t.Id, t => t);
+            _templates = templates.ToDictionary(t => t.Id, t => t, StringComparer.InvariantCultureIgnoreCase);
         }
 
         //in order to calculate "effective" template, we need to traverse up the inheritance chain
@@ -97,11 +97,6 @@ namespace RoguelikeToolkit.Entities
             //sanity check, this shouldn't happen!
             if (templates.Any(t => t.Inherits.Contains(t.Id)))
                 throw new InvalidOperationException($"Self-inheritance is now allowed as it is silly. (self-inheritance found in template with Id = {templates.First(t => t.Inherits.Contains(t.Id)).Id}");
-
-            foreach(var template in templates)
-                foreach (var inheritsId in template.Inherits)
-                    if (templates.Any(x => x.Id == inheritsId) == false)
-                        throw new InvalidOperationException($"Template (id = {template.Id}) contains invalid (non-existent) Id in 'Inherits' field {inheritsId}.");
         }
 
         #endregion

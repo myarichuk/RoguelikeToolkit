@@ -37,8 +37,6 @@ namespace RoguelikeToolkit.Entities.Entities
                 throw new InvalidOperationException("Template collection is empty, I don't think it is supposed to happen, this is likely a bug.");
 
             _inheritanceGraph = new InheritanceGraph(_templateCollection.Templates);
-
-
         }
 
         public bool TryCreateEntity(string entityId, out Entity entity)
@@ -46,18 +44,8 @@ namespace RoguelikeToolkit.Entities.Entities
             entity = default;
             if(_templateCollection.TryGetById(entityId, out var template))
             {
-                entity = _world.CreateEntity();
-                
-                if(!_effectiveEntityTemplateCache.TryGetValue(entityId, out var effectiveTemplate))
-                {
-                    effectiveTemplate = new EffectiveEntityTemplate(template, _inheritanceGraph.GetInheritanceChainFor(template));
-                    _effectiveEntityTemplateCache.Add(entityId, effectiveTemplate);
-                }
-
-                var components = effectiveTemplate.Components;
-                foreach(var componentKV in components)
-                    _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, ref entity);
-
+                if (!TryCreatEntityFrom(template, out entity))
+                    throw new InvalidOperationException($"Failed to create an entity from template Id = {template.Id}");
 
                 return true;
             }
@@ -65,6 +53,28 @@ namespace RoguelikeToolkit.Entities.Entities
             return false;
         }
 
+        private bool TryCreatEntityFrom(EntityTemplate template, out Entity entity, EntityTemplate parent = null)
+        {
+            entity = _world.CreateEntity();
+            if (!_effectiveEntityTemplateCache.TryGetValue(template.Id, out var effectiveTemplate))
+            {
+                effectiveTemplate = new EffectiveEntityTemplate(template, _inheritanceGraph.GetInheritanceChainFor(template));
+                _effectiveEntityTemplateCache.Add(template.Id, effectiveTemplate);
+            }
+
+            foreach (var componentKV in effectiveTemplate.Components)
+                _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, ref entity);
+
+            foreach (var childEntityKV in effectiveTemplate.ChildEntities)
+            {
+                if (!TryCreatEntityFrom(childEntityKV.Value, out var childEntity, template))
+                    throw new InvalidOperationException($"Failed to create an entity from template Id = {template.Id}");
+
+                entity.SetAsParentOf(childEntity);
+            }
+
+            return true;
+        }
 
         #region Helpers
 

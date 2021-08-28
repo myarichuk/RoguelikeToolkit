@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Entities
 {
     public class EntityTemplate : IEquatable<EntityTemplate>, IEntityTemplate
     {
+        private static readonly string[] EntityProperties =
+        {
+            nameof(Id),
+            nameof(Components),
+            nameof(Inherits),
+            nameof(Tags)
+        };
+
         private const string StringCollectionMalformed = "The property is malformed - it should be a collection of strings";
         private const string IdMissingMessage = "Missing required field -> 'Id'";
         private const string ComponentsMalformedMessage = "'Components' property is malformed - it should be an object where each field is a component";
@@ -15,6 +24,7 @@ namespace RoguelikeToolkit.Entities
         public Dictionary<string, ComponentTemplate> Components { get; } = new Dictionary<string, ComponentTemplate>(StringComparer.InvariantCultureIgnoreCase);
         public HashSet<string> Inherits { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         public HashSet<string> Tags { get; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        public Dictionary<string, EntityTemplate> ChildEntities { get; } = new Dictionary<string, EntityTemplate>(StringComparer.InvariantCultureIgnoreCase);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EntityTemplate ParseFromFile(string jsonFile) =>
@@ -22,14 +32,25 @@ namespace RoguelikeToolkit.Entities
 
         public static EntityTemplate ParseFromString(string json)
         {
-            var template = new EntityTemplate();
             if (!json.TryDeserialize(out var data))
                 throw new InvalidDataException("Failed to parse malformed json");
 
-            if (data.TryGetValue(nameof(Id), out var idAsObj) == false || !(idAsObj is string id))
-                throw new InvalidDataException(IdMissingMessage);
+            return ParseFromDictionary(data);
+        }
+
+        public static EntityTemplate ParseFromDictionary(IDictionary<string, object> data, string templateId = null)
+        {
+            var template = new EntityTemplate();
+
+            if (templateId != null)
+                template.Id = templateId;
             else
-                template.Id = id;
+            {
+                if (data.TryGetValue(nameof(Id), out var idAsObj) == false || !(idAsObj is string id))
+                    throw new InvalidDataException(IdMissingMessage);
+                else
+                    template.Id = id;
+            }
 
             if (data.TryGetValue(nameof(Inherits), out var inherits))
                 ParseStringArrayField(inherits, template.Inherits);
@@ -39,6 +60,19 @@ namespace RoguelikeToolkit.Entities
 
             if (data.TryGetValue(nameof(Tags), out var tags))
                 ParseStringArrayField(tags, template.Tags);
+
+            var embeddedTemplateNames = data.Keys.Except(EntityProperties);
+            foreach (var templateName in embeddedTemplateNames)
+            {
+                //ensure unique name
+                var embeddedTemplateId = $"{template.Id}.{templateName}";
+
+                if (!(data[templateName] is IDictionary<string, object> templateData))
+                    throw new InvalidDataException($"Embedded template (key = {templateName}) is expected to be json embedded object, but it has the type = {data[templateName].GetType().FullName}");
+
+                var embeddedTemplate = ParseFromDictionary(templateData, embeddedTemplateId);
+                template.ChildEntities.AddOrSet(templateName, _ => embeddedTemplate);
+            }
 
             return template;
         }
