@@ -1,0 +1,15 @@
+﻿{
+  "Id": "Actor6",
+  "Inherits": [],
+  "LeftArm": {
+    "Inherits": [ "bodyPart" ],
+    "Components": { "Weight": 10.0 }
+  },
+  "RightArm": {
+    "Inherits": [ "bodyPart" ],
+    "Components": { "Weight": 10.0 }
+  },
+  "Components": {
+    "AttributeAsList": [ 3, 2, 1 ]
+  }
+}
