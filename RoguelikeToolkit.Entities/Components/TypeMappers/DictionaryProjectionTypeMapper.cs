@@ -24,7 +24,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                           i.IsGenericType &&
                           i.GenericTypeArguments[0].IsDictionary());
 
-        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance)
+        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
         {
             var accessor = MemberAccessor.Get(destType);
             var instance = accessor.CreateNewSupported ? accessor.CreateNew() : FormatterServices.GetUninitializedObject(destType);

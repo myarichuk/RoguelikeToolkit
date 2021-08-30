@@ -9,6 +9,6 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
         bool CanMap(Type destType, IReadOnlyDictionary<string, object> data);
 
-        object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance);
+        object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null);
     }
 }

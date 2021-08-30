@@ -22,8 +22,10 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                           i.GenericTypeArguments[0].GetInterfaces()
                                 .Any(ii => ii.FullName.StartsWith("System.Collections.Generic.IDictionary")));
 
-        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance)
+        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
         {
+            options ??= EntityFactoryOptions.Default;
+
             var accessor = MemberAccessor.Get(destType);
             var instance = accessor.CreateNewSupported ? accessor.CreateNew() : FormatterServices.GetUninitializedObject(destType);
 
@@ -32,7 +34,10 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                 var member = GetMemberByName(destType, prop.Key);
                 if (member == null)
                 {
-                    continue;
+                    if (options.IgnoreMissingFields)
+                        continue;
+                    else
+                        throw new InvalidOperationException($"Tried to find the field {prop.Key} but failed (parent type = {destType.FullName})");
                 }
 
                 if (prop.Value is ComponentTemplate emdedded)

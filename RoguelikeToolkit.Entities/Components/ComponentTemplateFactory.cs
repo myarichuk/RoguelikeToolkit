@@ -32,12 +32,12 @@ namespace RoguelikeToolkit.Entities
                 throw new InvalidOperationException($"Cannot create component instance with a specified type. The type should *not* be a primitive, enum, by-ref type or a pointer (specified type = {type.FullName})");
             }
 
-            var instance = CreateInstance(type, template.PropertyValues);
+            var instance = CreateInstance(type, options, template.PropertyValues);
 
             return instance;
         }
 
-        protected object CreateInstance(Type type, IReadOnlyDictionary<string, object> data)
+        protected object CreateInstance(Type type, EntityFactoryOptions options, IReadOnlyDictionary<string, object> data)
         {
             object instance = null;
             bool wasMapped = false;
@@ -45,7 +45,9 @@ namespace RoguelikeToolkit.Entities
             {
                 if (mapper.CanMap(type, data))
                 {
-                    instance = mapper.Map(type, data, (innerData, innerType) => CreateInstance(innerType, innerData));
+                    instance = mapper.Map(type, data, 
+                        (innerData, innerType) => 
+                            CreateInstance(innerType, options, innerData));
                     wasMapped = true;
                     break;
                 }
