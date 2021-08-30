@@ -27,7 +27,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [InlineData(typeof(SomeEnum))]
         public void Should_throw_if_trying_to_build_interface_with_unsupported_type(Type componentType) =>
             Assert.Throws<InvalidOperationException>(() =>
-                _factory.CreateInstance(componentType, ComponentTemplate.ParseFromString("{}")));
+                _factory.CreateInstance(componentType, EntityFactoryOptions.Default, ComponentTemplate.ParseFromString("{}")));
 
         [Fact]
         public void Class_component_template_should_work()

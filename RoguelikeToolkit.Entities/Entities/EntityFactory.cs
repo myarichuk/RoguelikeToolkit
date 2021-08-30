@@ -10,6 +10,7 @@ namespace RoguelikeToolkit.Entities
     {
         private readonly World _world;
         private readonly EntityTemplateCollection _templateCollection;
+        private readonly EntityFactoryOptions _options;
         private readonly InheritanceGraph _inheritanceGraph;
         private readonly EntityComponentAttacher _componentAttacher;
         private readonly Dictionary<EntityTemplate, EffectiveEntityTemplate> _effectiveEntityTemplateCache = new();
@@ -18,7 +19,8 @@ namespace RoguelikeToolkit.Entities
         public EntityFactory(
             World world,
             EntityTemplateCollection templateCollection,
-            params Assembly[] componentAssemblies) : this(world, templateCollection, DefaultComponentNameExtractor, null, componentAssemblies)
+            EntityFactoryOptions options = null,
+            params Assembly[] componentAssemblies) : this(world, templateCollection, DefaultComponentNameExtractor, null, options ?? EntityFactoryOptions.Default, componentAssemblies)
         {
         }
 
@@ -27,10 +29,14 @@ namespace RoguelikeToolkit.Entities
             EntityTemplateCollection templateCollection,
             Func<Type, string> componentNameExtractor,
             ComponentFactoryOptions? componentFactoryOptions,
+            EntityFactoryOptions options = null,
             params Assembly[] componentAssemblies)
         {
             _world = world ?? throw new ArgumentNullException(nameof(world));
             _templateCollection = templateCollection ?? throw new ArgumentNullException(nameof(templateCollection));
+            
+            _options = options ?? EntityFactoryOptions.Default;
+
             _componentAttacher = new EntityComponentAttacher(componentNameExtractor, componentFactoryOptions, componentAssemblies);
 
             if (_templateCollection.Templates.Any() == false)
@@ -57,7 +63,7 @@ namespace RoguelikeToolkit.Entities
             return false;
         }
 
-        private bool TryCreatEntityFrom(EntityTemplate template, out Entity entity, EntityTemplate parent = null)
+        private bool TryCreatEntityFrom(EntityTemplate template, out Entity entity)
         {
             entity = _world.CreateEntity();
             var effectiveTemplate = _effectiveEntityTemplateCache
@@ -65,12 +71,12 @@ namespace RoguelikeToolkit.Entities
 
             foreach (var componentKV in effectiveTemplate.Components)
             {
-                _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, ref entity);
+                _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, _options, ref entity);
             }
 
             foreach (var childEntityKV in effectiveTemplate.ChildEntities)
             {
-                if (!TryCreatEntityFrom(childEntityKV.Value, out var childEntity, template))
+                if (TryCreatEntityFrom(childEntityKV.Value, out var childEntity) == false)
                 {
                     throw new InvalidOperationException($"Failed to create an entity from template Id = {template.Id}");
                 }
@@ -78,8 +84,11 @@ namespace RoguelikeToolkit.Entities
                 entity.SetAsParentOf(childEntity);
             }
 
-            var metadata = _metadataCache.GetOrAdd(effectiveTemplate, t => new MetadataComponent { Value = t.Tags });
-            entity.Set(metadata);
+            if (entity.Has<MetadataComponent>() == false)
+            {
+                var metadata = _metadataCache.GetOrAdd(effectiveTemplate, t => new MetadataComponent { Value = t.Tags });
+                entity.Set(metadata);
+            }
 
             return true;
         }

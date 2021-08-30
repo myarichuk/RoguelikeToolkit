@@ -57,8 +57,9 @@ namespace RoguelikeToolkit.Entities
                 .ToDictionary(x => ComponentNameExtractor(x), x => x, StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public void InstantiateAndAttachComponent(string componentName, ComponentTemplate template, ref Entity entity)
+        public void InstantiateAndAttachComponent(string componentName, ComponentTemplate template, EntityFactoryOptions options, ref Entity entity)
         {
+            //TODO: finish integration _options into different property type mappers
             if (template is null) //sanity check
             {
                 throw new ArgumentNullException(nameof(template));
@@ -69,7 +70,7 @@ namespace RoguelikeToolkit.Entities
                 ThrowFailedToFindComponentType(componentName);
             }
 
-            var componentInstance = _componentFactory.CreateInstance(componentType, template);
+            var componentInstance = _componentFactory.CreateInstance(componentType, options, template);
             var entitySetMethod = GetOrCacheEntitySetMethod(componentType);
 
             object[] @params = null;
