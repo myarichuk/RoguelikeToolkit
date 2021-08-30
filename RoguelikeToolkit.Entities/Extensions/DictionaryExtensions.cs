@@ -11,7 +11,9 @@ namespace RoguelikeToolkit.Entities
         public static void AddIfNotExists<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue val)
         {
             if (!dict.ContainsKey(key))
+            {
                 dict.Add(key, val);
+            }
         }
 
         public static dynamic ToExpando<TValue>(this IReadOnlyDictionary<string, TValue> dict)
@@ -19,7 +21,9 @@ namespace RoguelikeToolkit.Entities
             var result = (IDictionary<string, object>)new ExpandoObject();
 
             foreach (var kvp in dict)
+            {
                 result.Add(kvp.Key, kvp.Value);
+            }
 
             return result;
         }
@@ -32,7 +36,9 @@ namespace RoguelikeToolkit.Entities
         public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> valueFactory)
         {
             if (dict.TryGetValue(key, out var value))
+            {
                 return value;
+            }
 
             var newValue = valueFactory(key);
             dict.Add(key, newValue);
@@ -44,9 +50,13 @@ namespace RoguelikeToolkit.Entities
         public static void AddOrSet<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TValue, TValue> mutator)
         {
             if (dict.ContainsKey(key))
+            {
                 dict[key] = mutator(dict[key]);
+            }
             else
+            {
                 dict.Add(key, mutator(default));
+            }
         }
     }
 }

@@ -14,7 +14,9 @@ namespace RoguelikeToolkit.Scripts
             var allReferenceAssemblies = referenceAssemblies.Concat(Constants.AssembliesToReference).ToList();
             var diceAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName.Contains("RoguelikeToolkit.Dice"));
             if (diceAssembly != null)
+            {
                 allReferenceAssemblies.Add(diceAssembly);
+            }
 
             var allNamespaces = allReferenceAssemblies.SelectMany(a => a.GetTypes().Select(t => t.Namespace)).Where(n => n != null).Distinct().ToArray();
 #if RELEASE

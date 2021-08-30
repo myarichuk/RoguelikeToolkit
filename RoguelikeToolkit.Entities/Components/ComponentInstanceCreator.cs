@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace RoguelikeToolkit.Entities.Components
 {
@@ -25,7 +24,9 @@ namespace RoguelikeToolkit.Entities.Components
             }
 
             if (wasMapped == false)
+            {
                 throw new InvalidOperationException($"Failed to create component instance of type {type.FullName}, no suitable mappers found");
+            }
 
             return instance;
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Antlr4.Runtime.Tree;
 
 namespace RoguelikeToolkit.DiceExpression
 {
@@ -61,7 +60,9 @@ namespace RoguelikeToolkit.DiceExpression
             var sides = int.Parse(context.sides.Text);
 
             if (context.keepNum == null)
+            {
                 return Dice.RollAndSum(numOfDice, sides);
+            }
 
             //we need to keep the highest 'keepNum' for summary
             var rolls = Dice.Roll(numOfDice, sides).OrderByDescending(x => x);
@@ -73,8 +74,10 @@ namespace RoguelikeToolkit.DiceExpression
             var numOfDice = int.Parse(context.numOfDice.Text);
             var sides = int.Parse(context.sides.Text);
 
-            if (context.keepNum == null) 
+            if (context.keepNum == null)
+            {
                 return Dice.RollAndSum(numOfDice, sides);
+            }
 
             //we need to keep the highest 'keepNum' for summary
             var rolls = Dice.Roll(numOfDice, sides).OrderByDescending(x => x);

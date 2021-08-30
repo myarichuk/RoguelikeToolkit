@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.ObjectPool;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.ObjectPool;
 
 namespace RoguelikeToolkit.Entities
 {
     public class InheritanceGraph
     {
-        private readonly static ObjectPool<Queue<string>> _queuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<string>>());
-        private readonly static ObjectPool<HashSet<string>> _visitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<string>>());
+        private static readonly ObjectPool<Queue<string>> _queuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<string>>());
+        private static readonly ObjectPool<HashSet<string>> _visitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<string>>());
 
         private readonly IReadOnlyDictionary<string, List<string>> _adjacencyList;
         private readonly IReadOnlyDictionary<string, EntityTemplate> _templates;
@@ -35,7 +35,7 @@ namespace RoguelikeToolkit.Entities
             _adjacencyList = templates
                 .ToDictionary(t => t.Id,
                               t => t.Inherits.ToList(), StringComparer.InvariantCultureIgnoreCase);
-
+            
             _templates = templates.ToDictionary(t => t.Id, t => t, StringComparer.InvariantCultureIgnoreCase);
         }
 
@@ -44,8 +44,9 @@ namespace RoguelikeToolkit.Entities
         {
             //sanity check, not strictly needed but it is good this is here
             if (_templates.ContainsKey(template.Id) == false)
+            {
                 ThrowIrrelevantTemplate(template);
-
+            }
 
             if (template?.Inherits.Count == 0) //no need to work hard...
             {
@@ -65,13 +66,17 @@ namespace RoguelikeToolkit.Entities
                     var currentId = traversalQueue.Dequeue();
 
                     if (visited.Contains(currentId)) //ignore circles
+                    {
                         continue;
+                    }
 
                     visited.Add(currentId);
                     yield return _templates[currentId];
 
                     for (int i = 0; i < _adjacencyList[currentId].Count; i++)
+                    {
                         traversalQueue.Enqueue(_adjacencyList[currentId][i]);
+                    }
                 }
             }
             finally
@@ -93,14 +98,16 @@ namespace RoguelikeToolkit.Entities
         #region Helpers
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private void ThrowIrrelevantTemplate(EntityTemplate template) => 
+        private void ThrowIrrelevantTemplate(EntityTemplate template) =>
             throw new InvalidOperationException("Cannot resolve dependency graph from irrelevant template");
 
         private static void ValidateAndThrowIfNeeded(IEnumerable<EntityTemplate> templates)
         {
             //sanity check, this shouldn't happen!
             if (templates.Any(t => t.Inherits.Contains(t.Id)))
+            {
                 throw new InvalidOperationException($"Self-inheritance is now allowed as it is silly. (self-inheritance found in template with Id = {templates.First(t => t.Inherits.Contains(t.Id)).Id}");
+            }
         }
 
         #endregion

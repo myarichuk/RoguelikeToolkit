@@ -5,7 +5,7 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public class Bar : IValueComponent<double>
     {
-        public double Value {  get; set; }
+        public double Value { get; set; }
     }
 
     public struct Bar2 : IValueComponent<string>
@@ -17,7 +17,7 @@ namespace RoguelikeToolkit.Entities.Tests
     public class EntityTemplateTests
     {
         [Fact]
-        public void Should_throw_missing_id() => 
+        public void Should_throw_missing_id() =>
             Assert.Throws<InvalidDataException>(() => EntityTemplate.ParseFromString("{}"));
 
         [Fact]
@@ -92,7 +92,7 @@ namespace RoguelikeToolkit.Entities.Tests
                         ""Id"":""FooBar"",
                         ""Components"": ""This is invalid property type...""
                    }
-                 "));           
+                 "));
 
         [Fact]
         public void Can_parse_empty_inherits()

@@ -26,7 +26,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [InlineData(typeof(void*))]
         [InlineData(typeof(SomeEnum))]
         public void Should_throw_if_trying_to_build_interface_with_unsupported_type(Type componentType) =>
-            Assert.Throws<InvalidOperationException>(() => 
+            Assert.Throws<InvalidOperationException>(() =>
                 _factory.CreateInstance(componentType, ComponentTemplate.ParseFromString("{}")));
 
         [Fact]
@@ -56,11 +56,11 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Dynamic_component_type_with_embedded_objects_should_work()
         {
-            var component = new Attributes3Component 
-            { 
-                Agility = 12, 
-                Strength = 23, 
-                Bar = new Foo { Num = 123, Str = "ABC" } 
+            var component = new Attributes3Component
+            {
+                Agility = 12,
+                Strength = 23,
+                Bar = new Foo { Num = 123, Str = "ABC" }
             };
 
             var template = ComponentTemplate.ParseFromString(JsonSerializer.ToJsonString(component));
@@ -153,7 +153,7 @@ namespace RoguelikeToolkit.Entities.Tests
 
         [Fact]
         public void Can_build_template_with_struct_and_embedded_object_struct()
-        { 
+        {
             var component = new Attributes5Component
             {
                 Agility = 12,

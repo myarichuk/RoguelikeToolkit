@@ -24,7 +24,9 @@ namespace RoguelikeToolkit.Entities
 
             //check just in case, should never happen
             if (EntitySetMethodInfo == null)
+            {
                 throw new ApplicationException("Couldn't find appropriate Entity::Set<T>() method. This probably means that DefaultEcs library has been updated with breaking changes. This is definitely not supposed to happen and should be reported :)");
+            }
         }
 
         public EntityComponentAttacher(
@@ -58,10 +60,14 @@ namespace RoguelikeToolkit.Entities
         public void InstantiateAndAttachComponent(string componentName, ComponentTemplate template, ref Entity entity)
         {
             if (template is null) //sanity check
+            {
                 throw new ArgumentNullException(nameof(template));
+            }
 
             if (!_componentTypesByName.TryGetValue(componentName, out var componentType))
+            {
                 ThrowFailedToFindComponentType(componentName);
+            }
 
             var componentInstance = _componentFactory.CreateInstance(componentType, template);
             var entitySetMethod = GetOrCacheEntitySetMethod(componentType);
@@ -76,7 +82,9 @@ namespace RoguelikeToolkit.Entities
             finally
             {
                 if (@params != null)
+                {
                     _paramArrayPool.Return(@params);
+                }
             }
         }
 

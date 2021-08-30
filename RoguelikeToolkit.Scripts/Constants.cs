@@ -6,7 +6,7 @@ namespace RoguelikeToolkit.Scripts
 {
     internal static class Constants
     {
-        internal readonly static Assembly[] AssembliesToReference =
+        internal static readonly Assembly[] AssembliesToReference =
            {
                 Assembly.GetExecutingAssembly(),
                 Assembly.GetCallingAssembly(),

@@ -10,10 +10,14 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
         public bool CanMap(Type destType, object value)
         {
             if (destType is null)
+            {
                 throw new ArgumentNullException(nameof(destType));
+            }
 
             if (value is null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             return value is IConvertible;
         }

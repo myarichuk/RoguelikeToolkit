@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FastMember;
+using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using FastMember;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -15,7 +15,9 @@ namespace RoguelikeToolkit.Entities
         public static TypeAccessor Get(Type type)
         {
             if (AccessorCache.TryGetValue(type, out var accessor))
+            {
                 return accessor;
+            }
 
             var newAccessor = TypeAccessor.Create(type, true);
             AccessorCache.TryAdd(type, newAccessor);

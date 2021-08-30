@@ -9,11 +9,11 @@ namespace RoguelikeToolkit.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Trim(this string str, int before, int after = 0)
         {
-            #if NETSTANDARD2_1
+#if NETSTANDARD2_1
             return str[before..^after];
-            #else
+#else
             return str.Substring(before, str.Length - after);
-            #endif
+#endif
         }
 
         public static bool TryDeserialize(this string json, out IDictionary<string, object> data)
@@ -23,7 +23,9 @@ namespace RoguelikeToolkit.Entities
             {
                 data = (IDictionary<string, object>)JsonSerializer.Deserialize<dynamic>(json);
                 if (data == null)
+                {
                     return false;
+                }
             }
             catch (JsonParsingException)
             {

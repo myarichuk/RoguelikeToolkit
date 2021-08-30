@@ -7,7 +7,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
         int Priority { get; }
 
         bool CanMap(Type destType, object value);
-        
+
         object Map(Type destType, object value);
     }
 }

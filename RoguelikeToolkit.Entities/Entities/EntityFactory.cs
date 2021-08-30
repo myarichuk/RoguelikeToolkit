@@ -1,5 +1,4 @@
 ﻿using DefaultEcs;
-using RoguelikeToolkit.Entities.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +23,8 @@ namespace RoguelikeToolkit.Entities
         }
 
         public EntityFactory(
-            World world, 
-            EntityTemplateCollection templateCollection, 
+            World world,
+            EntityTemplateCollection templateCollection,
             Func<Type, string> componentNameExtractor,
             ComponentFactoryOptions? componentFactoryOptions,
             params Assembly[] componentAssemblies)
@@ -35,7 +34,9 @@ namespace RoguelikeToolkit.Entities
             _componentAttacher = new EntityComponentAttacher(componentNameExtractor, componentFactoryOptions, componentAssemblies);
 
             if (_templateCollection.Templates.Any() == false)
+            {
                 throw new InvalidOperationException("Template collection is empty, I don't think it is supposed to happen, this is likely a bug.");
+            }
 
             _inheritanceGraph = new InheritanceGraph(_templateCollection.Templates);
         }
@@ -43,10 +44,12 @@ namespace RoguelikeToolkit.Entities
         public bool TryCreateEntity(string entityId, out Entity entity)
         {
             entity = default;
-            if(_templateCollection.TryGetById(entityId, out var template))
+            if (_templateCollection.TryGetById(entityId, out var template))
             {
                 if (!TryCreatEntityFrom(template, out entity))
+                {
                     throw new InvalidOperationException($"Failed to create an entity from template Id = {template.Id}");
+                }
 
                 return true;
             }
@@ -61,12 +64,16 @@ namespace RoguelikeToolkit.Entities
                 .GetOrAdd(template, t => new EffectiveEntityTemplate(t, _inheritanceGraph.GetInheritanceChainFor(t)));
 
             foreach (var componentKV in effectiveTemplate.Components)
+            {
                 _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, ref entity);
+            }
 
             foreach (var childEntityKV in effectiveTemplate.ChildEntities)
             {
                 if (!TryCreatEntityFrom(childEntityKV.Value, out var childEntity, template))
+                {
                     throw new InvalidOperationException($"Failed to create an entity from template Id = {template.Id}");
+                }
 
                 entity.SetAsParentOf(childEntity);
             }

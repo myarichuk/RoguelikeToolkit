@@ -8,7 +8,7 @@ namespace RoguelikeToolkit.Scripts
 {
     public class EntityComponentScript : EntityScript<ComponentParam>
     {
-        private readonly static ObjectPool<ComponentParam> ParamPool = new DefaultObjectPool<ComponentParam>(new DefaultPooledObjectPolicy<ComponentParam>());
+        private static readonly ObjectPool<ComponentParam> ParamPool = new DefaultObjectPool<ComponentParam>(new DefaultPooledObjectPolicy<ComponentParam>());
 
         public EntityComponentScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
         {
@@ -17,7 +17,9 @@ namespace RoguelikeToolkit.Scripts
         public Task RunAsyncOn<TComponent>(in Entity entity, CancellationToken ct = default)
         {
             if (!entity.Has<TComponent>())
+            {
                 return Task.CompletedTask;
+            }
 
             ComponentParam param = null;
             try

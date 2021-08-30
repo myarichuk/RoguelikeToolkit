@@ -33,7 +33,9 @@ namespace RoguelikeToolkit.Entities
         public static EntityTemplate ParseFromString(string json)
         {
             if (!json.TryDeserialize(out var data))
+            {
                 throw new InvalidDataException("Failed to parse malformed json");
+            }
 
             return ParseFromDictionary(data);
         }
@@ -43,23 +45,35 @@ namespace RoguelikeToolkit.Entities
             var template = new EntityTemplate();
 
             if (templateId != null)
+            {
                 template.Id = templateId;
+            }
             else
             {
                 if (data.TryGetValue(nameof(Id), out var idAsObj) == false || idAsObj is not string id)
+                {
                     throw new InvalidDataException(IdMissingMessage);
+                }
                 else
+                {
                     template.Id = id;
+                }
             }
 
             if (data.TryGetValue(nameof(Inherits), out var inherits))
+            {
                 ParseStringArrayField(inherits, template.Inherits);
+            }
 
             if (data.TryGetValue(nameof(Components), out var components))
+            {
                 ParseComponentsField(template, components);
+            }
 
             if (data.TryGetValue(nameof(Tags), out var tags))
+            {
                 ParseStringArrayField(tags, template.Tags);
+            }
 
             var embeddedTemplateNames = data.Keys.Except(EntityProperties, StringComparer.InvariantCultureIgnoreCase);
             foreach (var templateName in embeddedTemplateNames)
@@ -68,7 +82,9 @@ namespace RoguelikeToolkit.Entities
                 var embeddedTemplateId = $"{template.Id}.{templateName}";
 
                 if (data[templateName] is not IDictionary<string, object> templateData)
+                {
                     throw new InvalidDataException($"Embedded template (key = {templateName}) is expected to be json embedded object, but it has the type = {data[templateName].GetType().FullName}");
+                }
 
                 var embeddedTemplate = ParseFromDictionary(templateData, embeddedTemplateId);
                 template.ChildEntities.AddOrSet(templateName, _ => embeddedTemplate);
@@ -86,9 +102,11 @@ namespace RoguelikeToolkit.Entities
                 foreach (var componentKV in componentsStronglyTyped)
                 {
                     if (componentKV.Value is IDictionary<string, object> componentProps)
+                    {
                         template.Components.AddOrSet(componentKV.Key, _ => new ComponentTemplate(componentProps));
-                    else if (componentKV.Value is string || 
-                             componentKV.Value.GetType().IsPrimitive || 
+                    }
+                    else if (componentKV.Value is string ||
+                             componentKV.Value.GetType().IsPrimitive ||
                              componentKV.Value.GetType().GetInterfaces().Any(i => i.FullName.StartsWith("System.Collections.Generic.ICollection`1")) ||
                              componentKV.Value.GetType().GetInterfaces().Any(i => i.FullName.StartsWith("System.Collections.Generic.IDictionary`2")))
                     {
@@ -110,15 +128,21 @@ namespace RoguelikeToolkit.Entities
         private static void ParseStringArrayField(object valuesList, ICollection<string> destination)
         {
             if (valuesList is not List<object> valuesAsObjectList)
+            {
                 throw new InvalidDataException(StringCollectionMalformed);
+            }
 
             for (int i = 0; i < valuesAsObjectList.Count; i++)
             {
                 object valAsObject = valuesAsObjectList[i];
                 if (valAsObject is string valAsString)
+                {
                     destination.Add(valAsString);
+                }
                 else
+                {
                     throw new InvalidDataException(StringCollectionMalformed);
+                }
             }
         }
 

@@ -43,7 +43,9 @@ namespace RoguelikeToolkit.Entities
             var items = itemExtractor(_root).AsEnumerable();
 
             foreach (var template in _inheritanceChain)
+            {
                 items = items.Concat(itemExtractor(template));
+            }
 
             var mergedItems = from kvp in items
                               group kvp by kvp.Key into g
@@ -59,7 +61,7 @@ namespace RoguelikeToolkit.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IEnumerable<KeyValuePair<string, ComponentTemplate>> GetEffectiveComponents() =>
             GetEffectiveItems(template => template.Components);
-        
+
         #endregion
     }
 }

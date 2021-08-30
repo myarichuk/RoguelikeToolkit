@@ -10,7 +10,7 @@ namespace RoguelikeToolkit.Entities.Tests
     {
         public double Value { get; set; }
     }
-    
+
     public class HealthComponent : IValueComponent<double>
     {
         public double Value { get; set; }
@@ -81,7 +81,7 @@ namespace RoguelikeToolkit.Entities.Tests
         public void Can_build_value_component_with_list_as_value()
         {
             Assert.True(entityFactory.TryCreateEntity("actor6", out var actorEntity));
-            
+
             var valueComponent = actorEntity.Get<AttributeAsListComponent>();
 
             Assert.Equal(3, valueComponent.Value[0]);
@@ -90,7 +90,7 @@ namespace RoguelikeToolkit.Entities.Tests
         }
 
         [Fact]
-        public void Should_throw_when_value_component_with_interface_as_value() => 
+        public void Should_throw_when_value_component_with_interface_as_value() =>
             Assert.Throws<InvalidOperationException>(() => entityFactory.TryCreateEntity("actor10", out var actorEntity));
 
         [Fact]
@@ -119,7 +119,7 @@ namespace RoguelikeToolkit.Entities.Tests
         public void Can_build_complex_entity()
         {
             Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));
-            
+
             Assert.Single(actorEntity.Get<MetadataComponent>().Value);
             Assert.Equal("actor", actorEntity.Get<MetadataComponent>().Value.First());
 

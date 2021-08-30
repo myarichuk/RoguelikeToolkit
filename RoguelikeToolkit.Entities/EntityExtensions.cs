@@ -1,6 +1,5 @@
 ﻿using RoguelikeToolkit.Entities;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 // credit: taken from https://github.com/Doraku/DefaultEcs/blob/master/source/DefaultEcs.Extension/Children/EntityExtension.cs
@@ -27,7 +26,9 @@ namespace DefaultEcs
                 foreach (Entity child in children)
                 {
                     if (child.IsAlive)
+                    {
                         child.Dispose();
+                    }
                 }
             }
         }
@@ -57,12 +58,16 @@ namespace DefaultEcs
         public static IEnumerable<Entity> GetChildren(this Entity parent)
         {
             if (!parent.Has<Children>())
+            {
                 yield break;
+            }
 
             foreach (var child in parent.Get<Children>().Value)
             {
                 foreach (var childOfChild in child.GetChildren())
+                {
                     yield return childOfChild;
+                }
 
                 yield return child;
             }
@@ -80,23 +85,34 @@ namespace DefaultEcs
             return false;
         }
 
-        private readonly static HashSet<string> EmptyMetadata = new();
+
+        /* Unmerged change from project 'RoguelikeToolkit.Entities (netstandard2.1)'
+        Before:
+                private readonly static HashSet<string> EmptyMetadata = new();
+        After:
+                private static readonly HashSet<string> EmptyMetadata = new();
+        */
+        private static readonly HashSet<string> EmptyMetadata = new();
 
         public static ISet<string> Metadata(this Entity entity)
         {
-            if(entity.TryGet<MetadataComponent>(out var metadata))
+            if (entity.TryGet<MetadataComponent>(out var metadata))
+            {
                 return metadata.Value;
+            }
 
             return EmptyMetadata;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool MetadataHasTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);        
+        public static bool MetadataHasTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);
 
         public static void RemoveFromParentsOf(this Entity parent, Entity child)
         {
             if (parent.Has<Children>())
+            {
                 parent.Get<Children>().Value.Remove(child);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

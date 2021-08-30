@@ -22,7 +22,7 @@ namespace RoguelikeToolkit.Scripts
 
     public class EntityScript : EntityScript<EntityParam>
     {
-        private readonly static ObjectPool<EntityParam> ParamPool = new DefaultObjectPool<EntityParam>(new DefaultPooledObjectPolicy<EntityParam>());
+        private static readonly ObjectPool<EntityParam> ParamPool = new DefaultObjectPool<EntityParam>(new DefaultPooledObjectPolicy<EntityParam>());
 
         public EntityScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
         {

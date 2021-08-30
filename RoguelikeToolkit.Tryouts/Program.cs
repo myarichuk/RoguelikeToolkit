@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using DefaultEcs;
-using RoguelikeToolkit.DiceExpression;
-using RoguelikeToolkit.Entities;
-using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Tryouts
 {
@@ -17,7 +9,7 @@ namespace RoguelikeToolkit.Tryouts
         Right
     }
 
-    class Program
+    internal class Program
     {
 
         public static Dictionary<ConsoleKey, ActionList> KeyMappings = new Dictionary<ConsoleKey, ActionList>
@@ -28,9 +20,9 @@ namespace RoguelikeToolkit.Tryouts
 
         public class FooBar
         {
-            public string Name {  get; set; }
+            public string Name { get; set; }
             public EmbeddedFoobar Embedded { get; set; }
-            public int Number {  get; set; }
+            public int Number { get; set; }
             public bool Flag { get; set; }
         }
 
@@ -39,7 +31,7 @@ namespace RoguelikeToolkit.Tryouts
             public int Number { get; set; }
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //using var world = new World();
             //var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";

@@ -3,7 +3,7 @@ using System;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class PrimitiveTypeMapper: IPropertyMapper
+    public class PrimitiveTypeMapper : IPropertyMapper
     {
         public int Priority => 0;
 

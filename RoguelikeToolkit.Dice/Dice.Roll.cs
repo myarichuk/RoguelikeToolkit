@@ -18,14 +18,19 @@ namespace RoguelikeToolkit.DiceExpression
         {
             var result = 0;
             for (int i = 0; i < numOfDice; i++)
+            {
                 result += Random.Value.Next(1, sides);
+            }
+
             return result;
         }
 
         internal static IEnumerable<int> Roll(int numOfDice, int sides)
         {
             for (int i = 0; i < numOfDice; i++)
+            {
                 yield return Random.Value.Next(1, sides);
+            }
         }
 
     }

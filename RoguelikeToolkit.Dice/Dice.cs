@@ -1,6 +1,5 @@
-﻿using System.Data;
+﻿using Antlr4.Runtime;
 using System.Runtime.CompilerServices;
-using Antlr4.Runtime;
 
 // ReSharper disable once IdentifierTypo
 namespace RoguelikeToolkit.DiceExpression
@@ -13,7 +12,7 @@ namespace RoguelikeToolkit.DiceExpression
 
         static Dice()
         {
-            Lexer= new DiceLexer(new AntlrInputStream(string.Empty));
+            Lexer = new DiceLexer(new AntlrInputStream(string.Empty));
             Parser = new DiceParser(new CommonTokenStream(Lexer));
         }
         #endregion

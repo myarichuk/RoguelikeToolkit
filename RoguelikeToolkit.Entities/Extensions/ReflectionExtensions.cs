@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit.Entities
 {
     public static class ReflectionExtensions
     {
-        public static Type GetUnderlyingType(this MemberInfo member) => 
+        public static Type GetUnderlyingType(this MemberInfo member) =>
             member.MemberType switch
             {
                 MemberTypes.Event => ((EventInfo)member).EventHandlerType,

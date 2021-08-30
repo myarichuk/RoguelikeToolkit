@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RoguelikeToolkit.Entities;
+﻿using RoguelikeToolkit.Entities;
 
 namespace RoguelikeToolkit.Tryouts
 {

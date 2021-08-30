@@ -30,15 +30,21 @@ namespace RoguelikeToolkit
                 entity.Remove<Children>();
 
                 foreach (Entity child in children)
+                {
                     if (child.IsAlive)
+                    {
                         child.Dispose();
+                    }
+                }
             }
         }
 
         public static IEnumerable<Entity> GetChildren(this Entity parent)
         {
-            if(!parent.Has<Children>())
+            if (!parent.Has<Children>())
+            {
                 yield break;
+            }
 
             HashSet<Entity> visited = null;
 
@@ -50,13 +56,17 @@ namespace RoguelikeToolkit
                 foreach (var child in children)
                 {
                     if (visited.Contains(child))
+                    {
                         continue;
-                    
+                    }
+
                     visited.Add(child);
                     yield return child;
 
                     foreach (var childOfChild in child.GetChildren())
+                    {
                         yield return childOfChild;
+                    }
                 }
             }
             finally
@@ -95,7 +105,9 @@ namespace RoguelikeToolkit
         public static void RemoveFromParentsOf(this Entity parent, Entity child)
         {
             if (parent.Has<Children>())
+            {
                 parent.Get<Children>().Value.Remove(child);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

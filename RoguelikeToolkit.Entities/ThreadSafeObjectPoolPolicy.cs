@@ -10,7 +10,9 @@ namespace RoguelikeToolkit.Entities
         public TObject Create()
         {
             if (_pool.TryDequeue(out var instance))
+            {
                 return instance;
+            }
 
             return new TObject();
         }
