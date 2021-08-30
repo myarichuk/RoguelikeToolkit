@@ -54,31 +54,17 @@ namespace DefaultEcs
             children.Add(child);
         }
 
-        public static IEnumerable<Entity> GetChildrenWithTags(this Entity parent, params string[] tags)
-        {
-            if (parent.Has<Children>())
-            {
-                foreach (var child in parent.Get<Children>().Value
-                                            .Where(e => e.MetadataContainsTags(tags)))
-                {
-                    yield return child;
-                    foreach (var childOfChild in child.GetChildrenWithTags(tags))
-                        yield return childOfChild;
-                }
-            }
-        }
-
         public static IEnumerable<Entity> GetChildren(this Entity parent)
         {
-            if (parent.Has<Children>())
-            {
-                foreach (var child in parent.Get<Children>().Value)
-                {
-                    foreach (var childOfChild in child.GetChildren())
-                        yield return childOfChild;
+            if (!parent.Has<Children>())
+                yield break;
 
-                    yield return child;
-                }
+            foreach (var child in parent.Get<Children>().Value)
+            {
+                foreach (var childOfChild in child.GetChildren())
+                    yield return childOfChild;
+
+                yield return child;
             }
         }
 
@@ -105,7 +91,7 @@ namespace DefaultEcs
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool MetadataContainsTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);        
+        public static bool MetadataHasTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);        
 
         public static void RemoveFromParentsOf(this Entity parent, Entity child)
         {
