@@ -1,4 +1,5 @@
 ﻿using DefaultEcs;
+using RoguelikeToolkit.Entities.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace RoguelikeToolkit.Entities
         private readonly EntityComponentAttacher _componentAttacher;
         private readonly Dictionary<EntityTemplate, EffectiveEntityTemplate> _effectiveEntityTemplateCache = new();
         private readonly Dictionary<EffectiveEntityTemplate, MetadataComponent> _metadataCache = new();
+        private readonly Dictionary<EffectiveEntityTemplate, IdComponent> _idCache = new();
 
         public EntityFactory(
             World world,
@@ -88,6 +90,12 @@ namespace RoguelikeToolkit.Entities
             {
                 var metadata = _metadataCache.GetOrAdd(effectiveTemplate, t => new MetadataComponent { Value = t.Tags });
                 entity.Set(metadata);
+            }
+
+            if(_options.AutoIncludeIdComponent && entity.Has<IdComponent>() == false)
+            {
+                var id = _idCache.GetOrAdd(effectiveTemplate, t => new IdComponent { Value = t.Id });
+                entity.Set(id);
             }
 
             return true;
