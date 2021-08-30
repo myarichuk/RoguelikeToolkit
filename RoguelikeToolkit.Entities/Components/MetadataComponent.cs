@@ -1,7 +1,9 @@
-﻿namespace RoguelikeToolkit.Entities
+﻿using System.Collections.Generic;
+
+namespace RoguelikeToolkit.Entities
 { 
-    public struct MetadataComponent : IValueComponent<string[]>
+    public struct MetadataComponent : IValueComponent<HashSet<string>>
     {
-        public string[] Value { get; set; }
+        public HashSet<string> Value { get; set; }
     }
 }

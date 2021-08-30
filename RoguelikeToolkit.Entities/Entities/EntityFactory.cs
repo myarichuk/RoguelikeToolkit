@@ -71,7 +71,7 @@ namespace RoguelikeToolkit.Entities
                 entity.SetAsParentOf(childEntity);
             }
 
-            var metadata = _metadataCache.GetOrAdd(effectiveTemplate, t => new MetadataComponent { Value = t.Tags.ToArray() });
+            var metadata = _metadataCache.GetOrAdd(effectiveTemplate, t => new MetadataComponent { Value = t.Tags });
             entity.Set(metadata);
 
             return true;

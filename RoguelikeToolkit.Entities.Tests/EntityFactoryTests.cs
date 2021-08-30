@@ -28,7 +28,7 @@ namespace RoguelikeToolkit.Entities.Tests
         public EntityFactoryTests()
         {
             templateCollection = new EntityTemplateCollection("Templates");
-            entityFactory = new EntityFactory(new DefaultEcs.World(), templateCollection);
+            entityFactory = new EntityFactory(new World(), templateCollection);
         }
 
         [Fact]
@@ -121,12 +121,12 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));
             
             Assert.Single(actorEntity.Get<MetadataComponent>().Value);
-            Assert.Equal("actor", actorEntity.Get<MetadataComponent>().Value[0]);
+            Assert.Equal("actor", actorEntity.Get<MetadataComponent>().Value.First());
 
             foreach (var childEntity in actorEntity.GetChildren())
             {
                 var metadata = childEntity.Get<MetadataComponent>().Value;
-                Assert.Equal(2, metadata.Length);
+                Assert.Equal(2, metadata.Count);
                 Assert.Contains("actor", metadata);
                 Assert.Contains("arm", metadata);
             }
