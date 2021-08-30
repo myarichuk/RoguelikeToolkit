@@ -7,15 +7,7 @@ using System.Reflection;
 namespace RoguelikeToolkit.Entities.Components
 {
     internal class Mappers
-
     {
-
-        /* Unmerged change from project 'RoguelikeToolkit.Entities (netstandard2.1)'
-        Before:
-                private readonly static Lazy<Mappers> _instance = new(() => new());
-        After:
-                private static readonly Lazy<Mappers> _instance = new(() => new());
-        */
         private static readonly Lazy<Mappers> _instance = new(() => new());
         private readonly List<IPropertyMapper> _propertyMappers = new();
         private readonly List<ITypeMapper> _typeMappers = new();
