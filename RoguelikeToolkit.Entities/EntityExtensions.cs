@@ -14,7 +14,7 @@ namespace DefaultEcs
             public Children(HashSet<Entity> value) => Value = value;
         }
 
-        private static readonly HashSet<World> _worlds = new HashSet<World>();
+        private static readonly HashSet<World> _worlds = new();
 
         private static void OnEntityDisposed(in Entity entity)
         {
@@ -86,12 +86,7 @@ namespace DefaultEcs
         }
 
 
-        /* Unmerged change from project 'RoguelikeToolkit.Entities (netstandard2.1)'
-        Before:
-                private readonly static HashSet<string> EmptyMetadata = new();
-        After:
-                private static readonly HashSet<string> EmptyMetadata = new();
-        */
+
         private static readonly HashSet<string> EmptyMetadata = new();
 
         public static ISet<string> Metadata(this Entity entity)
