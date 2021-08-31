@@ -20,7 +20,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return destType.IsNumeric() && value is string str && str.StartsWith("="));
+            return destType.IsNumeric() && value is string str && str.StartsWith("=");
         }
 
         public object Map(Type destType, object value) =>
