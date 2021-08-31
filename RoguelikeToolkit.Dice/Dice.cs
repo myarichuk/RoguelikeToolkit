@@ -1,6 +1,6 @@
-﻿using Antlr4.Runtime;
-using System.Data;
+﻿using System.Data;
 using System.Runtime.CompilerServices;
+using Antlr4.Runtime;
 
 // ReSharper disable once IdentifierTypo
 namespace RoguelikeToolkit.DiceExpression
@@ -37,9 +37,9 @@ namespace RoguelikeToolkit.DiceExpression
                 Parser.AddErrorListener(listener);
             }
 
-            var diceAst = Parser.root();            
+            var diceAst = Parser.root();
 
-            if(throwOnParsingError && Parser.NumberOfSyntaxErrors > 0)
+            if (throwOnParsingError && Parser.NumberOfSyntaxErrors > 0)
             {
                 throw new SyntaxErrorException($"Failed to parse expression '{diceExpression}'");
             }

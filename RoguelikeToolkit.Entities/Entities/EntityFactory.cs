@@ -1,9 +1,9 @@
-﻿using DefaultEcs;
-using RoguelikeToolkit.Entities.Components;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DefaultEcs;
+using RoguelikeToolkit.Entities.Components;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -36,7 +36,7 @@ namespace RoguelikeToolkit.Entities
         {
             _world = world ?? throw new ArgumentNullException(nameof(world));
             _templateCollection = templateCollection ?? throw new ArgumentNullException(nameof(templateCollection));
-            
+
             _options = options ?? EntityFactoryOptions.Default;
 
             _componentAttacher = new EntityComponentAttacher(componentNameExtractor, componentFactoryOptions, componentAssemblies);
@@ -92,7 +92,7 @@ namespace RoguelikeToolkit.Entities
                 entity.Set(metadata);
             }
 
-            if(_options.AutoIncludeIdComponent && entity.Has<IdComponent>() == false)
+            if (_options.AutoIncludeIdComponent && entity.Has<IdComponent>() == false)
             {
                 var id = _idCache.GetOrAdd(effectiveTemplate, t => new IdComponent { Value = t.Id });
                 entity.Set(id);

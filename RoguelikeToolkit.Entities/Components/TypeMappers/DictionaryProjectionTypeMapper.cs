@@ -7,14 +7,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 {
     public class DictionaryProjectionTypeMapper : ITypeMapper
     {
-
-        /* Unmerged change from project 'RoguelikeToolkit.Entities (netstandard2.1)'
-        Before:
-                private readonly static Lazy<List<IPropertyMapper>> _propertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
-        After:
-                private static readonly Lazy<List<IPropertyMapper>> _propertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
-        */
-        private static readonly Lazy<List<IPropertyMapper>> _propertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
+        private static readonly Lazy<List<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
 
         public int Priority => 2;
 
@@ -46,7 +39,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                 var dict = ((dynamic)instance).Value; //we know it is IValueComponent, so...
 
                 var itemType = (Type)dict.GetType().GenericTypeArguments[1];
-                var converter = _propertyMappers.Value.FirstOrDefault(c => c.CanMap(itemType, data.Values.First()));
+                var converter = PropertyMappers.Value.FirstOrDefault(c => c.CanMap(itemType, data.Values.First()));
                 if (converter == null)
                 {
                     throw new InvalidOperationException($"Cannot map between collections, couldn't find appropriate mapper between {dict.GetType().GenericTypeArguments[1].FullName} and {data.Values.First().GetType().FullName}");

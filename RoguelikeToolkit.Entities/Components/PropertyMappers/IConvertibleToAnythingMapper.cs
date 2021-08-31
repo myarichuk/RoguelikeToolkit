@@ -1,9 +1,10 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class ConvertChangeTypeMapper : IPropertyMapper
+    //"last resort" mapper, if everything else fails, try one last time...
+    public class IConvertibleToAnythingMapper : IPropertyMapper
     {
         public int Priority => int.MaxValue;
 

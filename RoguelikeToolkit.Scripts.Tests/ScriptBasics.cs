@@ -1,7 +1,7 @@
-using DefaultEcs;
-using RoguelikeToolkit.DiceExpression;
 using System.Reflection;
 using System.Threading.Tasks;
+using DefaultEcs;
+using RoguelikeToolkit.DiceExpression;
 using Xunit;
 
 namespace RoguelikeToolkit.Scripts.Tests

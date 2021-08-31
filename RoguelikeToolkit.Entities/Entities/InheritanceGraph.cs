@@ -35,7 +35,7 @@ namespace RoguelikeToolkit.Entities
             _adjacencyList = templates
                 .ToDictionary(t => t.Id,
                               t => t.Inherits.ToList(), StringComparer.InvariantCultureIgnoreCase);
-            
+
             _templates = templates.ToDictionary(t => t.Id, t => t, StringComparer.InvariantCultureIgnoreCase);
         }
 

@@ -1,5 +1,5 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.ObjectPool;
-using System;
+﻿using System;
+using Microsoft.Extensions.ObjectPool;
 
 namespace RoguelikeToolkit.Entities
 {

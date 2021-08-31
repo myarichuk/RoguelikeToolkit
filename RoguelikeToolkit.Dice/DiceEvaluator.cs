@@ -15,12 +15,12 @@ namespace RoguelikeToolkit.DiceExpression
             switch (context.op.Type)
             {
                 case DiceLexer.PLUS:
-                    return left + right;
+                return left + right;
                 case DiceLexer.MINUS:
-                    return left - right;
+                return left - right;
                 default:
-                    throw new ArgumentException(
-                        $"Unexpected operator token '{context.op.Text}' (in this context expected either '+' or '-')");
+                throw new ArgumentException(
+                    $"Unexpected operator token '{context.op.Text}' (in this context expected either '+' or '-')");
             }
         }
 
@@ -40,12 +40,12 @@ namespace RoguelikeToolkit.DiceExpression
             switch (context.op.Type)
             {
                 case DiceLexer.MULTIPLY:
-                    return left * right;
+                return left * right;
                 case DiceLexer.DIVIDE:
-                    return left / right;
+                return left / right;
                 default:
-                    throw new ArgumentException(
-                        $"Unexpected operator token '{context.op.Text}' (in this context expected either '+' or '-')");
+                throw new ArgumentException(
+                    $"Unexpected operator token '{context.op.Text}' (in this context expected either '+' or '-')");
             }
         }
 

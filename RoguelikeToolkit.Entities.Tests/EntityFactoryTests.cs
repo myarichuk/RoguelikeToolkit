@@ -1,7 +1,7 @@
-﻿using DefaultEcs;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
+using DefaultEcs;
 using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests
@@ -45,6 +45,20 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(100.0, entity.Get<HealthComponent>().Value);
         }
 
+
+        [Fact]
+        public void Can_build_from_template_with_converting_strings_to_numbers()
+        {
+            Assert.True(entityFactory.TryCreateEntity("object2", out var entity));
+            Assert.True(entity.Has<WeightComponent>());
+            Assert.True(entity.Has<HealthComponent>());
+            Assert.True(entity.Has<FooBarComponent>());
+
+            Assert.Equal(1.0, entity.Get<WeightComponent>().Value);
+            Assert.Equal(100.0, entity.Get<HealthComponent>().Value);
+            Assert.Equal(555, entity.Get<FooBarComponent>().Value);
+        }
+
         [Fact]
         public void Can_build_value_component_with_dictionary_as_value()
         {
@@ -76,6 +90,18 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal("bar", valueComponent.Tags[1]);
             Assert.Equal("hello", valueComponent.Tags[2]);
         }
+
+        [Fact]
+        public void Can_build_with_calculated_dice_field()
+        {
+            Assert.True(entityFactory.TryCreateEntity("actor12", out var actorEntity));
+
+            var leftArm = actorEntity.GetChildren().First(e => e.Id().Contains("LeftArm"));
+
+            Assert.True(leftArm.TryGet<WeightComponent>(out var weight));
+            Assert.True(weight.Value > 12);
+        }
+
 
         [Fact]
         public void Can_build_value_component_with_list_as_value()

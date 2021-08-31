@@ -17,6 +17,17 @@ namespace RoguelikeToolkit.Entities
                 _ => throw new ArgumentException("Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"),
             };
 
+        public static bool IsNumeric(this Type type) =>
+            type == typeof(short) ||
+            type == typeof(int) ||
+            type == typeof(long) ||
+            type == typeof(ushort) ||
+            type == typeof(uint) ||
+            type == typeof(ulong) ||
+            type == typeof(float) ||
+            type == typeof(decimal) ||
+            type == typeof(double);
+
         public static bool IsICollection(this Type type) =>
             type.IsArray == false &&
                     type.GetInterfaces().Any(i =>
@@ -27,9 +38,8 @@ namespace RoguelikeToolkit.Entities
         public static bool IsDictionary(this Type type) =>
             type.GetInterfaces()
                 .Any(i => i.FullName.StartsWith("System.Collections.Generic.IDictionary") &&
-                          i.IsGenericType &&
-                          i.GenericTypeArguments.Length == 2);
-
+                              i.IsGenericType &&
+                              i.GenericTypeArguments.Length == 2);
 
         public delegate object ObjectActivator(params object[] args);
 

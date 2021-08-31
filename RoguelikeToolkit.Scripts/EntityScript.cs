@@ -1,10 +1,10 @@
-﻿using DefaultEcs;
-using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.Extensions.ObjectPool;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DefaultEcs;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.Extensions.ObjectPool;
 
 namespace RoguelikeToolkit.Scripts
 {

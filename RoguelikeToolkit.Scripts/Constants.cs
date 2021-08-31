@@ -1,6 +1,6 @@
-﻿using DefaultEcs;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
+using DefaultEcs;
 
 namespace RoguelikeToolkit.Scripts
 {

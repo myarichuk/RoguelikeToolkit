@@ -1,9 +1,9 @@
-﻿using DefaultEcs;
-using Microsoft.Extensions.ObjectPool;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DefaultEcs;
+using Microsoft.Extensions.ObjectPool;
 
 namespace RoguelikeToolkit.Entities
 {

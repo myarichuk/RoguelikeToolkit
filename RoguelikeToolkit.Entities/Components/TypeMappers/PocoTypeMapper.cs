@@ -1,16 +1,16 @@
-﻿using FastMember;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using FastMember;
 
 namespace RoguelikeToolkit.Entities.Components.TypeMappers
 {
     public class PocoTypeMapper : ITypeMapper
     {
-        private static readonly Lazy<IReadOnlyList<IPropertyMapper>> _propertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, Member>> _membersCacheByType = new();
+        private static readonly Lazy<IReadOnlyList<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
+        private static readonly ConcurrentDictionary<Type, Dictionary<string, Member>> MembersCacheByType = new();
 
         public int Priority => int.MaxValue;
 
@@ -51,7 +51,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                 else
                 {
                     bool wasMapped = false;
-                    foreach (var mapper in _propertyMappers.Value)
+                    foreach (var mapper in PropertyMappers.Value)
                     {
                         if (mapper.CanMap(member.Type, prop.Value))
                         {
@@ -72,7 +72,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
             static Member GetMemberByName(Type destType, string propName)
             {
-                var typeMembers = _membersCacheByType.GetOrAdd(destType,
+                var typeMembers = MembersCacheByType.GetOrAdd(destType,
                                         type => MemberAccessor.Get(destType)
                                                               .GetMembers()
                                                               .ToDictionary(x => x.Name, x => x));

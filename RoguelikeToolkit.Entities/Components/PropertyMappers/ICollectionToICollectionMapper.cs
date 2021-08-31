@@ -1,16 +1,16 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 using static RoguelikeToolkit.Entities.ReflectionExtensions;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
     public class ICollectionToICollectionMapper : IPropertyMapper
     {
-        private static readonly ConcurrentDictionary<Type, ObjectActivator> _ctorsPerType = new();
-        private static readonly Lazy<List<IPropertyMapper>> _propertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
+        private static readonly ConcurrentDictionary<Type, ObjectActivator> CtorsPerType = new();
+        private static readonly Lazy<List<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
 
         public int Priority => 15;
 
@@ -31,7 +31,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 
         public object Map(Type destType, object value)
         {
-            var instanceCreator = _ctorsPerType.GetOrAdd(destType, type =>
+            var instanceCreator = CtorsPerType.GetOrAdd(destType, type =>
             {
                 var ctor = type.GetConstructor(Array.Empty<Type>());
                 return ctor.CreateActivator();
@@ -45,7 +45,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 return instance;
             }
 
-            var converter = _propertyMappers.Value.FirstOrDefault(c => c.CanMap(destType.GenericTypeArguments[0], srcCollection[0]));
+            var converter = PropertyMappers.Value.FirstOrDefault(c => c.CanMap(destType.GenericTypeArguments[0], srcCollection[0]));
             if (converter == null)
             {
                 throw new InvalidOperationException($"Cannot map between collections, couldn't find appropriate mapper between {destType.GenericTypeArguments[0].FullName} and {((dynamic)value)[0].GetType().FullName}");

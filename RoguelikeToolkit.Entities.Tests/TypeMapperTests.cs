@@ -1,5 +1,5 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests

@@ -1,8 +1,8 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components
 {

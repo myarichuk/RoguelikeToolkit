@@ -1,9 +1,10 @@
-﻿using DefaultEcs;
-using Microsoft.Extensions.ObjectPool;
-using RoguelikeToolkit.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using DefaultEcs;
+using Microsoft.Extensions.ObjectPool;
+using RoguelikeToolkit.Entities;
+using RoguelikeToolkit.Entities.Components;
 
 namespace RoguelikeToolkit
 {
@@ -41,6 +42,9 @@ namespace RoguelikeToolkit
                 }
             }
         }
+
+        public static string Id(this Entity entity) =>
+            entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 
         public static ISet<string> Metadata(this Entity entity)
         {

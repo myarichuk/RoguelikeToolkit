@@ -1,9 +1,9 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class EnumFromPrimitiveTypeMapper : IPropertyMapper
+    public class PrimitiveToEnumMapper : IPropertyMapper
     {
         public int Priority => 2;
 

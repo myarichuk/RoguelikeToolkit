@@ -1,9 +1,9 @@
-﻿using RoguelikeToolkit.Entities.Components.TypeMappers;
-using System;
+﻿using System;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class PrimitiveTypeMapper : IPropertyMapper
+    public class PrimitiveToPrimitiveMapper : IPropertyMapper
     {
         public int Priority => 0;
 
@@ -19,7 +19,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return destType.IsValueType && !destType.IsEnum;
+            return destType.IsPrimitive && !destType.IsEnum && value is not string;
         }
 
         public object Map(Type valueType, object val)

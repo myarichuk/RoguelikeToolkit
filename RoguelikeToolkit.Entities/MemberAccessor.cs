@@ -1,7 +1,7 @@
-﻿using FastMember;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using FastMember;
 
 namespace RoguelikeToolkit.Entities
 {
