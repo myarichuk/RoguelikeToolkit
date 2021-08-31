@@ -69,12 +69,12 @@ namespace RoguelikeToolkit.Entities
         {
             entity = _world.CreateEntity();
             var effectiveTemplate = _effectiveEntityTemplateCache
-                .GetOrAdd(template, t => new EffectiveEntityTemplate(t, _inheritanceGraph.GetInheritanceChainFor(t)));
+                .GetOrAdd(template, templ => 
+                    new EffectiveEntityTemplate(templ, _inheritanceGraph.GetInheritanceChainFor(templ)));
 
             foreach (var componentKV in effectiveTemplate.Components)
-            {
-                _componentAttacher.InstantiateAndAttachComponent(componentKV.Key, componentKV.Value, _options, ref entity);
-            }
+                _componentAttacher.InstantiateAndAttachComponent(
+                    componentKV.Key, componentKV.Value, _options, ref entity);
 
             foreach (var childEntityKV in effectiveTemplate.ChildEntities)
             {
@@ -94,7 +94,7 @@ namespace RoguelikeToolkit.Entities
 
             if (_options.AutoIncludeIdComponent && entity.Has<IdComponent>() == false)
             {
-                var id = _idCache.GetOrAdd(effectiveTemplate, t => new IdComponent { Value = t.Id });
+                var id = _idCache.GetOrAdd(effectiveTemplate, effTempl => new IdComponent { Value = effTempl.Id });
                 entity.Set(id);
             }
 
@@ -108,7 +108,9 @@ namespace RoguelikeToolkit.Entities
             var componentAttribute = componentType.GetCustomAttribute<ComponentAttribute>();
 
             return componentAttribute?.Name ?? DefaultGetComponentName(componentType.Name);
-            string DefaultGetComponentName(string name) => name.EndsWith("Component") ? name.Replace("Component", string.Empty) : name;
+
+            static string DefaultGetComponentName(string name) => 
+                name.EndsWith("Component") ? name.Replace("Component", string.Empty) : name;
         }
 
         #endregion

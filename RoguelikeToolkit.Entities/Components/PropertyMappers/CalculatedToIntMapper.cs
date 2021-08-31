@@ -4,7 +4,7 @@ using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class CalculatedDiceToIntMapper : IPropertyMapper
+    public class CalculatedToIntMapper : IPropertyMapper
     {
         public int Priority => 2;
 
@@ -20,22 +20,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (destType.IsNumeric() && value is string str && str.StartsWith("="))
-            {
-                try
-                {
-                    //check valid expression
-                    _ = Dice.Parse(str.Substring(1), true);
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-
-            return false;
+            return destType.IsNumeric() && value is string str && str.StartsWith("="));
         }
 
         public object Map(Type destType, object value) =>
