@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/myarichuk/rogueliketoolkit</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>dicenotation, dice, dice notation, roguelike, rogueliketoolkit</PackageTags>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using System.Data;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable once IdentifierTypo
@@ -25,12 +26,24 @@ namespace RoguelikeToolkit.DiceExpression
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Dice(string diceExpression) => Parse(diceExpression);
 
-        public static Dice Parse(string diceExpression)
+        public static Dice Parse(string diceExpression, bool throwOnParsingError = false)
         {
             Lexer.SetInputStream(new AntlrInputStream(diceExpression));
             Parser.SetInputStream(new CommonTokenStream(Lexer));
 
-            var diceAst = Parser.root();
+            if (throwOnParsingError)
+            {
+                var listener = new DiagnosticErrorListener();
+                Parser.AddErrorListener(listener);
+            }
+
+            var diceAst = Parser.root();            
+
+            if(throwOnParsingError && Parser.NumberOfSyntaxErrors > 0)
+            {
+                throw new SyntaxErrorException($"Failed to parse expression '{diceExpression}'");
+            }
+
             return new Dice(diceAst);
         }
 

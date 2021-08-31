@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RoguelikeToolkit.DiceExpression;
 
 namespace RoguelikeToolkit.Tryouts
 {
@@ -33,6 +34,7 @@ namespace RoguelikeToolkit.Tryouts
 
         private static void Main(string[] args)
         {
+            Console.WriteLine(Dice.Parse("1", true).Roll());
             //using var world = new World();
             //var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
             //var foobarTemplate = ComponentTemplate.ParseFromString(foobarAsString);
