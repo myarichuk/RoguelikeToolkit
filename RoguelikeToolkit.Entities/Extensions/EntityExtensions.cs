@@ -1,6 +1,8 @@
 ﻿using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
+using RoguelikeToolkit.Entities;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace RoguelikeToolkit
@@ -19,6 +21,7 @@ namespace RoguelikeToolkit
             }
         }
 
+        private static readonly HashSet<string> EmptyMetadata = new();
         private static readonly HashSet<World> _worlds = new();
         private static readonly ObjectPool<HashSet<Entity>> _visitedPool = Entities.ObjectPoolProvider.Instance.Create(new Entities.ThreadSafeObjectPoolPolicy<HashSet<Entity>>());
 
@@ -38,6 +41,49 @@ namespace RoguelikeToolkit
                 }
             }
         }
+
+        public static ISet<string> Metadata(this Entity entity)
+        {
+            if (entity.TryGet<MetadataComponent>(out var metadata))
+            {
+                return metadata.Value;
+            }
+
+            return EmptyMetadata;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);
+
+        public static IEnumerable<Entity> GetChidrenWithTags(this Entity parent, params string[] tags)
+        {
+            if (!parent.Has<Children>())
+            {
+                yield break;
+            }
+
+            foreach (var child in parent.GetChildren().Where(ch => ch.HasTags(tags)))
+            {
+                yield return child;
+
+                foreach (var childOfChild in child.GetChidrenWithTags(tags))
+                {
+                    yield return childOfChild;
+                }
+            }
+        }
+        public static bool TryGet<T>(this Entity entity, out T component)
+        {
+            component = default;
+            if (entity.Has<T>())
+            {
+                component = entity.Get<T>();
+                return true;
+            }
+
+            return false;
+        }
+
 
         public static IEnumerable<Entity> GetChildren(this Entity parent)
         {
