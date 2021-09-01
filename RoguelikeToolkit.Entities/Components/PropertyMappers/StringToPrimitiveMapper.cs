@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using RoguelikeToolkit.Entities.Components.TypeMappers;
 
@@ -16,7 +17,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsPrimitive && value is string;
         }
 
-        public object Map(Type destType, object value)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value)
         {
             var converter = TypeDescriptor.GetConverter(destType);
             if (converter == null || converter.CanConvertFrom(typeof(string)) == false)

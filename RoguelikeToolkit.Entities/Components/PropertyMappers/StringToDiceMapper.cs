@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using RoguelikeToolkit.DiceExpression;
+using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
@@ -23,7 +25,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType == typeof(Dice) && value is string;
         }
         
-        public object Map(Type destType, object value) => 
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value) => 
             Dice.Parse((string)value);
     }
 }

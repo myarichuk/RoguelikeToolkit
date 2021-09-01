@@ -10,12 +10,15 @@ namespace RoguelikeToolkit.Entities
     public struct ComponentFactoryOptions
     {
         public bool IgnoreMissingFields;
+
         public bool IgnoreInvalidEnumFields;
     }
 
     public class ComponentFactory
     {
-        private static readonly Lazy<IReadOnlyList<ITypeMapper>> _typeMappers = new(() => Mappers.Instance.TypeMappers.OrderBy(x => x.Priority).ToList());
+        private readonly MapperRepository _mapperRepository;
+
+        public ComponentFactory(MapperRepository mapperRepository = null) => _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TInstance CreateInstance<TInstance>(ComponentTemplate template, EntityFactoryOptions options = null) =>
@@ -40,12 +43,12 @@ namespace RoguelikeToolkit.Entities
 
         protected object CreateInstance(Type destType, EntityFactoryOptions options, IReadOnlyDictionary<string, object> data)
         {
-            for (int i = 0; i < _typeMappers.Value.Count; i++)
+            for (int i = 0; i < _mapperRepository.TypeMappers.Count; i++)
             {
-                var mapper = _typeMappers.Value[i];
+                var mapper = _mapperRepository.TypeMappers[i];
                 if (mapper.CanMap(destType, data))
                 {
-                    return mapper.Map(destType, data,
+                    return mapper.Map(_mapperRepository.PropertyMappers, destType, data,
                         (innerData, innerType) =>
                             CreateInstance(innerType, options, innerData), options);
                 }

@@ -23,8 +23,8 @@ namespace RoguelikeToolkit
         }
 
         private static readonly HashSet<string> EmptyMetadata = new();
-        private static readonly HashSet<World> _worlds = new();
-        private static readonly ObjectPool<HashSet<Entity>> _visitedPool = Entities.ObjectPoolProvider.Instance.Create(new Entities.ThreadSafeObjectPoolPolicy<HashSet<Entity>>());
+        private static readonly HashSet<World> Worlds = new();
+        private static readonly ObjectPool<HashSet<Entity>> VisitedPool = Entities.ObjectPoolProvider.Instance.Create(new Entities.ThreadSafeObjectPoolPolicy<HashSet<Entity>>());
 
         private static void OnEntityDisposed(in Entity entity)
         {
@@ -100,7 +100,7 @@ namespace RoguelikeToolkit
 
             try
             {
-                visited = _visitedPool.Get();
+                visited = VisitedPool.Get();
                 var children = parent.Get<Children>().Value;
 
                 foreach (var child in children)
@@ -124,17 +124,17 @@ namespace RoguelikeToolkit
                 if (visited != null)
                 {
                     visited.Clear();
-                    _visitedPool.Return(visited);
+                    VisitedPool.Return(visited);
                 }
             }
         }
 
         public static void SetAsParentOf(this Entity parent, Entity child)
         {
-            if (_worlds.Add(parent.World))
+            if (Worlds.Add(parent.World))
             {
                 parent.World.SubscribeEntityDisposed(OnEntityDisposed);
-                parent.World.SubscribeWorldDisposed(w => _worlds.Remove(w));
+                parent.World.SubscribeWorldDisposed(w => Worlds.Remove(w));
             }
 
             HashSet<Entity> children;

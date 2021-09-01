@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -16,6 +19,20 @@ namespace RoguelikeToolkit.Entities
                 MemberTypes.Property => ((PropertyInfo)member).PropertyType,
                 _ => throw new ArgumentException("Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"),
             };
+
+        public static bool ImplementsInterface<TInterface>(this Type type)
+        {
+            var interfaceType = typeof(TInterface);
+
+            if (interfaceType.IsInterface == false)
+                ThrowNotAnInterface(interfaceType);
+
+            return interfaceType.IsAssignableFrom(type);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowNotAnInterface(Type interfaceType) => 
+            throw new InvalidOperationException($"the specified type {interfaceType.FullName} must be an interface");
 
         public static bool IsNumeric(this Type type) =>
             type == typeof(short) ||
@@ -34,6 +51,18 @@ namespace RoguelikeToolkit.Entities
                         i.IsGenericType &&
                         i.GenericTypeArguments.Length == 1 &&
                         i.FullName.StartsWith("System.Collections.Generic.ICollection"));
+
+        public static bool IsValueComponent(this Type type) =>
+            type.IsGenericType && typeof(IValueComponent<>).IsAssignableFrom(type.GetGenericTypeDefinition());
+
+        public static object CreateInstance(this Type type)
+        {
+            if (type.IsAbstract || type.IsInterface)
+                throw new NotSupportedException("Cannot instantiate an interface or an abstract type");
+
+            var accessor = MemberAccessor.Get(type);
+            return accessor.CreateNewSupported ? accessor.CreateNew() : FormatterServices.GetUninitializedObject(type);
+        }
 
         public static bool IsDictionary(this Type type) =>
             type.GetInterfaces()

@@ -9,8 +9,8 @@ namespace RoguelikeToolkit.Entities
     public class EntityTemplateCollection
     {
         private readonly IReadOnlyDictionary<string, EntityTemplate> _templates;
-        private static readonly ObjectPool<Queue<EntityTemplate>> _traversalQueuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<EntityTemplate>>());
-        private static readonly ObjectPool<HashSet<EntityTemplate>> _visitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<EntityTemplate>>());
+        private static readonly ObjectPool<Queue<EntityTemplate>> TraversalQueuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<EntityTemplate>>());
+        private static readonly ObjectPool<HashSet<EntityTemplate>> VisitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<EntityTemplate>>());
 
         public EntityTemplateCollection(params string[] templateFolders)
         {
@@ -68,8 +68,8 @@ namespace RoguelikeToolkit.Entities
             HashSet<EntityTemplate> visited = null;
             try
             {
-                traversalQueue = _traversalQueuePool.Get();
-                visited = _visitedPool.Get();
+                traversalQueue = TraversalQueuePool.Get();
+                visited = VisitedPool.Get();
 
                 traversalQueue.Enqueue(template);
 
@@ -95,13 +95,13 @@ namespace RoguelikeToolkit.Entities
                 if (traversalQueue != null)
                 {
                     traversalQueue.Clear();
-                    _traversalQueuePool.Return(traversalQueue);
+                    TraversalQueuePool.Return(traversalQueue);
                 }
 
                 if (visited != null)
                 {
                     visited.Clear();
-                    _visitedPool.Return(visited);
+                    VisitedPool.Return(visited);
                 }
             }
         }

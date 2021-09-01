@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace RoguelikeToolkit.Entities.Components.TypeMappers
 {
     public class DictionaryProjectionTypeMapper : ITypeMapper
     {
-        private static readonly Lazy<List<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
-
         public int Priority => 2;
 
         public bool CanMap(Type destType, IReadOnlyDictionary<string, object> data) =>
             destType.GetInterfaces()
-                .Any(i => i.FullName.StartsWith("RoguelikeToolkit.Entities.IValueComponent") &&
-                          i.IsGenericType &&
-                          i.GenericTypeArguments[0].IsDictionary());
+                    .Any(type => 
+                        type.IsValueComponent() && 
+                        type.GenericTypeArguments[0].IsDictionary());
 
-        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
         {
             var accessor = MemberAccessor.Get(destType);
-            var instance = accessor.CreateNewSupported ? accessor.CreateNew() : FormatterServices.GetUninitializedObject(destType);
+            var instance = destType.CreateInstance();
 
             if (((dynamic)instance).Value == null)
             {
@@ -30,8 +27,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                     throw new InvalidOperationException($"In the type {destType.FullName} I expected to find the property 'Value' but didn't find it. This is not supposed to happen in this case and isclearly some sort of a bug.");
                 }
 
-                var dictAccessor = MemberAccessor.Get(member.Type);
-                ((dynamic)instance).Value = (dynamic)dictAccessor.CreateNew();
+                ((dynamic)instance).Value = (dynamic)member.Type.CreateInstance();
             }
 
             if (data.Count > 0)
@@ -39,7 +35,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                 var dict = ((dynamic)instance).Value; //we know it is IValueComponent, so...
 
                 var itemType = (Type)dict.GetType().GenericTypeArguments[1];
-                var converter = PropertyMappers.Value.FirstOrDefault(c => c.CanMap(itemType, data.Values.First()));
+                var converter = propertyMappers.FirstOrDefault(c => c.CanMap(itemType, data.Values.First()));
                 if (converter == null)
                 {
                     throw new InvalidOperationException($"Cannot map between collections, couldn't find appropriate mapper between {dict.GetType().GenericTypeArguments[1].FullName} and {data.Values.First().GetType().FullName}");
@@ -47,7 +43,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
                 foreach (var prop in data)
                 {
-                    dict.Add(prop.Key, (dynamic)converter.Map(itemType, prop.Value));
+                    dict.Add(prop.Key, (dynamic)converter.Map(propertyMappers, itemType, prop.Value));
                 }
             }
             return instance;

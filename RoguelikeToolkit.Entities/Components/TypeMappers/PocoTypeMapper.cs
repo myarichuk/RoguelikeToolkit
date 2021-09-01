@@ -9,7 +9,6 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 {
     public class PocoTypeMapper : ITypeMapper
     {
-        private static readonly Lazy<IReadOnlyList<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
         private static readonly ConcurrentDictionary<Type, Dictionary<string, Member>> MembersCacheByType = new();
 
         public int Priority => int.MaxValue;
@@ -17,17 +16,16 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
         public bool CanMap(Type destType, IReadOnlyDictionary<string, object> data) =>
             !destType.IsCOMObject && !destType.IsPointer && !destType.IsAbstract &&
             !destType.GetInterfaces()
-                .Any(i => i.FullName.StartsWith("RoguelikeToolkit.Entities.IValueComponent") &&
-                          i.IsGenericType &&
-                          i.GenericTypeArguments[0].GetInterfaces()
-                                .Any(ii => ii.FullName.StartsWith("System.Collections.Generic.IDictionary")));
+                .Any(type => 
+                    type.IsValueComponent() &&
+                    type.GenericTypeArguments[0].IsDictionary());
 
-        public object Map(Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
         {
             options ??= EntityFactoryOptions.Default;
 
             var accessor = MemberAccessor.Get(destType);
-            var instance = accessor.CreateNewSupported ? accessor.CreateNew() : FormatterServices.GetUninitializedObject(destType);
+            var instance = destType.CreateInstance();
 
             foreach (var prop in data)
             {
@@ -51,11 +49,11 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                 else
                 {
                     bool wasMapped = false;
-                    foreach (var mapper in PropertyMappers.Value)
+                    foreach (var mapper in propertyMappers)
                     {
                         if (mapper.CanMap(member.Type, prop.Value))
                         {
-                            accessor[instance, prop.Key] = mapper.Map(member.Type, prop.Value);
+                            accessor[instance, prop.Key] = mapper.Map(propertyMappers, member.Type, prop.Value);
                             wasMapped = true;
                             break;
                         }

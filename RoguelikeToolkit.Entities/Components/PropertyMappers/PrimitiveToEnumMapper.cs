@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
@@ -22,7 +23,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsEnum && value is IConvertible;
         }
 
-        public object Map(Type destType, object value) =>
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value) =>
             Enum.Parse(destType, (string)Convert.ChangeType(value, typeof(string)));
     }
 }

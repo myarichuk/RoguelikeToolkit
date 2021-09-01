@@ -64,6 +64,7 @@ namespace RoguelikeToolkit.Entities.Tests
         {
             Assert.True(entityFactory.TryCreateEntity("actor5", out var actorEntity));
             var valueComponent = actorEntity.Get<AttributesAsValueTypeComponent>();
+            Assert.NotNull(valueComponent.Value);
             Assert.Equal(1, valueComponent.Value["Foo"]);
             Assert.Equal(2, valueComponent.Value["Bar"]);
             Assert.Equal(123, valueComponent.Value["Baz"]);
@@ -74,6 +75,7 @@ namespace RoguelikeToolkit.Entities.Tests
         {
             Assert.True(entityFactory.TryCreateEntity("actor9", out var actorEntity));
             var valueComponent = actorEntity.Get<AttributesWithEnumAsValueTypeComponent>();
+            Assert.NotNull(valueComponent.Value);
 
             Assert.Equal(KnownColor.Indigo, valueComponent.Value["Foo"]);
             Assert.Equal(KnownColor.Azure, valueComponent.Value["Bar"]);

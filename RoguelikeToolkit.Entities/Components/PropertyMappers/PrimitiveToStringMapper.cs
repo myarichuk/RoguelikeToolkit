@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
@@ -22,6 +23,6 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType == typeof(string) && value.GetType().IsPrimitive;
         }
 
-        public object Map(Type destType, object value) => value?.ToString();
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value) => value?.ToString();
     }
 }

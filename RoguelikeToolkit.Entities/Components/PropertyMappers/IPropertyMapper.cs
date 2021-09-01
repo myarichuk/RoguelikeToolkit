@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RoguelikeToolkit.Entities.Components.TypeMappers
 {
@@ -8,6 +9,6 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
         bool CanMap(Type destType, object value);
 
-        object Map(Type destType, object value);
+        object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value);
     }
 }

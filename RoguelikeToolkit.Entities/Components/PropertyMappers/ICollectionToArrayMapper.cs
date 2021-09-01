@@ -9,7 +9,6 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
     public class ICollectionToArrayMapper : IPropertyMapper
     {
-        private static readonly Lazy<List<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
         private readonly ConcurrentDictionary<Type, ObjectActivator> _arrayConstructorsPerType = new();
 
         public int Priority => 8;
@@ -29,7 +28,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsArray && (value?.GetType().IsICollection() ?? false);
         }
 
-        public object Map(Type destType, object value)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value)
         {
             var activator = _arrayConstructorsPerType.GetOrAdd(destType, type =>
             {
@@ -48,7 +47,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 
             var itemType = destType.GetElementType();
 
-            var converter = PropertyMappers.Value.FirstOrDefault(c => c.CanMap(itemType, srcCollection[0]));
+            var converter = propertyMappers.FirstOrDefault(c => c.CanMap(itemType, srcCollection[0]));
             if (converter == null)
             {
                 throw new InvalidOperationException($"Cannot map between collections, couldn't find appropriate mapper between {destType.GenericTypeArguments[0].FullName} and {((dynamic)value)[0].GetType().FullName}");
@@ -56,7 +55,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 
             for (var i = 0; i < srcCollectionCount; i++)
             {
-                array[i] = converter.Map(itemType, srcCollection[i]);
+                array[i] = converter.Map(propertyMappers, itemType, srcCollection[i]);
             }
 
             return array;

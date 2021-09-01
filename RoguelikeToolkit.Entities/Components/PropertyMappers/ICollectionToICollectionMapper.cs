@@ -10,7 +10,6 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
     public class ICollectionToICollectionMapper : IPropertyMapper
     {
         private static readonly ConcurrentDictionary<Type, ObjectActivator> CtorsPerType = new();
-        private static readonly Lazy<List<IPropertyMapper>> PropertyMappers = new(() => Mappers.Instance.PropertyMappers.OrderBy(x => x.Priority).ToList());
 
         public int Priority => 15;
 
@@ -29,7 +28,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsICollection() && (value?.GetType().IsICollection() ?? false);
         }
 
-        public object Map(Type destType, object value)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value)
         {
             var instanceCreator = CtorsPerType.GetOrAdd(destType, type =>
             {
@@ -45,7 +44,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 return instance;
             }
 
-            var converter = PropertyMappers.Value.FirstOrDefault(c => c.CanMap(destType.GenericTypeArguments[0], srcCollection[0]));
+            var converter = propertyMappers.FirstOrDefault(c => c.CanMap(destType.GenericTypeArguments[0], srcCollection[0]));
             if (converter == null)
             {
                 throw new InvalidOperationException($"Cannot map between collections, couldn't find appropriate mapper between {destType.GenericTypeArguments[0].FullName} and {((dynamic)value)[0].GetType().FullName}");
@@ -54,7 +53,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             //we already know value and destination type are ICollection<T>, so...
             foreach (var item in srcCollection)
             {
-                instance.Add(converter.Map(destType.GenericTypeArguments[0], item));
+                instance.Add(converter.Map(propertyMappers, destType.GenericTypeArguments[0], item));
             }
 
             return instance;

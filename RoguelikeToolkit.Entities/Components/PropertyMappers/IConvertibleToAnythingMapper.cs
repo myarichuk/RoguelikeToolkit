@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using RoguelikeToolkit.Entities.Components.TypeMappers;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
@@ -23,7 +24,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return value is IConvertible;
         }
 
-        public object Map(Type valueType, object val)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val)
         {
             try
             {
