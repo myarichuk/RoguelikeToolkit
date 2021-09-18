@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using DefaultEcs;
 using Xunit;
 
@@ -23,33 +24,41 @@ namespace RoguelikeToolkit.Entities.Tests
 
     public class EntityFactoryTests
     {
-        private readonly EntityTemplateCollection templateCollection;
-        private readonly EntityFactory entityFactory;
+        private readonly EntityFactory _entityFactory;
         public EntityFactoryTests()
         {
-            templateCollection = new EntityTemplateCollection("Templates");
-            entityFactory = new EntityFactory(new World(), templateCollection);
+            _entityFactory = EntityFactory.Construct()
+                .WithTemplatesFrom("Templates")
+                .Build();
         }
 
         [Fact]
-        public void Can_parse_all_templates() => Assert.NotEmpty(templateCollection.Templates);
+        public void Can_parse_all_templates() => Assert.NotEmpty(new EntityTemplateCollection("Templates").Templates);
 
         [Fact]
         public void Can_build_from_embedded_template()
         {
-            Assert.True(entityFactory.TryCreateEntity("object", out var entity));
+            Assert.True(_entityFactory.TryCreateEntity("object", out var entity));
             Assert.True(entity.Has<WeightComponent>());
             Assert.True(entity.Has<HealthComponent>());
 
             Assert.Equal(1.0, entity.Get<WeightComponent>().Value);
             Assert.Equal(100.0, entity.Get<HealthComponent>().Value);
         }
-
-
         [Fact]
+        public async Task Can_build_with_scipt()
+        {
+            Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
+
+            await entity.RunScript<ActionScriptComponent>(c => c.Value);
+
+            Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
+        }
+
+            [Fact]
         public void Can_build_from_template_with_converting_strings_to_numbers()
         {
-            Assert.True(entityFactory.TryCreateEntity("object2", out var entity));
+            Assert.True(_entityFactory.TryCreateEntity("object2", out var entity));
             Assert.True(entity.Has<WeightComponent>());
             Assert.True(entity.Has<HealthComponent>());
             Assert.True(entity.Has<FooBarComponent>());
@@ -62,7 +71,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_value_component_with_dictionary_as_value()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor5", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor5", out var actorEntity));
             var valueComponent = actorEntity.Get<AttributesAsValueTypeComponent>();
             Assert.NotNull(valueComponent.Value);
             Assert.Equal(1, valueComponent.Value["Foo"]);
@@ -73,7 +82,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_value_component_with_dictionary_with_enum_as_value()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor9", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor9", out var actorEntity));
             var valueComponent = actorEntity.Get<AttributesWithEnumAsValueTypeComponent>();
             Assert.NotNull(valueComponent.Value);
 
@@ -84,7 +93,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_with_component_array_type_property()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor11", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor11", out var actorEntity));
 
             var valueComponent = actorEntity.Get<TestMetadataComponent>();
 
@@ -96,7 +105,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_with_calculated_dice_field()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor12", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor12", out var actorEntity));
 
             var leftArm = actorEntity.GetChildren().First(e => e.Id().Contains("LeftArm"));
 
@@ -108,7 +117,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_value_component_with_list_as_value()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor6", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor6", out var actorEntity));
 
             var valueComponent = actorEntity.Get<AttributeAsListComponent>();
 
@@ -119,12 +128,12 @@ namespace RoguelikeToolkit.Entities.Tests
 
         [Fact]
         public void Should_throw_when_value_component_with_interface_as_value() =>
-            Assert.Throws<InvalidOperationException>(() => entityFactory.TryCreateEntity("actor10", out var actorEntity));
+            Assert.Throws<InvalidOperationException>(() => _entityFactory.TryCreateEntity("actor10", out var actorEntity));
 
         [Fact]
         public void Can_build_value_component_with_hashset_of_enums_as_value()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor8", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor8", out var actorEntity));
 
             var valueComponent = actorEntity.Get<AttributeAsHashSetComponent>();
 
@@ -136,7 +145,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_value_component_with_enum_as_value()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor7", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor7", out var actorEntity));
 
             var valueComponent = actorEntity.Get<AttributeAsEnumComponent>();
 
@@ -146,7 +155,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_build_complex_entity()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor", out var actorEntity));
 
             Assert.Single(actorEntity.Get<MetadataComponent>().Value);
             Assert.Equal("actor", actorEntity.Get<MetadataComponent>().Value.First());
@@ -187,7 +196,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_ignore_non_existing_component_fields()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor2", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor2", out var actorEntity));
             ValidateActorEntity(actorEntity);
         }
 
@@ -195,7 +204,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_convert_int_to_double_when_loading()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor3", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor3", out var actorEntity));
             Assert.True(actorEntity.Has<Attributes2Component>());
             Assert.Equal(5, actorEntity.Get<Attributes2Component>().Strength);
             Assert.Equal(7, actorEntity.Get<Attributes2Component>().Agility);
@@ -205,7 +214,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Can_convert_double_to_int_when_loading()
         {
-            Assert.True(entityFactory.TryCreateEntity("actor4", out var actorEntity));
+            Assert.True(_entityFactory.TryCreateEntity("actor4", out var actorEntity));
             Assert.True(actorEntity.Has<Attributes3Component>());
             Assert.Equal(5, actorEntity.Get<Attributes3Component>().Strength);
             Assert.Equal(7, actorEntity.Get<Attributes3Component>().Agility);

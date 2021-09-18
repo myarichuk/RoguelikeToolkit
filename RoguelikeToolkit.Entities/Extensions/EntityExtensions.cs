@@ -5,6 +5,11 @@ using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
 using RoguelikeToolkit.Entities;
 using RoguelikeToolkit.Entities.Components;
+using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System;
+using RoguelikeToolkit.Scripts;
+using System.Threading;
 
 namespace RoguelikeToolkit
 {
@@ -42,6 +47,19 @@ namespace RoguelikeToolkit
                 }
             }
         }
+
+        public static Task RunScript<TComponent>(this Entity entity, Func<TComponent, EntityScript> scriptSelector, CancellationToken ct = default)
+        {
+            if (!entity.TryGet<TComponent>(out var component))
+                ThrowNoComponent<TComponent>();
+
+            var script = scriptSelector(component);
+
+            return script.RunAsyncOn(entity, ct);
+        }
+
+        private static void ThrowNoComponent<TComponent>() => 
+            throw new InvalidOperationException($"Failed to run the script on {typeof(TComponent).FullName} because the component is not attached to the entity");
 
         public static string Id(this Entity entity) =>
             entity.TryGet<IdComponent>(out var id) ? id.Value : null;

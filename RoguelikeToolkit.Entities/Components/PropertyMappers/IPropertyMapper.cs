@@ -9,6 +9,6 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
         bool CanMap(Type destType, object value);
 
-        object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value);
+        object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr);
     }
 }

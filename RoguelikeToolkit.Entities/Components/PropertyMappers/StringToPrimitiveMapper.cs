@@ -7,7 +7,8 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
     public class StringToPrimitiveMapper : IPropertyMapper
     {
-        public int Priority => 3;
+        //last resort...
+        public int Priority => int.MaxValue;
 
         public bool CanMap(Type destType, object value)
         {
@@ -17,7 +18,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsPrimitive && value is string;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr = null)
         {
             var converter = TypeDescriptor.GetConverter(destType);
             if (converter == null || converter.CanConvertFrom(typeof(string)) == false)

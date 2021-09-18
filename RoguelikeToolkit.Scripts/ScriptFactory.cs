@@ -18,7 +18,10 @@ namespace RoguelikeToolkit.Scripts
                 allReferenceAssemblies.Add(diceAssembly);
             }
 
-            var allNamespaces = allReferenceAssemblies.SelectMany(a => a.GetTypes().Select(t => t.Namespace)).Where(n => n != null).Distinct().ToArray();
+            var allNamespaces = allReferenceAssemblies
+                .SelectMany(a => a.GetTypes().Select(t => t.Namespace))
+                .Where(n => n != null)
+                .Distinct().ToArray();
 #if RELEASE
             var _compiledScript = CSharpScript.Create(actionScript,
                 ScriptOptions.Default

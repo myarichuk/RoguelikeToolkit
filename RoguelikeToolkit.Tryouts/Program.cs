@@ -1,72 +1,86 @@
 ﻿using System;
 using System.Collections.Generic;
 using RoguelikeToolkit.DiceExpression;
+using Syllabore;
 
 namespace RoguelikeToolkit.Tryouts
 {
-    public enum ActionList
-    {
-        Left,
-        Right
-    }
-
     internal class Program
     {
-
-        public static Dictionary<ConsoleKey, ActionList> KeyMappings = new Dictionary<ConsoleKey, ActionList>
-        {
-            { ConsoleKey.LeftArrow, ActionList.Left },
-            { ConsoleKey.RightArrow, ActionList.Right }
-        };
-
-        public class FooBar
-        {
-            public string Name { get; set; }
-            public EmbeddedFoobar Embedded { get; set; }
-            public int Number { get; set; }
-            public bool Flag { get; set; }
-        }
-
-        public class EmbeddedFoobar
-        {
-            public int Number { get; set; }
-        }
-
         private static void Main(string[] args)
         {
-            Console.WriteLine(Dice.Parse("1", true).Roll());
-            //using var world = new World();
-            //var foobarAsString = @"{ ""Name"":""John Dow"", ""Flag"":true, ""Number"":123, ""Embedded"" : { ""Number"":456 } }";
-            //var foobarTemplate = ComponentTemplate.ParseFromString(foobarAsString);
+            var provider = new DefaultSyllableProvider();
+            var validator = new NameValidator()
+                    .DoNotAllowPattern(@"[j|p|q|w]$")             // Invalidate these awkward endings
+                    .DoNotAllowPattern(@"(\w)\1\1")               // Invalidate any sequence of 3 or more identical letters
+                    .DoNotAllowPattern(@"([^aeiouAEIOU])\1\1\1"); // Invalidate any sequence of 4 or more consonants
 
-            //var newInstance = foobarTemplate.CreateInstance(typeof(FooBar));
+            var g = new NameGenerator(provider, validator);
 
-            //while (true)
-            //{
-            //    var dice = Dice.Parse(Console.ReadLine());
-            //    var value = dice.Roll();
-            //    Console.WriteLine(value);
-            //}
-            //var templateCollection = new EntityTemplateCollection(".");
-            //var entityFactory = new EntityFactory(new World(), templateCollection);
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(g.Next());
+            }
 
-            //var success = entityFactory.TryCreateEntity("actor2", out var actorEntity);
-            //Console.WriteLine(success);
-            //var foobarComponent = actorEntity.Get<FoobarComponent>();
-            //Console.WriteLine(foobarComponent.Dice1.Roll());
-            //Console.WriteLine(foobarComponent.Dice2.Roll());
+            Console.WriteLine("---");
 
-            //actorEntity.Set(new FoobarComponent { Dice1 = Dice.Parse("2d+5") });
-            //var c = actorEntity.Get<FoobarComponent>();
+            // You can choose to build name generators programmatically.
+            g = new NameGenerator()
+                .UsingProvider(x => x
+                    .WithLeadingConsonants("str")
+                    .WithVowels("ae"))
+                .LimitSyllableCount(3);
 
-            //var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
-            //await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(g.Next());
+            }
 
-            //Console.WriteLine();
-            //Console.WriteLine(c.RollResult);
+            Console.WriteLine("---");
 
-            //await changeScript.RunAsyncOn<FoobarComponent>(actorEntity);
-            //Console.WriteLine(c.RollResult);
+            g = new NameGenerator().UsingMutator(new VowelMutator());
+
+            for (int i = 0; i < 3; i++)
+            {
+                var name = g.NextName();
+
+                Console.WriteLine(name);
+
+                for (int j = 0; j < 4; j++)
+                {
+                    var variation = g.Mutator.Mutate(name);
+                    Console.WriteLine(variation);
+
+                }
+            }
+
+            Console.WriteLine("---");
+            g = new NameGenerator()
+                                .UsingProvider(p => p
+                                    .WithVowels("aeoy")
+                                    .WithLeadingConsonants("vstlr")
+                                    .WithTrailingConsonants("zrt")
+                                    .WithVowelSequences("ey", "ay", "oy"))
+                                .UsingValidator(v => v
+                                    .DoNotAllowPattern(
+                                        @".{12,}",
+                                        @"(\w)\1\1",             // Prevents any letter from occuring three times in a row
+                                        @".*([y|Y]).*([y|Y]).*", // Prevents double y
+                                        @".*([z|Z]).*([z|Z]).*", // Prevents double z
+                                        @"(zs)",                 // Prevents "zs"
+                                        @"(y[v|t])"))            // Prevents "yv" and "yt"
+                                .LimitMutationChance(0.99)
+                                .LimitSyllableCount(2, 4);
+
+            ConfigurationFile.Save(g, "city-name-generator.txt");
+            var g2 = ConfigurationFile.Load("city-name-generator.txt");
+
+            for (int i = 0; i < 50; i++)
+            {
+                var name = g.NextName();
+                Console.WriteLine(name);
+            }
+
         }
     }
 }

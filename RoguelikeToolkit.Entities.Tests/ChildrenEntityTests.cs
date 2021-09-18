@@ -7,7 +7,7 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public class ChildrenEntityTests : IDisposable
     {
-        private readonly World _world = new World();
+        private readonly World _world = new ();
 
 
         [Fact]
@@ -48,8 +48,9 @@ namespace RoguelikeToolkit.Entities.Tests
         [Fact]
         public void Should_return_entities_with_tags()
         {
-            var templateCollection = new EntityTemplateCollection("Templates");
-            var entityFactory = new EntityFactory(new World(), templateCollection);
+            var entityFactory = EntityFactory.Construct()
+                .WithTemplatesFrom("Templates")
+                .Build();
 
             Assert.True(entityFactory.TryCreateEntity("actor", out var actorEntity));
 

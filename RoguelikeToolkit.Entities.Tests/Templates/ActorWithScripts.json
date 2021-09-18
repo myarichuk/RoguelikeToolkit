@@ -1,0 +1,10 @@
+{
+  "Id": "ActorWithScripts",
+  "Inherits": [],
+  "Components": {
+    "ActionChance": {
+      "Dice": "2d10+12"
+    },
+    "ActionScript": "var component = entity.Get<ActionChanceComponent>(); component.Result = component.Dice.Roll();"
+  }
+}

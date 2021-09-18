@@ -17,8 +17,13 @@ namespace RoguelikeToolkit.Entities
     public class ComponentFactory
     {
         private readonly MapperRepository _mapperRepository;
+        private readonly ComponentTypeRepository _componentTypeRepository;
 
-        public ComponentFactory(MapperRepository mapperRepository = null) => _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
+        public ComponentFactory(MapperRepository mapperRepository = null, ComponentTypeRepository componentTypeRepository = null)
+        {
+            _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
+            _componentTypeRepository = componentTypeRepository;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TInstance CreateInstance<TInstance>(ComponentTemplate template, EntityFactoryOptions options = null) =>
@@ -36,12 +41,12 @@ namespace RoguelikeToolkit.Entities
                 throw new InvalidOperationException($"Cannot create component instance with a specified type. The type should *not* be a primitive, enum, by-ref type or a pointer (specified type = {type.FullName})");
             }
 
-            var instance = CreateInstance(type, options, template.PropertyValues);
+            var instance = CreateInstanceInner(type, options, template.PropertyValues);
 
             return instance;
         }
 
-        protected object CreateInstance(Type destType, EntityFactoryOptions options, IReadOnlyDictionary<string, object> data)
+        protected object CreateInstanceInner(Type destType, EntityFactoryOptions options, IReadOnlyDictionary<string, object> data)
         {
             for (int i = 0; i < _mapperRepository.TypeMappers.Count; i++)
             {
@@ -50,7 +55,7 @@ namespace RoguelikeToolkit.Entities
                 {
                     return mapper.Map(_mapperRepository.PropertyMappers, destType, data,
                         (innerData, innerType) =>
-                            CreateInstance(innerType, options, innerData), options);
+                            CreateInstanceInner(innerType, options, innerData), options, _componentTypeRepository);
                 }
             }
             throw new InvalidOperationException($"Failed to create component instance of type {destType.FullName}, no suitable mappers found");

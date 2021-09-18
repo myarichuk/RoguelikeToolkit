@@ -23,7 +23,8 @@ namespace RoguelikeToolkit.Entities
         {
             var newTypeMappers = 
                 from type in mapperResolver.GetTypeMappers()
-                where type.ImplementsInterface<ITypeMapper>() && !type.IsInterface //just in case
+                where type.ImplementsInterface<ITypeMapper>() && 
+                        !type.IsInterface && !type.IsAbstract && !type.IsCOMObject //just in case
                 select (ITypeMapper)type.CreateInstance();
 
             _typeMappers.AddRange(newTypeMappers);
@@ -31,7 +32,8 @@ namespace RoguelikeToolkit.Entities
 
             var newPropertyMappers =
                 from type in mapperResolver.GetPropertyMappers()
-                where type.ImplementsInterface<IPropertyMapper>() && !type.IsInterface //just in case
+                where type.ImplementsInterface<IPropertyMapper>() 
+                    && !type.IsInterface && !type.IsAbstract && !type.IsCOMObject //just in case
                 select (IPropertyMapper)type.CreateInstance();
 
             _propertyMappers.AddRange(newPropertyMappers);

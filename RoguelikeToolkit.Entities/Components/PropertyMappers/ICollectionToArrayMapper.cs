@@ -28,7 +28,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsArray && (value?.GetType().IsICollection() ?? false);
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr = null)
         {
             var activator = _arrayConstructorsPerType.GetOrAdd(destType, type =>
             {
@@ -55,7 +55,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 
             for (var i = 0; i < srcCollectionCount; i++)
             {
-                array[i] = converter.Map(propertyMappers, itemType, srcCollection[i]);
+                array[i] = converter.Map(propertyMappers, itemType, srcCollection[i], ctr);
             }
 
             return array;

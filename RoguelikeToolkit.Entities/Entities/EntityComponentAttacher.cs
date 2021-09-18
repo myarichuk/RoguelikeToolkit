@@ -12,10 +12,9 @@ namespace RoguelikeToolkit.Entities
         private static readonly MethodInfo EntitySetMethodInfo;
         private readonly Func<Type, string> _componentNameExtractor;
         private readonly ComponentFactory _componentFactory;
-        private readonly Dictionary<string, Type> _componentTypesByName;
         private readonly Dictionary<Type, MethodInfo> _entitySetByTypeCache = new();
         private readonly ObjectPool<object[]> _paramArrayPool = ObjectPoolProvider.Instance.Create<object[]>(new ReflectionParamsPooledObjectPolicy<object>(1));
-
+        private readonly ComponentTypeRepository _componentTypeRepository;
         static EntityComponentAttacher()
         {
             var entityType = typeof(Entity);
@@ -34,28 +33,9 @@ namespace RoguelikeToolkit.Entities
             MapperRepository mapperRepository,
             params Assembly[] componentAssemblies)
         {
-            _componentFactory = new ComponentFactory(mapperRepository);
             _componentNameExtractor = componentNameExtractor ?? throw new ArgumentNullException(nameof(componentNameExtractor));
-            _componentTypesByName = componentAssemblies
-                .Union(new[] { Assembly.GetExecutingAssembly(), Assembly.GetCallingAssembly() })
-                .Union(AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(x => !x.IsDynamic && //dynamic assemblies may have issues with reflection...
-                                !x.FullName.StartsWith("Microsoft.", StringComparison.InvariantCultureIgnoreCase) &&
-                                !x.FullName.StartsWith("System.", StringComparison.InvariantCultureIgnoreCase) &&
-                                !x.FullName.StartsWith("Windows.", StringComparison.InvariantCultureIgnoreCase)))
-                .SelectMany(x =>
-                    x.GetTypes()
-                        .Where(t =>
-                            t.IsInterface == false &&
-                            t.IsEnum == false &&
-                            t.IsPointer == false &&
-                            t.IsCOMObject == false &&
-                            (
-                                t.Name.EndsWith("Component", StringComparison.InvariantCultureIgnoreCase) ||
-                                t.GetCustomAttributes(typeof(ComponentAttribute), true).Any())
-                            )
-                     )
-                .ToDictionary(x => _componentNameExtractor(x), x => x, StringComparer.InvariantCultureIgnoreCase);
+            _componentTypeRepository = new(_componentNameExtractor, componentAssemblies);
+            _componentFactory = new ComponentFactory(mapperRepository, _componentTypeRepository);
         }
 
         public void InstantiateAndAttachComponent(string componentName, ComponentTemplate template, EntityFactoryOptions options, ref Entity entity)
@@ -66,7 +46,7 @@ namespace RoguelikeToolkit.Entities
                 throw new ArgumentNullException(nameof(template));
             }
 
-            if (!_componentTypesByName.TryGetValue(componentName, out var componentType))
+            if (!_componentTypeRepository.TryGetValue(componentName, out var componentType))
             {
                 ThrowFailedToFindComponentType(componentName);
             }

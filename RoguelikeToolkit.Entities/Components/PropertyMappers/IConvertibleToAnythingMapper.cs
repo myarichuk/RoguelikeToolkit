@@ -7,7 +7,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
     //"last resort" mapper, if everything else fails, try one last time...
     public class IConvertibleToAnythingMapper : IPropertyMapper
     {
-        public int Priority => int.MaxValue;
+        public int Priority => int.MaxValue - 1;
 
         public bool CanMap(Type destType, object value)
         {
@@ -24,7 +24,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return value is IConvertible;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val, ComponentTypeRepository ctr = null)
         {
             try
             {

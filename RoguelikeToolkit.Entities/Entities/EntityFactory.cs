@@ -34,6 +34,8 @@ namespace RoguelikeToolkit.Entities
 
         public static FactoryOfEntityFactory Construct() => new FactoryOfEntityFactory();
 
+
+        [Obsolete("EntityFactor::ctor() is obsolete, please use EntityFactory::Construct() instead. Next version, this constructor will be turned into 'internal'")]
         public EntityFactory(
             World world,
             EntityTemplateCollection templateCollection,
