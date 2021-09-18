@@ -5,8 +5,8 @@ using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests
 {
-    public interface SomeInteface { }
-    public interface SomeIntefaceWithGenerics<T> { }
+    public interface ISomeInteface { }
+    public interface ISomeIntefaceWithGenerics<T> { }
     public enum SomeEnum { One, Two, Three }
 
     public class ComponentTemplateTests
@@ -19,9 +19,9 @@ namespace RoguelikeToolkit.Entities.Tests
 
         [Theory]
         [InlineData(typeof(string))]
-        [InlineData(typeof(SomeInteface))]
-        [InlineData(typeof(SomeIntefaceWithGenerics<>))]
-        [InlineData(typeof(SomeIntefaceWithGenerics<char>))]
+        [InlineData(typeof(ISomeInteface))]
+        [InlineData(typeof(ISomeIntefaceWithGenerics<>))]
+        [InlineData(typeof(ISomeIntefaceWithGenerics<char>))]
         [InlineData(typeof(int))]
         [InlineData(typeof(void*))]
         [InlineData(typeof(SomeEnum))]
