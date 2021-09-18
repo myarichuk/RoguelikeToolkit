@@ -12,7 +12,7 @@ namespace RoguelikeToolkit.Scripts.Tests
         private readonly World _world = new World();
 
         [Fact]
-        public async Task EntityScript_should_work()
+        public async ValueTask EntityScript_should_work()
         {
             var entity = _world.CreateEntity();
             entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
@@ -36,7 +36,7 @@ namespace RoguelikeToolkit.Scripts.Tests
         }
 
         [Fact]
-        public async Task EntityScript_should_propagate_exceptions()
+        public async ValueTask EntityScript_should_propagate_exceptions()
         {
             var entity = _world.CreateEntity();
 
@@ -52,11 +52,11 @@ namespace RoguelikeToolkit.Scripts.Tests
                             }
                         ", Assembly.GetExecutingAssembly());
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await changeScript.RunAsyncOn(entity));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await changeScript.RunAsyncOn(entity));
         }
 
         [Fact]
-        public async Task EntityComponentScript_should_work()
+        public async ValueTask EntityComponentScript_should_work()
         {
             var entity = _world.CreateEntity();
             entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
@@ -73,7 +73,7 @@ namespace RoguelikeToolkit.Scripts.Tests
         }
 
         [Fact]
-        public async Task EntityInteractionScript_should_work()
+        public async ValueTask EntityInteractionScript_should_work()
         {
             var caster = _world.CreateEntity();
             caster.Set(new HealthComponent(50.0));
