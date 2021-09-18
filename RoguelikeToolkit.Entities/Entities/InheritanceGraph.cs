@@ -8,8 +8,8 @@ namespace RoguelikeToolkit.Entities
 {
     public class InheritanceGraph
     {
-        private static readonly ObjectPool<Queue<string>> _queuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<string>>());
-        private static readonly ObjectPool<HashSet<string>> _visitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<string>>());
+        private static readonly ObjectPool<Queue<string>> QueuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<string>>());
+        private static readonly ObjectPool<HashSet<string>> VisitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<string>>());
 
         private readonly IReadOnlyDictionary<string, List<string>> _adjacencyList;
         private readonly IReadOnlyDictionary<string, EntityTemplate> _templates;
@@ -58,8 +58,8 @@ namespace RoguelikeToolkit.Entities
             HashSet<string> visited = null;
             try
             {
-                traversalQueue = _queuePool.Get();
-                visited = _visitedPool.Get();
+                traversalQueue = QueuePool.Get();
+                visited = VisitedPool.Get();
                 traversalQueue.Enqueue(template.Id);
                 while (traversalQueue.Count > 0)
                 {
@@ -84,13 +84,13 @@ namespace RoguelikeToolkit.Entities
                 if (traversalQueue != null)
                 {
                     traversalQueue.Clear();
-                    _queuePool.Return(traversalQueue);
+                    QueuePool.Return(traversalQueue);
                 }
 
                 if (visited != null)
                 {
                     visited.Clear();
-                    _visitedPool.Return(visited);
+                    VisitedPool.Return(visited);
                 }
             }
         }

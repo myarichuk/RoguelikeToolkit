@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using DefaultEcs;
@@ -32,6 +33,26 @@ namespace RoguelikeToolkit.Scripts.Tests
             await changeScript.RunAsyncOn(entity);
 
             Assert.NotEqual(0, c.RollResult);
+        }
+
+        [Fact]
+        public async Task EntityScript_should_propagate_exceptions()
+        {
+            var entity = _world.CreateEntity();
+
+            var changeScript = new EntityScript(@"
+                            if(entity.Has<TestComponent>())
+                            {
+                                var c = entity.Get<TestComponent>();
+                                c.RollResult = c.Dice1.Roll();
+                            }
+                            else //no TestComponent in the entity so we make sure that the exception gets thrown
+                            { 
+                                throw new InvalidOperationException($""{nameof(TestComponent)} not found!"");
+                            }
+                        ", Assembly.GetExecutingAssembly());
+
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await changeScript.RunAsyncOn(entity));
         }
 
         [Fact]

@@ -15,7 +15,7 @@ namespace RoguelikeToolkit.Scripts
         {
         }
 
-        public Task RunAsyncOn(in Entity source, in Entity target, CancellationToken ct = default)
+        public ValueTask RunAsyncOn(in Entity source, in Entity target, CancellationToken ct = default)
         {
             EntityInteractionParam param = null;
             try
@@ -23,8 +23,7 @@ namespace RoguelikeToolkit.Scripts
                 param = ParamPool.Get();
                 param.source = source;
                 param.target = target;
-
-                return _compiledScript.RunAsync(param, ct);
+                return new ValueTask(_compiledScript.RunAsync(param, ct));
             }
             finally
             {
