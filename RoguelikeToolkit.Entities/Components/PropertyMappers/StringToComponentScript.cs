@@ -3,16 +3,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using RoguelikeToolkit.Entities.Components.TypeMappers;
 using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class StringToEntityScript : IPropertyMapper
+    public class StringToComponentScript : IPropertyMapper
     {
-        private readonly static ConcurrentDictionary<string, EntityScript> ScriptCache = new();
+        private readonly static ConcurrentDictionary<string, EntityComponentScript> ScriptCache = new();
         private static Assembly[] ComponentAssemblyCache;
+
         public int Priority => 5;
 
         public bool CanMap(Type destType, object value)
@@ -27,8 +27,8 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return (destType == typeof(EntityScript) || 
-                    destType == typeof(EntityScript<EntityParam>)) && 
+            return (destType == typeof(EntityComponentScript) ||
+                    destType == typeof(EntityScript<ComponentParam>)) &&
                     value is string;
         }
 
@@ -42,10 +42,9 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                     if (ComponentAssemblyCache is null && ctr is not null)
                         ComponentAssemblyCache = ctr.Values.Select(t => t.Assembly).Distinct().ToArray();
                 }
-
                 return ctr == null
-                    ? new EntityScript(scriptAsKey)
-                    : new EntityScript(scriptAsKey, ComponentAssemblyCache);
+                    ? new EntityComponentScript(scriptAsKey)
+                    : new EntityComponentScript(scriptAsKey, ctr.Values.Select(t => t.Assembly).Distinct().ToArray());
             });
         }
     }

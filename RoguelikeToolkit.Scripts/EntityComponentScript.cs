@@ -17,9 +17,7 @@ namespace RoguelikeToolkit.Scripts
         public async Task RunAsyncOn<TComponent>(Entity entity, CancellationToken ct = default)
         {
             if (!entity.Has<TComponent>())
-            {
                 return;
-            }
 
             ComponentParam param = null;
             try

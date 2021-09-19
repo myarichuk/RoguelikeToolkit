@@ -45,6 +45,7 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(1.0, entity.Get<WeightComponent>().Value);
             Assert.Equal(100.0, entity.Get<HealthComponent>().Value);
         }
+
         [Fact]
         public async Task Can_build_with_scipt()
         {
@@ -55,7 +56,17 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
         }
 
-            [Fact]
+        [Fact]
+        public async Task Can_build_with_component_scipt()
+        {
+            Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
+
+            await entity.RunScript<ActionChanceComponent>(c => c.ActionScript);
+
+            Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
+        }
+
+        [Fact]
         public void Can_build_from_template_with_converting_strings_to_numbers()
         {
             Assert.True(_entityFactory.TryCreateEntity("object2", out var entity));
