@@ -8,7 +8,6 @@ namespace RoguelikeToolkit.Scripts
     {
         internal static readonly Assembly[] AssembliesToReference =
            {
-                Assembly.GetExecutingAssembly(),
                 Assembly.GetCallingAssembly(),
                 Assembly.GetEntryAssembly(),
                 typeof(Entity).Assembly,

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Antlr4.Runtime.Atn;
 using DefaultEcs;
 
 namespace RoguelikeToolkit.Entities.Entities

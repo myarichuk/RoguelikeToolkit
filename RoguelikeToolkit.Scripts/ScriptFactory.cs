@@ -9,6 +9,7 @@ namespace RoguelikeToolkit.Scripts
 {
     public static class ScriptFactory
     {
+        private static readonly ScriptValidator Validator = new ScriptValidator();
         public static Script<object> CreateCompiled<TParams>(string actionScript, params Assembly[] referenceAssemblies)
         {
             var allReferenceAssemblies = referenceAssemblies.Concat(Constants.AssembliesToReference).ToList();
@@ -39,8 +40,11 @@ namespace RoguelikeToolkit.Scripts
             globalsType: typeof(TParams));
 #endif
             _compiledScript.Compile();
-
+            if (!Validator.IsValid(_compiledScript))
+                throw new InvalidOperationException("Script failed sandbox limit validation. The script in question: " + actionScript);
             return _compiledScript;
         }
+
+        
     }
 }

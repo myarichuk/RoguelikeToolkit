@@ -51,7 +51,7 @@ namespace RoguelikeToolkit.Entities.Tests
         {
             Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
 
-            await entity.RunScript<ActionScriptComponent>(c => c.Value);
+            await entity.RunScriptAsync<ActionScriptComponent>(c => c.Value);
 
             Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
         }
@@ -61,9 +61,33 @@ namespace RoguelikeToolkit.Entities.Tests
         {
             Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
 
-            await entity.RunScript<ActionChanceComponent>(c => c.ActionScript);
+            await entity.RunScriptAsync<ActionChanceComponent>(c => c.ActionScript);
 
             Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
+        }
+
+        [Fact]
+        public async Task Can_build_with_interaction_scipt()
+        {
+            Assert.True(_entityFactory.TryCreateEntity("actorWithAbility", out var player));
+            Assert.True(_entityFactory.TryCreateEntity("object2", out var enemy));
+         
+            Assert.Equal(100.0, enemy.Get<HealthComponent>().Value);
+            await player.RunScriptAsync<KickAbility>(enemy, c => c.Effect);
+            Assert.NotEqual(100.0, enemy.Get<HealthComponent>().Value);
+            
+        }
+
+        [Fact]
+        public async Task Can_build_with_interaction_scipt_from_file ()
+        {
+            Assert.True(_entityFactory.TryCreateEntity("actorWithAbility2", out var player));
+            Assert.True(_entityFactory.TryCreateEntity("object2", out var enemy));
+
+            Assert.Equal(100.0, enemy.Get<HealthComponent>().Value);
+            await player.RunScriptAsync<KickAbility>(enemy, c => c.Effect);
+            Assert.NotEqual(100.0, enemy.Get<HealthComponent>().Value);
+
         }
 
         [Fact]

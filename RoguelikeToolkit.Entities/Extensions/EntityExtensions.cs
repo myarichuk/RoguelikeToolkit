@@ -6,7 +6,6 @@ using Microsoft.Extensions.ObjectPool;
 using RoguelikeToolkit.Entities;
 using RoguelikeToolkit.Entities.Components;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using System;
 using RoguelikeToolkit.Scripts;
 using System.Threading;
@@ -48,7 +47,7 @@ namespace RoguelikeToolkit
             }
         }
 
-        public static Task RunScript<TComponent>(this Entity entity, Func<TComponent, EntityScript> scriptSelector, CancellationToken ct = default)
+        public static Task RunScriptAsync<TComponent>(this Entity entity, Func<TComponent, EntityScript> scriptSelector, CancellationToken ct = default)
         {
             if (!entity.TryGet<TComponent>(out var component))
                 ThrowNoComponent<TComponent>();
@@ -58,7 +57,7 @@ namespace RoguelikeToolkit
             return script.RunAsyncOn(entity, ct);
         }
 
-        public static Task RunScript<TComponent>(this Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, CancellationToken ct = default)
+        public static Task RunScriptAsync<TComponent>(this Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, CancellationToken ct = default)
         {
             if (!entity.TryGet<TComponent>(out var component))
                 ThrowNoComponent<TComponent>();
@@ -66,6 +65,16 @@ namespace RoguelikeToolkit
             var script = scriptSelector(component);
 
             return script.RunAsyncOn<TComponent>(entity, ct);
+        }
+
+        public static Task RunScriptAsync<TComponent>(this Entity source, in Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, CancellationToken ct = default)
+        {
+            if (!source.TryGet<TComponent>(out var component))
+                ThrowNoComponent<TComponent>();
+
+            var script = scriptSelector(component);
+
+            return script.RunAsyncOn(source, target, ct);
         }
 
         private static void ThrowNoComponent<TComponent>() => 

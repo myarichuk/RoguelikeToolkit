@@ -12,8 +12,12 @@ namespace RoguelikeToolkit.Entities
         private static readonly ObjectPool<Queue<EntityTemplate>> TraversalQueuePool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<Queue<EntityTemplate>>());
         private static readonly ObjectPool<HashSet<EntityTemplate>> VisitedPool = ObjectPoolProvider.Instance.Create(new ThreadSafeObjectPoolPolicy<HashSet<EntityTemplate>>());
 
+        public string[] TemplateFolders { get; }
+
         public EntityTemplateCollection(params string[] templateFolders)
         {
+            TemplateFolders = templateFolders;
+
             Dictionary<string, EntityTemplate> templates = new(StringComparer.InvariantCultureIgnoreCase);
 
             foreach (var folder in templateFolders)

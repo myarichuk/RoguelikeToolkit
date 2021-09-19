@@ -8,11 +8,10 @@ using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Entities.Components.PropertyMappers
 {
-    public class StringToComponentScript : IPropertyMapper
+    public class StringToScript : IPropertyMapper
     {
-        private readonly static ConcurrentDictionary<string, EntityComponentScript> ScriptCache = new();
+        private readonly static ConcurrentDictionary<string, EntityScript> ScriptCache = new();
         private static Assembly[] ComponentAssemblyCache;
-
         public int Priority => 5;
 
         public bool CanMap(Type destType, object value)
@@ -27,8 +26,8 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                 throw new ArgumentNullException(nameof(value));
             }
 
-            return (destType == typeof(EntityComponentScript) ||
-                    destType == typeof(EntityScript<ComponentParam>)) &&
+            return (destType == typeof(EntityScript) || 
+                    destType == typeof(EntityScript<EntityParam>)) && 
                     value is string;
         }
 
@@ -45,9 +44,10 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
                     if (ComponentAssemblyCache is null && ctr is not null)
                         ComponentAssemblyCache = ctr.Values.Select(t => t.Assembly).Distinct().ToArray();
                 }
+
                 return ctr == null
-                    ? new EntityComponentScript(scriptAsKey)
-                    : new EntityComponentScript(scriptAsKey, ComponentAssemblyCache);
+                    ? new EntityScript(scriptAsKey)
+                    : new EntityScript(scriptAsKey, ComponentAssemblyCache);
             });
         }
     }

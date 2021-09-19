@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using DefaultEcs;
 using RoguelikeToolkit.Entities.Components;
 using RoguelikeToolkit.Entities.Entities;
@@ -46,6 +44,7 @@ namespace RoguelikeToolkit.Entities
         {
             _world = world ?? throw new ArgumentNullException(nameof(world));
             _templateCollection = templateCollection ?? throw new ArgumentNullException(nameof(templateCollection));
+            
             _options = options ?? EntityFactoryOptions.Default;
             _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
             _componentAttacher = new EntityComponentAttacher(componentNameExtractor,mapperRepository, componentAssemblies);
