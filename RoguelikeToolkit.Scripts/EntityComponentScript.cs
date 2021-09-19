@@ -14,11 +14,11 @@ namespace RoguelikeToolkit.Scripts
         {
         }
 
-        public Task RunAsyncOn<TComponent>(in Entity entity, CancellationToken ct = default)
+        public async Task RunAsyncOn<TComponent>(Entity entity, CancellationToken ct = default)
         {
             if (!entity.Has<TComponent>())
             {
-                return Task.CompletedTask;
+                return;
             }
 
             ComponentParam param = null;
@@ -28,7 +28,8 @@ namespace RoguelikeToolkit.Scripts
                 param = ParamPool.Get();
                 param.component = component;
 
-                return _compiledScript.RunAsync(param, ct);
+                await _compiledScript.RunAsync(param, ct);
+                entity.Set((TComponent)param.component);
             }
             finally
             {

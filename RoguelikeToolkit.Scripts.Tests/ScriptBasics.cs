@@ -73,6 +73,24 @@ namespace RoguelikeToolkit.Scripts.Tests
         }
 
         [Fact]
+        public async Task EntityComponentScript_with_struct_should_work()
+        {
+            var entity = _world.CreateEntity();
+            entity.Set(new HealthComponent2 { Health = 123 });
+
+            var c = entity.Get<HealthComponent2>();
+
+            //sanity
+            Assert.Equal(123, c.Health);
+
+            var changeScript = new EntityComponentScript(@"component.Health = 456;", Assembly.GetExecutingAssembly());
+            await changeScript.RunAsyncOn<HealthComponent2>(entity);
+
+            c = entity.Get<HealthComponent2>();
+            Assert.Equal(456, c.Health);
+        }
+
+        [Fact]
         public async Task EntityInteractionScript_should_work()
         {
             var caster = _world.CreateEntity();

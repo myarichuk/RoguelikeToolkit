@@ -9,4 +9,9 @@
             Health = health;
         }
     }
+
+    public struct HealthComponent2
+    {
+        public double Health;     
+    }
 }
