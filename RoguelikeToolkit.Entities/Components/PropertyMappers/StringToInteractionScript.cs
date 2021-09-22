@@ -32,7 +32,7 @@
 //                    value is string;
 //        }
 
-//        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr = null)
+//        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null)
 //        {
 //            var script = (string)value;
 

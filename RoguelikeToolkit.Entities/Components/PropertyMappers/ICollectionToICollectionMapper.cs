@@ -28,7 +28,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsICollection() && (value?.GetType().IsICollection() ?? false);
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null)
         {
             var instanceCreator = CtorsPerType.GetOrAdd(destType, type =>
             {
@@ -53,7 +53,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             //we already know value and destination type are ICollection<T>, so...
             foreach (var item in srcCollection)
             {
-                instance.Add(converter.Map(propertyMappers, destType.GenericTypeArguments[0], item, ctr));
+                instance.Add(converter.Map(propertyMappers, destType.GenericTypeArguments[0], item));
             }
 
             return instance;

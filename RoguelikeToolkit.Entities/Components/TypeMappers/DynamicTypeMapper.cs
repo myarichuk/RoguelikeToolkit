@@ -11,7 +11,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
         public bool CanMap(Type destType, IReadOnlyDictionary<string, object> data) =>
             destType == typeof(object);
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null, ComponentTypeRepository ctr = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
         {
             var instance = (IDictionary<string, object>)new ExpandoObject();
 

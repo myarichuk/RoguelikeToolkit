@@ -24,7 +24,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return value is IConvertible;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val, ComponentTypeRepository ctr = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val = null)
         {
             try
             {

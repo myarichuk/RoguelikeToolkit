@@ -1,4 +1,5 @@
-﻿using DefaultEcs;
+﻿using System;
+using DefaultEcs;
 
 namespace RoguelikeToolkit.Scripts
 {
@@ -9,14 +10,15 @@ namespace RoguelikeToolkit.Scripts
         public EntityScript(string script, string targetInstanceName = null) => 
             _script = new Script(script, targetInstanceName ?? "component");
 
-        public void ExecuteOn<TComponent>(in Entity entity)
+        public bool TryExecuteOn<TComponent>(in Entity entity)
         {
             if(!entity.Has<TComponent>())
-                return;
+                return false;
 
             ref var component = ref entity.Get<TComponent>();
-
             _script.ExecuteOn(ref component);
+
+            return true;
         }
     }
 }

@@ -46,11 +46,7 @@ namespace RoguelikeToolkit
             }
         }
 
-       
-
-        private static void ThrowNoComponent<TComponent>() => 
-            throw new InvalidOperationException($"Failed to run the script on {typeof(TComponent).FullName} because the component is not attached to the entity");
-
+        
         public static string Id(this Entity entity) =>
             entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 

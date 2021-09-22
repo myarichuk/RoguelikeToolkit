@@ -25,7 +25,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType == typeof(Dice) && value is string;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, ComponentTypeRepository ctr = null) =>
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null) =>
             Dice.Parse((string)value);
     }
 }

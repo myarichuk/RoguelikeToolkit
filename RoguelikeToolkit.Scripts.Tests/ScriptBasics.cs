@@ -56,7 +56,7 @@ namespace RoguelikeToolkit.Scripts.Tests
 
             var changeScript = new EntityScript(@"component.RollResult = component.Dice1.Roll();");
 
-            changeScript.ExecuteOn<TestComponent>(entity);
+            changeScript.TryExecuteOn<TestComponent>(entity);
 
             Assert.NotEqual(0, c.RollResult);
         }
@@ -68,7 +68,7 @@ namespace RoguelikeToolkit.Scripts.Tests
 
             var changeScript = new EntityScript(@"throw 'this is an error!';");
 
-            changeScript.ExecuteOn<TestComponent>(entity); //this shouldn't throw since there is no such component...
+            Assert.False(changeScript.TryExecuteOn<TestComponent>(entity)); //this shouldn't throw since there is no such component...
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace RoguelikeToolkit.Scripts.Tests
             var changeScript = new EntityScript(@"throw 'this is an error!';");
             entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
 
-            Assert.Throws<JavaScriptException>(() => changeScript.ExecuteOn<TestComponent>(entity));
+            Assert.Throws<JavaScriptException>(() => changeScript.TryExecuteOn<TestComponent>(entity));
         }
 
 
@@ -95,7 +95,7 @@ namespace RoguelikeToolkit.Scripts.Tests
             Assert.Equal(123, c.Health);
 
             var changeScript = new EntityScript(@"component.Health = 456;");
-            changeScript.ExecuteOn<HealthComponent2>(entity);
+            changeScript.TryExecuteOn<HealthComponent2>(entity);
 
             c = entity.Get<HealthComponent2>();
             Assert.Equal(456, c.Health);
@@ -116,7 +116,7 @@ namespace RoguelikeToolkit.Scripts.Tests
                     target.Health -= 50;
                 ");
 
-            healthStealSpell.ExecuteOn<HealthComponent, HealthComponent2>(caster, target);
+            healthStealSpell.TryExecuteOn<HealthComponent, HealthComponent2>(caster, target);
 
             var sourceHealth = caster.Get<HealthComponent>();
             var targetHealth = target.Get<HealthComponent2>();
