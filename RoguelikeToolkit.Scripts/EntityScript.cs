@@ -9,7 +9,7 @@ namespace RoguelikeToolkit.Scripts
         public EntityScript(string script, string targetInstanceName = null) => 
             _script = new Script(script, targetInstanceName ?? "component");
 
-        public void ExecuteOnComponent<TComponent>(in Entity entity)
+        public void ExecuteOn<TComponent>(in Entity entity)
         {
             if(!entity.Has<TComponent>())
                 return;
