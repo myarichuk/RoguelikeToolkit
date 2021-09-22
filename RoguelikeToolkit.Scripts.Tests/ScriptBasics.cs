@@ -104,31 +104,28 @@ namespace RoguelikeToolkit.Scripts.Tests
             Assert.Equal(456, c.Health);
         }
 
-        //[Fact]
-        //public async Task EntityInteractionScript_should_work()
-        //{
-        //    var caster = _world.CreateEntity();
-        //    caster.Set(new HealthComponent(50.0));
+        [Fact]
+        public void EntityInteractionScript_should_work()
+        {
+            var caster = _world.CreateEntity();
+            caster.Set(new HealthComponent { Health = 50.0 });
 
-        //    var target = _world.CreateEntity();
-        //    target.Set(new HealthComponent(100.0));
+            var target = _world.CreateEntity();
+            target.Set(new HealthComponent2 {  Health = 100.0 });
 
-        //    var healthStealSpell = new EntityInteractionScript(
-        //        @"
-        //            var sourceHealth = source.Get<HealthComponent>();
-        //            var targetHealth = target.Get<HealthComponent>();
+            var healthStealSpell = new EntityInteractionScript(
+                @"        
+                    source.Health += 50;
+                    target.Health -= 50;
+                ");
 
-        //            sourceHealth.Health += 50;
-        //            targetHealth.Health -= 50;
-        //        ", Assembly.GetExecutingAssembly());
+            healthStealSpell.ExecuteOn<HealthComponent, HealthComponent2>(caster, target);
 
-        //    await healthStealSpell.RunAsyncOn(caster, target);
+            var sourceHealth = caster.Get<HealthComponent>();
+            var targetHealth = target.Get<HealthComponent2>();
 
-        //    var sourceHealth = caster.Get<HealthComponent>();
-        //    var targetHealth = target.Get<HealthComponent>();
-
-        //    Assert.Equal(100.0, sourceHealth.Health);
-        //    Assert.Equal(50.0, targetHealth.Health);
-        //}
+            Assert.Equal(100.0, sourceHealth.Health);
+            Assert.Equal(50.0, targetHealth.Health);
+        }
     }
 }
