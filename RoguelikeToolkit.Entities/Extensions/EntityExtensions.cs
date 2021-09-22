@@ -7,7 +7,6 @@ using RoguelikeToolkit.Entities;
 using RoguelikeToolkit.Entities.Components;
 using System.Threading.Tasks;
 using System;
-using RoguelikeToolkit.Scripts;
 using System.Threading;
 
 namespace RoguelikeToolkit
@@ -47,35 +46,7 @@ namespace RoguelikeToolkit
             }
         }
 
-        public static Task RunScriptAsync<TComponent>(this Entity entity, Func<TComponent, EntityScript> scriptSelector, CancellationToken ct = default)
-        {
-            if (!entity.TryGet<TComponent>(out var component))
-                ThrowNoComponent<TComponent>();
-
-            var script = scriptSelector(component);
-
-            return script.RunAsyncOn(entity, ct);
-        }
-
-        public static Task RunScriptAsync<TComponent>(this Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, CancellationToken ct = default)
-        {
-            if (!entity.TryGet<TComponent>(out var component))
-                ThrowNoComponent<TComponent>();
-
-            var script = scriptSelector(component);
-
-            return script.RunAsyncOn<TComponent>(entity, ct);
-        }
-
-        public static Task RunScriptAsync<TComponent>(this Entity source, in Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, CancellationToken ct = default)
-        {
-            if (!source.TryGet<TComponent>(out var component))
-                ThrowNoComponent<TComponent>();
-
-            var script = scriptSelector(component);
-
-            return script.RunAsyncOn(source, target, ct);
-        }
+       
 
         private static void ThrowNoComponent<TComponent>() => 
             throw new InvalidOperationException($"Failed to run the script on {typeof(TComponent).FullName} because the component is not attached to the entity");

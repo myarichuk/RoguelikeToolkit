@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="DefaultEcs" Version="*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="*" />
+    <PackageReference Include="Jint" Version="3.0.0-*" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="*" />
   </ItemGroup>
 

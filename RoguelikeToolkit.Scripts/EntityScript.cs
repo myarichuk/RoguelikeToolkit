@@ -1,51 +1,22 @@
-﻿using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using DefaultEcs;
-using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.Extensions.ObjectPool;
+﻿using DefaultEcs;
 
 namespace RoguelikeToolkit.Scripts
 {
-    public class EntityScript<TScriptParam>
-        where TScriptParam : class
+    public class EntityScript
     {
-        protected readonly Script<object> _compiledScript;
+        private readonly Script _script;
 
-        public EntityScript(string actionScript, params Assembly[] referenceAssemblies) =>
-            _compiledScript = ScriptFactory.CreateCompiled<TScriptParam>(actionScript, referenceAssemblies);
+        public EntityScript(string script, string targetInstanceName = null) => 
+            _script = new Script(script, targetInstanceName ?? "component");
 
-        public Task RunAsyncOn(in Entity entity, Func<Entity, TScriptParam> paramFactory, CancellationToken ct = default) =>
-            _compiledScript.RunAsync(paramFactory(entity), ct);
-    }
-
-    public class EntityScript : EntityScript<EntityParam>
-    {
-        private static readonly ObjectPool<EntityParam> ParamPool = new DefaultObjectPool<EntityParam>(new DefaultPooledObjectPolicy<EntityParam>());
-
-        public EntityScript(string actionScript, params Assembly[] referenceAssemblies) : base(actionScript, referenceAssemblies)
+        public void ExecuteOnComponent<TComponent>(in Entity entity)
         {
-        }
+            if(!entity.Has<TComponent>())
+                return;
 
-        public Task RunAsyncOn(in Entity entity, CancellationToken ct = default)
-        {
-            EntityParam @param = null;
-            try
-            {
-                param = ParamPool.Get();
-                param.entity = entity;
+            ref var component = ref entity.Get<TComponent>();
 
-                return _compiledScript.RunAsync(param, ct);
-            }
-            finally
-            {
-                if (param != null)
-                {
-                    param.entity = default;
-                    ParamPool.Return(param);
-                }
-            }
+            _script.ExecuteOn(ref component);
         }
     }
 }
