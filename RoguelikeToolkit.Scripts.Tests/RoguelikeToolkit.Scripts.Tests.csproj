@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoguelikeToolkit.Dice\RoguelikeToolkit.Dice.csproj" />
+    <ProjectReference Include="..\RoguelikeToolkit.Entities\RoguelikeToolkit.Entities.csproj" />
     <ProjectReference Include="..\RoguelikeToolkit.Scripts\RoguelikeToolkit.Scripts.csproj" />
   </ItemGroup>
 
