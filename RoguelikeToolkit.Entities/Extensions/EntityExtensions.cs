@@ -60,6 +60,26 @@ namespace RoguelikeToolkit
             script.ExecuteOn(ref entity, @params);
         }
 
+        public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+        {
+            if (!entity.Has<TComponent>())
+                return;
+
+            var script = scriptSelector(entity.Get<TComponent>());
+
+            script.TryExecuteOn<TComponent>(ref entity, @params);
+        }
+
+        public static void ExecuteScriptFrom<TComponent>(this ref Entity source, ref Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+        {
+            if (!source.Has<TComponent>())
+                return;
+
+            var script = scriptSelector(source.Get<TComponent>());
+
+            script.ExecuteOn(ref source, ref target, @params);
+        }
+
         public static string Id(this Entity entity) =>
             entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 

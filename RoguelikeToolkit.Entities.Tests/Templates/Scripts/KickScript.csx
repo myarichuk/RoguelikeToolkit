@@ -1,5 +1,5 @@
-﻿var health = target.Get<HealthComponent>();
-var kickStrength = source.Get<KickAbility>().Strength;
+﻿var health = target.GetComponent(HealthComponent);
+var kickStrength = source.GetComponent(KickAbility).Strength;
 
 health.Value -= kickStrength.Roll();
-target.Set(health);
+target.SetComponent(HealthComponent, health);

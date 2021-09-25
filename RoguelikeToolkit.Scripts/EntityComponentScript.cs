@@ -10,7 +10,7 @@ namespace RoguelikeToolkit.Scripts
         public EntityComponentScript(string script, params Type[] referenceTypes) =>
             _script = new Script(script, referenceTypes);
 
-        public bool TryExecuteOn<TComponent>(in Entity entity, params (string instanceName, dynamic value)[] @params)
+        public bool TryExecuteOn<TComponent>(ref Entity entity, params (string instanceName, dynamic value)[] @params)
         {
             if(!entity.Has<TComponent>())
                 return false;

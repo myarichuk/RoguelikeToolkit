@@ -11,7 +11,6 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
     public class StringToComponentScript : IPropertyMapper
     {
         private readonly static ConcurrentDictionary<string, EntityComponentScript> ScriptCache = new();
-        private static Assembly[] ComponentAssemblyCache;
 
         public int Priority => 5;
 
