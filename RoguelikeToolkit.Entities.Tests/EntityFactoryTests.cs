@@ -46,15 +46,15 @@ namespace RoguelikeToolkit.Entities.Tests
             Assert.Equal(100.0, entity.Get<HealthComponent>().Value);
         }
 
-        //[Fact]
-        //public async Task Can_build_with_scipt()
-        //{
-        //    Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
+        [Fact]
+        public void Can_build_with_scipt()
+        {
+            Assert.True(_entityFactory.TryCreateEntity("ActorWithScripts", out var entity));
 
-        //    await entity.RunScriptAsync<ActionScriptComponent>(c => c.Value);
+            entity.ExecuteScriptFrom<ActionScriptComponent>(c => c.Value);
 
-        //    Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
-        //}
+            Assert.NotEqual(0, entity.Get<ActionChanceComponent>().Result);
+        }
 
         //[Fact]
         //public async Task Can_build_with_component_scipt()

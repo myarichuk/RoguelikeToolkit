@@ -23,7 +23,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsEnum && value is IConvertible;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null) =>
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, Type[] componentTypes) =>
             Enum.Parse(destType, (string)Convert.ChangeType(value, typeof(string)));
     }
 }

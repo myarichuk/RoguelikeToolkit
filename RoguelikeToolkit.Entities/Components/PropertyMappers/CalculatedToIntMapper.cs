@@ -24,7 +24,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsNumeric() && value is string str && str.StartsWith("=");
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null) =>
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, Type[] componentTypes) =>
             destType == typeof(int) ?
                 Dice.Parse(((string)value).Substring(1)).Roll() :
                 Convert.ChangeType(Dice.Parse(((string)value).Substring(1)).Roll(), destType);

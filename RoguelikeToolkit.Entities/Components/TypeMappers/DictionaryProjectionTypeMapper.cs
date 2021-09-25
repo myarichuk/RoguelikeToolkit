@@ -14,7 +14,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
                         type.IsValueComponent() && 
                         type.GenericTypeArguments[0].IsDictionary());
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, EntityFactoryOptions options = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, IReadOnlyDictionary<string, object> data, Func<IReadOnlyDictionary<string, object>, Type, object> createInstance, Type[] componentTypes, EntityFactoryOptions options = null)
         {
             var accessor = MemberAccessor.Get(destType);
             var instance = destType.CreateInstance();
@@ -43,7 +43,7 @@ namespace RoguelikeToolkit.Entities.Components.TypeMappers
 
                 foreach (var prop in data)
                 {
-                    dict.Add(prop.Key, (dynamic)converter.Map(propertyMappers, itemType, prop.Value));
+                    dict.Add(prop.Key, (dynamic)converter.Map(propertyMappers, itemType, prop.Value, componentTypes));
                 }
             }
             return instance;
