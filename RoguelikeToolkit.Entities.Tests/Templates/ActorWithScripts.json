@@ -6,6 +6,6 @@
       "Dice": "2d10+12",
       "ActionScript": "component.Result = component.Dice.Roll();"
     },
-    "ActionScript": "var component = entity.Get<ActionChanceComponent>(); component.Result = component.Dice.Roll();"
+    "ActionScript": "var component = entity.GetComponent(ActionChanceComponent); component.Result = component.Dice.Roll(); entity.SetComponent(ActionChanceComponent, component);"
   }
 }

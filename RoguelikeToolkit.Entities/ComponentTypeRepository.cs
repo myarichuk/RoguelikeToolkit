@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace RoguelikeToolkit.Entities
 {
-    public class ComponentTypeRepository : IDictionary<string, Type>
+    public class ComponentTypeRepository : IDictionary<string, Type>, IReadOnlyDictionary<string, Type>
     {
         private readonly Dictionary<string, Type> _componentTypesByName;
         private readonly Func<Type, string> _componentNameExtractor;
@@ -45,6 +45,10 @@ namespace RoguelikeToolkit.Entities
         public int Count => _componentTypesByName.Count;
 
         public bool IsReadOnly => false;
+
+        IEnumerable<string> IReadOnlyDictionary<string, Type>.Keys => _componentTypesByName.Keys;
+
+        IEnumerable<Type> IReadOnlyDictionary<string, Type>.Values => _componentTypesByName.Values;
 
         public void Add(string key, Type value) => _componentTypesByName.Add(key, value);
 

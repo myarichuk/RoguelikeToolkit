@@ -13,10 +13,12 @@ namespace RoguelikeToolkit.Entities
 
     public class ComponentFactory
     {
+        private readonly Type[] _componentTypes;
         private readonly MapperRepository _mapperRepository;
 
-        public ComponentFactory(MapperRepository mapperRepository = null)
+        public ComponentFactory(Type[] componentTypes = null, MapperRepository mapperRepository = null)
         {
+            _componentTypes = componentTypes ?? Array.Empty<Type>();
             _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
         }
 
@@ -50,7 +52,7 @@ namespace RoguelikeToolkit.Entities
                 {
                     return mapper.Map(_mapperRepository.PropertyMappers, destType, data,
                         (innerData, innerType) =>
-                            CreateInstanceInner(innerType, options, innerData), options);
+                            CreateInstanceInner(innerType, options, innerData), _componentTypes, options);
                 }
             }
             throw new InvalidOperationException($"Failed to create component instance of type {destType.FullName}, no suitable mappers found");

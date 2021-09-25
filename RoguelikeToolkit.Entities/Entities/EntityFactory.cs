@@ -13,7 +13,6 @@ namespace RoguelikeToolkit.Entities
         private readonly World _world;
         private readonly EntityTemplateCollection _templateCollection;
         private readonly EntityFactoryOptions _options;
-        private readonly MapperRepository _mapperRepository;
         private readonly InheritanceGraph _inheritanceGraph;
         private readonly EntityComponentAttacher _componentAttacher;
         private readonly Dictionary<EntityTemplate, EffectiveEntityTemplate> _effectiveEntityTemplateCache = new();
@@ -46,8 +45,8 @@ namespace RoguelikeToolkit.Entities
             _templateCollection = templateCollection ?? throw new ArgumentNullException(nameof(templateCollection));
             
             _options = options ?? EntityFactoryOptions.Default;
-            _mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
-            _componentAttacher = new EntityComponentAttacher(componentNameExtractor,mapperRepository, componentAssemblies);
+            mapperRepository = mapperRepository ?? new MapperRepository(new ThisAssemblyResolver());
+            _componentAttacher = new EntityComponentAttacher(componentNameExtractor, mapperRepository, componentAssemblies);
 
             if (_templateCollection.Templates.Any() == false)
             {

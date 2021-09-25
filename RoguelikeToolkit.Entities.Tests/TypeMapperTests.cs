@@ -15,7 +15,7 @@ namespace RoguelikeToolkit.Entities.Tests
 
             Assert.True(mapper.CanMap(typeof(object), data));
 
-            dynamic mappedData = mapper.Map(null, typeof(object), data, (_, __) => null);
+            dynamic mappedData = mapper.Map(null, typeof(object), data, (_, __) => null, null);
             Assert.Equal(1, mappedData.foo);
             Assert.Equal(2, mappedData.bar);
         }
@@ -29,7 +29,7 @@ namespace RoguelikeToolkit.Entities.Tests
 
             Assert.True(mapper.CanMap(typeof(object), data));
 
-            dynamic mappedData = mapper.Map(null, typeof(object), data, (_, __) => null);
+            dynamic mappedData = mapper.Map(null, typeof(object), data, (_, __) => null, null);
             Assert.Equal(1, mappedData.foo);
             Assert.Equal(2, mappedData.bar);
             Assert.Equal("B", mappedData.blah.A);

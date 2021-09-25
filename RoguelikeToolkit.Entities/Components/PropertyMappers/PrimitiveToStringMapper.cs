@@ -23,6 +23,6 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType == typeof(string) && value.GetType().IsPrimitive;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null) => value?.ToString();
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, Type[] componentTypes) => value?.ToString();
     }
 }

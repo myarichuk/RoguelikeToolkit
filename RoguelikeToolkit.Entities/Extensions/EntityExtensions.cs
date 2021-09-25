@@ -11,6 +11,7 @@ using System.Threading;
 using System.Reflection;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices.ComTypes;
+using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit
 {
@@ -47,6 +48,36 @@ namespace RoguelikeToolkit
                     }
                 }
             }
+        }
+
+        public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+        {
+            if (!entity.Has<TComponent>())
+                return;
+
+            var script = scriptSelector(entity.Get<TComponent>());
+
+            script.ExecuteOn(ref entity, @params);
+        }
+
+        public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+        {
+            if (!entity.Has<TComponent>())
+                return;
+
+            var script = scriptSelector(entity.Get<TComponent>());
+
+            script.TryExecuteOn<TComponent>(ref entity, @params);
+        }
+
+        public static void ExecuteScriptFrom<TComponent>(this ref Entity source, ref Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+        {
+            if (!source.Has<TComponent>())
+                return;
+
+            var script = scriptSelector(source.Get<TComponent>());
+
+            script.ExecuteOn(ref source, ref target, @params);
         }
 
         public static string Id(this Entity entity) =>

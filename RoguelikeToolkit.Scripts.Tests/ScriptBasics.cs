@@ -109,7 +109,7 @@ namespace RoguelikeToolkit.Scripts.Tests
 
             var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
 
-            Assert.True(changeScript.TryExecuteOn<TestComponent>(entity));
+            Assert.True(changeScript.TryExecuteOn<TestComponent>(ref entity));
 
             Assert.NotEqual(0, c.RollResult);
         }
@@ -121,7 +121,7 @@ namespace RoguelikeToolkit.Scripts.Tests
 
             var changeScript = new EntityComponentScript(@"throw 'this is an error!';");
 
-            Assert.False(changeScript.TryExecuteOn<TestComponent>(entity)); //this shouldn't throw since there is no such component...
+            Assert.False(changeScript.TryExecuteOn<TestComponent>(ref entity)); //this shouldn't throw since there is no such component...
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace RoguelikeToolkit.Scripts.Tests
             var changeScript = new EntityComponentScript(@"throw 'this is an error!';");
             entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
 
-            Assert.Throws<JavaScriptException>(() => changeScript.TryExecuteOn<TestComponent>(entity));
+            Assert.Throws<JavaScriptException>(() => changeScript.TryExecuteOn<TestComponent>(ref entity));
         }
 
 
@@ -148,7 +148,7 @@ namespace RoguelikeToolkit.Scripts.Tests
             Assert.Equal(123, c.Health);
 
             var changeScript = new EntityComponentScript(@"component.Health = 456;");
-            Assert.True(changeScript.TryExecuteOn<HealthComponent2>(entity));
+            Assert.True(changeScript.TryExecuteOn<HealthComponent2>(ref entity));
 
             c = entity.Get<HealthComponent2>();
             Assert.Equal(456, c.Health);

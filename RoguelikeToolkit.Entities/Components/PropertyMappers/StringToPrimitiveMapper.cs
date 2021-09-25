@@ -18,7 +18,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsPrimitive && value is string;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type destType, object value, Type[] componentTypes)
         {
             var converter = TypeDescriptor.GetConverter(destType);
             if (converter == null || converter.CanConvertFrom(typeof(string)) == false)

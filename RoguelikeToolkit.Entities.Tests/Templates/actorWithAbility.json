@@ -3,7 +3,7 @@
   "Components": {
     "KickAbility": {
       "Strength": "2d6+3",
-      "Effect": "var targetHealth = target.Get<HealthComponent>(); var kickStrength = source.Get<KickAbility>().Strength; targetHealth.Value -= kickStrength.Roll(); target.Set(targetHealth);"
+      "Effect": "var targetHealth = target.GetComponent(HealthComponent); var kickStrength = source.GetComponent(KickAbility).Strength; targetHealth.Value -= kickStrength.Roll(); target.SetComponent(HealthComponent, targetHealth);"
     }
   }
 }

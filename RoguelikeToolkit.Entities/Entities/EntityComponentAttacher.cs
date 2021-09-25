@@ -35,7 +35,7 @@ namespace RoguelikeToolkit.Entities
         {
             _componentNameExtractor = componentNameExtractor ?? throw new ArgumentNullException(nameof(componentNameExtractor));
             _componentTypeRepository = new(_componentNameExtractor, componentAssemblies);
-            _componentFactory = new ComponentFactory(mapperRepository);
+            _componentFactory = new ComponentFactory(_componentTypeRepository.Values.ToArray(), mapperRepository);
         }
 
         public void InstantiateAndAttachComponent(string componentName, ComponentTemplate template, EntityFactoryOptions options, ref Entity entity)

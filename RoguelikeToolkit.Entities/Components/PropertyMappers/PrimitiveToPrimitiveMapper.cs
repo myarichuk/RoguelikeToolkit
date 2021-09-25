@@ -23,7 +23,7 @@ namespace RoguelikeToolkit.Entities.Components.PropertyMappers
             return destType.IsPrimitive && !destType.IsEnum && value is not string;
         }
 
-        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val = null)
+        public object Map(IReadOnlyList<IPropertyMapper> propertyMappers, Type valueType, object val, Type[] componentTypes)
         {
             try
             {
