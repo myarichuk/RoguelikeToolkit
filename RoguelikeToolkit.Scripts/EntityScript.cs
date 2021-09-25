@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using DefaultEcs;
 
 namespace RoguelikeToolkit.Scripts
@@ -7,18 +9,12 @@ namespace RoguelikeToolkit.Scripts
     {
         private readonly Script _script;
 
-        public EntityScript(string script, string targetInstanceName = null) => 
-            _script = new Script(script, targetInstanceName ?? "component");
+        public EntityScript(string script, params Type[] referenceTypes) => 
+            _script = new Script(script, referenceTypes);
 
-        public bool TryExecuteOn<TComponent>(in Entity entity)
-        {
-            if(!entity.Has<TComponent>())
-                return false;
 
-            ref var component = ref entity.Get<TComponent>();
-            _script.ExecuteOn(ref component);
-
-            return true;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ExecuteOn(ref Entity entity, params (string instanceName, dynamic value)[] @params) => 
+            _script.ExecuteOn(ref entity, "entity", @params);
     }
 }

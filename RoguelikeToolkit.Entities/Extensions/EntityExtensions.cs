@@ -8,6 +8,9 @@ using RoguelikeToolkit.Entities.Components;
 using System.Threading.Tasks;
 using System;
 using System.Threading;
+using System.Reflection;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace RoguelikeToolkit
 {
@@ -46,7 +49,6 @@ namespace RoguelikeToolkit
             }
         }
 
-        
         public static string Id(this Entity entity) =>
             entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 
