@@ -152,28 +152,34 @@ namespace RoguelikeToolkit.Scripts.Tests
         //    Assert.Equal(456, c.Health);
         //}
 
-        //[Fact]
-        //public void EntityInteractionScript_should_work()
-        //{
-        //    var caster = _world.CreateEntity();
-        //    caster.Set(new HealthComponent { Health = 50.0 });
+        [Fact]
+        public void EntityInteractionScript_should_work()
+        {
+            var caster = _world.CreateEntity();
+            caster.Set(new HealthComponent { Health = 50.0 });
 
-        //    var target = _world.CreateEntity();
-        //    target.Set(new HealthComponent2 {  Health = 100.0 });
+            var target = _world.CreateEntity();
+            target.Set(new HealthComponent2 { Health = 100.0 });
 
-        //    var healthStealSpell = new EntityInteractionScript(
-        //        @"        
-        //            source.Health += 50;
-        //            target.Health -= 50;
-        //        ");
+            var healthStealSpell = new EntityInteractionScript(
+                @"        
+                    var sourceHealth = source.GetComponent(HealthComponent);
+                    var targetHealth = target.GetComponent(HealthComponent2);
+                    
+                    sourceHealth.Health += 50;
+                    targetHealth.Health -= 50;
 
-        //    healthStealSpell.TryExecuteOn<HealthComponent, HealthComponent2>(caster, target);
+                    source.SetComponent(HealthComponent, sourceHealth);
+                    target.SetComponent(HealthComponent2, targetHealth);
+                ", typeof(HealthComponent), typeof(HealthComponent2));
 
-        //    var sourceHealth = caster.Get<HealthComponent>();
-        //    var targetHealth = target.Get<HealthComponent2>();
+            healthStealSpell.ExecuteOn(ref caster, ref target);
 
-        //    Assert.Equal(100.0, sourceHealth.Health);
-        //    Assert.Equal(50.0, targetHealth.Health);
-        //}
+            var sourceHealth = caster.Get<HealthComponent>();
+            var targetHealth = target.Get<HealthComponent2>();
+
+            Assert.Equal(100.0, sourceHealth.Health);
+            Assert.Equal(50.0, targetHealth.Health);
+        }
     }
 }
