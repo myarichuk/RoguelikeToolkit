@@ -83,10 +83,12 @@ namespace RoguelikeToolkit.Scripts.Tests
             Assert.Equal(0, c.RollResult);
 
             var changeScript = new EntityScript(@"
-                var component = entity.GetComponent(TestComponent);
-                component.RollResult = component.Dice1.Roll();
+                if(entity.HasComponent(TestComponent)){
+                    var component = entity.GetComponent(TestComponent);
+                    component.RollResult = component.Dice1.Roll();
 
-                entity.SetComponent(TestComponent, component);
+                    entity.SetComponent(TestComponent, component);
+                }
             ", typeof(TestComponent));
 
             changeScript.ExecuteOn(ref entity);
@@ -94,63 +96,63 @@ namespace RoguelikeToolkit.Scripts.Tests
             Assert.NotEqual(0, c.RollResult);
         }
 
-        //[Fact]
-        //public void EntityScript_should_work()
-        //{
-        //    var entity = _world.CreateEntity();
-        //    entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
+        [Fact]
+        public void EntityComponentScript_should_work()
+        {
+            var entity = _world.CreateEntity();
+            entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
 
-        //    var c = entity.Get<TestComponent>();
+            var c = entity.Get<TestComponent>();
 
-        //    //sanity
-        //    Assert.Equal(0, c.RollResult);
+            //sanity
+            Assert.Equal(0, c.RollResult);
 
-        //    var changeScript = new EntityScript(@"component.RollResult = component.Dice1.Roll();");
+            var changeScript = new EntityComponentScript(@"component.RollResult = component.Dice1.Roll();");
 
-        //    changeScript.TryExecuteOn<TestComponent>(entity);
+            Assert.True(changeScript.TryExecuteOn<TestComponent>(entity));
 
-        //    Assert.NotEqual(0, c.RollResult);
-        //}
+            Assert.NotEqual(0, c.RollResult);
+        }
 
-        //[Fact]
-        //public void EntityScript_without_specific_component_should_not_continue_with_execution()
-        //{
-        //    var entity = _world.CreateEntity();
+        [Fact]
+        public void EntityComponentScript_without_specific_component_should_not_continue_with_execution()
+        {
+            var entity = _world.CreateEntity();
 
-        //    var changeScript = new EntityScript(@"throw 'this is an error!';");
+            var changeScript = new EntityComponentScript(@"throw 'this is an error!';");
 
-        //    Assert.False(changeScript.TryExecuteOn<TestComponent>(entity)); //this shouldn't throw since there is no such component...
-        //}
+            Assert.False(changeScript.TryExecuteOn<TestComponent>(entity)); //this shouldn't throw since there is no such component...
+        }
 
-        //[Fact]
-        //public void EntityScript_should_propagate_exceptions()
-        //{
-        //    var entity = _world.CreateEntity();
+        [Fact]
+        public void EntityComponentScript_should_propagate_exceptions()
+        {
+            var entity = _world.CreateEntity();
 
-        //    var changeScript = new EntityScript(@"throw 'this is an error!';");
-        //    entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
+            var changeScript = new EntityComponentScript(@"throw 'this is an error!';");
+            entity.Set(new TestComponent { Dice1 = Dice.Parse("2d+5") });
 
-        //    Assert.Throws<JavaScriptException>(() => changeScript.TryExecuteOn<TestComponent>(entity));
-        //}
+            Assert.Throws<JavaScriptException>(() => changeScript.TryExecuteOn<TestComponent>(entity));
+        }
 
 
-        //[Fact]
-        //public void EntityComponentScript_with_struct_should_work()
-        //{
-        //    var entity = _world.CreateEntity();
-        //    entity.Set(new HealthComponent2 { Health = 123 });
+        [Fact]
+        public void EntityComponentScript_with_struct_should_work()
+        {
+            var entity = _world.CreateEntity();
+            entity.Set(new HealthComponent2 { Health = 123 });
 
-        //    var c = entity.Get<HealthComponent2>();
+            var c = entity.Get<HealthComponent2>();
 
-        //    //sanity
-        //    Assert.Equal(123, c.Health);
+            //sanity
+            Assert.Equal(123, c.Health);
 
-        //    var changeScript = new EntityScript(@"component.Health = 456;");
-        //    changeScript.TryExecuteOn<HealthComponent2>(entity);
+            var changeScript = new EntityComponentScript(@"component.Health = 456;");
+            Assert.True(changeScript.TryExecuteOn<HealthComponent2>(entity));
 
-        //    c = entity.Get<HealthComponent2>();
-        //    Assert.Equal(456, c.Health);
-        //}
+            c = entity.Get<HealthComponent2>();
+            Assert.Equal(456, c.Health);
+        }
 
         [Fact]
         public void EntityInteractionScript_should_work()
@@ -163,6 +165,10 @@ namespace RoguelikeToolkit.Scripts.Tests
 
             var healthStealSpell = new EntityInteractionScript(
                 @"        
+                    if(source.HasComponent(HealthComponent) === false ||
+                       target.HasComponent(HealthComponent2) === false)
+                        return;
+
                     var sourceHealth = source.GetComponent(HealthComponent);
                     var targetHealth = target.GetComponent(HealthComponent2);
                     
