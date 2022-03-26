@@ -8,7 +8,7 @@ using Xunit;
 
 namespace RoguelikeToolkit.Keyboard.Tests
 {
-	public class AddingRemoving
+	public class Adding
 	{
 		private readonly KeyMappingStore<KeyCode, string> _store = new KeyMappingStore<KeyCode, string>();
 
