@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 	<LangVersion>latest</LangVersion>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+	<Copyright>Michael Yarichuk</Copyright>
+	<RepositoryUrl>https://github.com/myarichuk/RoguelikeToolkit</RepositoryUrl>
+	<PackageTags>keyboard, shortcuts, game, roguelike</PackageTags>
+	<Description>A simple library to store and retrieve keyboard shortcuts (maps of key to action IDs)</Description>
+	<PackageLicenseFile>C:\Users\User\source\repos\RoguelikeToolkit\LICENSE.md</PackageLicenseFile>
+	<PackageProjectUrl>https://github.com/myarichuk/RoguelikeToolkit</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
