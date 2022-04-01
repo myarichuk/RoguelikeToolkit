@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -10,6 +10,7 @@
 	<Description>A simple library to store and retrieve keyboard shortcuts (maps of key to action IDs)</Description>
 	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 	<PackageProjectUrl>https://github.com/myarichuk/RoguelikeToolkit</PackageProjectUrl>
+	<Version>1.0.1</Version>
   </PropertyGroup>
 
 	<ItemGroup>
