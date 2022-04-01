@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -15,10 +15,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DefaultEcs" Version="*" />
+    <PackageReference Include="DefaultEcs" Version="0.17.2" />
     <PackageReference Include="Jint" Version="3.0.0-*" />
-    <PackageReference Include="Microsoft.CSharp" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="*" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>
