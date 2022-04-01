@@ -2,7 +2,6 @@ using System;
 using DefaultEcs;
 using Jint.Runtime;
 using RoguelikeToolkit.DiceExpression;
-using RoguelikeToolkit.Entities;
 using Xunit;
 
 namespace RoguelikeToolkit.Scripts.Tests

@@ -1,4 +1,4 @@
-﻿using RoguelikeToolkit.DiceExpression;
+using RoguelikeToolkit.DiceExpression;
 
 namespace RoguelikeToolkit
 {
