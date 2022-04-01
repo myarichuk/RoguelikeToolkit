@@ -30,8 +30,8 @@
     <PackageReference Include="DefaultEcs" Version="0.17.2" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.3" />
-    <PackageReference Include="RoguelikeToolkit.Dice" Version="1.0.4" />
-    <PackageReference Include="RoguelikeToolkit.Scripts" Version="0.3.0" />
+    <PackageReference Include="RoguelikeToolkit.Dice" Version="*" />
+    <PackageReference Include="RoguelikeToolkit.Scripts" Version="*" />
     <PackageReference Include="Utf8Json" Version="1.3.7" />
   </ItemGroup>
 </Project>
