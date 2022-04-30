@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -38,25 +38,18 @@ namespace RoguelikeToolkit.Scripts
 
     internal static class EntityGenericsExtensionMethods
     {
-        private static readonly MethodInfo EntityGet;
-        private static readonly MethodInfo EntitySet;
-        private static readonly MethodInfo EntityHas;
+        private static readonly MethodInfo EntityGet = typeof(Entity).GetMethod(nameof(Entity.Get));
+        private static readonly MethodInfo EntitySet = typeof(Entity).GetMethods()
+									  .First(m =>
+											m.Name == nameof(Entity.Set) &&
+											m.GetParameters().Length == 1);
+		private static readonly MethodInfo EntityHas = typeof(Entity).GetMethod(nameof(Entity.Has));
 
-        private static readonly ConcurrentDictionary<Type, MethodInfo> GenericGetCache = new ConcurrentDictionary<Type, MethodInfo>();
+		private static readonly ConcurrentDictionary<Type, MethodInfo> GenericGetCache = new ConcurrentDictionary<Type, MethodInfo>();
         private static readonly ConcurrentDictionary<Type, MethodInfo> GenericSetCache = new ConcurrentDictionary<Type, MethodInfo>();
         private static readonly ConcurrentDictionary<Type, MethodInfo> GenericHasCache = new ConcurrentDictionary<Type, MethodInfo>();
 
         private static readonly ObjectPool<object[]> ParamArrayPool = ObjectPoolProvider.Instance.Create<object[]>(new ReflectionParamsPooledObjectPolicy<object>(1));
-
-        static EntityGenericsExtensionMethods()
-        {
-            EntityGet = typeof(Entity).GetMethod(nameof(Entity.Get));
-            EntityHas = typeof(Entity).GetMethod(nameof(Entity.Has));
-            EntitySet = typeof(Entity).GetMethods()
-                                      .First(m => 
-                                            m.Name == nameof(Entity.Set) && 
-                                            m.GetParameters().Length == 1);
-        }
 
         public static bool HasComponent(this Entity entity, Type type)
         {

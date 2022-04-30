@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Utf8Json;
@@ -8,7 +8,7 @@ namespace RoguelikeToolkit.Entities.Tests
 {
     public interface ISomeInteface { }
     public interface ISomeIntefaceWithGenerics<T> { }
-    public enum SomeEnum { One, Two, Three }
+    public enum DiscreetValueField { One, Two, Three }
 
     public class ComponentTemplateTests
     {
@@ -25,7 +25,7 @@ namespace RoguelikeToolkit.Entities.Tests
         [InlineData(typeof(ISomeIntefaceWithGenerics<char>))]
         [InlineData(typeof(int))]
         [InlineData(typeof(void*))]
-        [InlineData(typeof(SomeEnum))]
+        [InlineData(typeof(DiscreetValueField))]
         public void Should_throw_if_trying_to_build_interface_with_unsupported_type(Type componentType) =>
             Assert.Throws<InvalidOperationException>(() =>
                 _factory.CreateInstance(componentType, EntityFactoryOptions.Default, ComponentTemplate.ParseFromString("{}")));

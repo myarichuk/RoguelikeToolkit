@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 
@@ -7,13 +8,12 @@ namespace RoguelikeToolkit.Keyboard
 	// (it is unlikely more than three key combination would be needed)
 	internal class KeyMapping<KeyEnum, ActionData> where KeyEnum : Enum
 	{
-		public KeyEnum FirstKey { get; set; }
-
+		public KeyEnum? FirstKey { get; set; }
 	
-		public KeyEnum SecondKey { get; set; }
+		public KeyEnum? SecondKey { get; set; }
 
-		public KeyEnum ThirdKey { get; set; }
-
+		public KeyEnum? ThirdKey { get; set; }
+		
 		public ActionData? Action { get; set; }
 
 		public override bool Equals(object? obj)
@@ -24,13 +24,7 @@ namespace RoguelikeToolkit.Keyboard
 				   EqualityComparer<KeyEnum>.Default.Equals(ThirdKey, combination.ThirdKey);
 		}
 
-		public override int GetHashCode()
-		{
-			int hashCode = 2144946132;
-			hashCode = hashCode * -1521134295 + EqualityComparer<KeyEnum>.Default.GetHashCode(FirstKey);
-			hashCode = hashCode * -1521134295 + EqualityComparer<KeyEnum>.Default.GetHashCode(SecondKey);
-			hashCode = hashCode * -1521134295 + EqualityComparer<KeyEnum>.Default.GetHashCode(ThirdKey);
-			return hashCode;
-		}
+		public override int GetHashCode() =>
+			HashCode.Combine(FirstKey, SecondKey, ThirdKey);
 	}
 }

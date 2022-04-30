@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	<LangVersion>latest</LangVersion>
+	  <TargetFramework>net6.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Copyright>Michael Yarichuk</Copyright>
 	<RepositoryUrl>https://github.com/myarichuk/RoguelikeToolkit</RepositoryUrl>

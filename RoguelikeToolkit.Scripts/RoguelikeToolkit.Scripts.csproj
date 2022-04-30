@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	  <TargetFramework>net6.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
     <Authors>Michael Yarichuk</Authors>
     <Company>Michael Yarichuk</Company>
     <Description>A library containing tools to run C# scripts on DefaultEcs entities or their components - this can be useful to implement data-driven games with external interaction scripts</Description>
@@ -10,7 +11,6 @@
     <RepositoryType>Github</RepositoryType>
     <PackageTags>scripts, scripting, data-driven, data driven, roguelike, rogueliketoolkit</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <LangVersion>9.0</LangVersion>
     <Version>0.3.0</Version>
   </PropertyGroup>
 

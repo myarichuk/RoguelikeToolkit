@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Linq;
 using DefaultEcs;
 using Xunit;
 
 namespace RoguelikeToolkit.Entities.Tests
 {
-    public class ChildrenEntityTests : IDisposable
-    {
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+	public class ChildrenEntityTests : IDisposable
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
+	{
         private readonly World _world = new ();
 
 

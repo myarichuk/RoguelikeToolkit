@@ -6,7 +6,7 @@ namespace RoguelikeToolkit.Keyboard
 	{
 		public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue value)
 		{
-			if(dict?.TryGetValue(key, out _) ?? false)
+			if(dict == null || dict.TryGetValue(key, out _))
 				return false;
 
 			dict.Add(key, value);

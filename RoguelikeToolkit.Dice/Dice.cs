@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Runtime.CompilerServices;
 using Antlr4.Runtime;
 
@@ -8,14 +8,10 @@ namespace RoguelikeToolkit.DiceExpression
     public partial class Dice
     {
         #region Static Parser
-        private static readonly DiceLexer Lexer;
-        private static readonly DiceParser Parser;
 
-        static Dice()
-        {
-            Lexer = new DiceLexer(new AntlrInputStream(string.Empty));
-            Parser = new DiceParser(new CommonTokenStream(Lexer));
-        }
+		private static readonly DiceLexer Lexer = new DiceLexer(new AntlrInputStream(string.Empty));
+		private static readonly DiceParser Parser = new DiceParser(new CommonTokenStream(Lexer));
+
         #endregion
 
         private readonly DiceParser.RootContext _diceAst;
