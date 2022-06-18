@@ -26,7 +26,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Keyboard",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Keyboard.Tests", "RoguelikeToolkit.Keyboard.Tests\RoguelikeToolkit.Keyboard.Tests.csproj", "{598D6FB2-E440-4AFF-9D8B-9F4F010CC93C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.PersistentArray", "RoguelikeToolkit.PersistentArray\RoguelikeToolkit.PersistentArray.csproj", "{3A4F389D-D078-4789-9B0B-041E3C79EF37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.PersistentArray", "RoguelikeToolkit.PersistentArray\RoguelikeToolkit.PersistentArray.csproj", "{3A4F389D-D078-4789-9B0B-041E3C79EF37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.Dice.Tests", "RoguelikeToolkit.Dice.Tests\RoguelikeToolkit.Dice.Tests.csproj", "{257E95C5-C315-446E-B6F9-4E49BE0EF77C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,10 @@ Global
 		{3A4F389D-D078-4789-9B0B-041E3C79EF37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A4F389D-D078-4789-9B0B-041E3C79EF37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A4F389D-D078-4789-9B0B-041E3C79EF37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{257E95C5-C315-446E-B6F9-4E49BE0EF77C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{257E95C5-C315-446E-B6F9-4E49BE0EF77C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{257E95C5-C315-446E-B6F9-4E49BE0EF77C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{257E95C5-C315-446E-B6F9-4E49BE0EF77C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{CC6645D5-F109-4C06-8D56-24A3A780DBA6} = {61267C72-6B79-4451-B189-8B5B0CE82F32}
 		{1F2ED674-071B-4B83-A78F-D178DB2C1662} = {61267C72-6B79-4451-B189-8B5B0CE82F32}
 		{598D6FB2-E440-4AFF-9D8B-9F4F010CC93C} = {61267C72-6B79-4451-B189-8B5B0CE82F32}
+		{257E95C5-C315-446E-B6F9-4E49BE0EF77C} = {61267C72-6B79-4451-B189-8B5B0CE82F32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32257DA0-FA47-488B-BC5D-8AF757544AB7}

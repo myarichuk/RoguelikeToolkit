@@ -34,6 +34,6 @@ dice:
 	|	DICE PERCENT														 #Dice100Expression /* roll 'percentage' dice */
 	|	DICE sides = NUMBER (KEEP keepNum = NUMBER)?						 #OneDiceExpression
 	|	left = dice op = (MULTIPLY | DIVIDE) right = dice					 #DiceMultiplyDivideExpression
-	|	left = dice op = (PLUS | MINUS) right = dice						 #DiceAddSubstractExpression	
+	|	left = dice op = (PLUS | MINUS) right = dice						 #DiceAddSubstractExpression
 	|   NUMBER																 #DiceConstantException
 	;

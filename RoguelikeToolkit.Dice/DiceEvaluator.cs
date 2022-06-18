@@ -43,7 +43,14 @@ namespace RoguelikeToolkit.DiceExpression
 				case DiceLexer.MULTIPLY:
 					return left * right;
 				case DiceLexer.DIVIDE:
-					return left / right;
+					try
+					{
+						return left / right;
+					}
+					catch (DivideByZeroException e)
+					{
+						throw new DiceRollFailedException(e);
+					}
 				default:
 					throw new ArgumentException(
 						$"Unexpected operator token '{context.op.Text}' (in this context expected either '+' or '-')");
