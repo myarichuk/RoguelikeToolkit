@@ -3,36 +3,65 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using RandN.Compat;
+using System;
 
 namespace RoguelikeToolkit.DiceExpression
 {
-    public partial class Dice
-    {
-        //NR3Q1Generator is not thread-safe
-        private static readonly ThreadLocal<RandomShim<SmallRng>> Random = new ThreadLocal<RandomShim<SmallRng>>(() => RandomShim.Create(SmallRng.Create()));
+	public partial class Dice
+	{
+		//NR3Q1Generator is not thread-safe
+		private static ThreadLocal<RandomShim<IRng>> Random =
+			new(() => RandomShim.Create(SmallRng.Create() as IRng));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int Roll100() => RollAndSum(1, 100);
+		public static void SetRandom(IRng randomImpl) =>
+			Random = new(() => RandomShim.Create(randomImpl));
 
-        internal static int RollAndSum(int numOfDice, int sides)
-        {
-            var result = 0;			
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static int Roll100() => RollAndSum(1, 100);
+
+		internal static int RollAndSum(int numOfDice, int sides)
+		{
+			var result = 0;
 
 			for (int i = 0; i < numOfDice; i++)
-            {
-                result += Random.Value.Next(1, sides);
-            }
+			{
+				result += Random.Value.Next(1, sides);
+			}
 
-            return result;
-        }
+			return result;
+		}
 
-        internal static IEnumerable<int> Roll(int numOfDice, int sides)
-        {
-            for (int i = 0; i < numOfDice; i++)
-            {
-                yield return Random.Value.Next(1, sides);
-            }
-        }
+#nullable enable
+		internal static int RollExploding(int numOfDice, int sides, Func<int, bool>? explodeCondition = null)
+#nullable disable
+		{
+			var rolledDiceCount = numOfDice;
+			var result = 0;
+			explodeCondition ??= num => num == sides;
 
-    }
+			while (rolledDiceCount > 0)
+			{
+				var currentResult = Random.Value.Next(1, sides);
+				result += currentResult;
+				while (explodeCondition(currentResult))
+				{
+					currentResult = Random.Value.Next(1, sides);
+					result += currentResult;
+				}
+				rolledDiceCount--;
+			}
+
+			return result;
+		}
+
+
+		internal static IEnumerable<int> Roll(int numOfDice, int sides)
+		{
+			for (int i = 0; i < numOfDice; i++)
+			{
+				yield return Random.Value.Next(1, sides);
+			}
+		}
+
+	}
 }
