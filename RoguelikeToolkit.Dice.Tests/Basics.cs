@@ -1,4 +1,4 @@
-using RoguelikeToolkit.DiceExpression;
+﻿using RoguelikeToolkit.DiceExpression;
 using System.Data;
 
 namespace RoguelikeToolkit.DiceTests
@@ -15,7 +15,7 @@ namespace RoguelikeToolkit.DiceTests
 		[InlineData("4 / 2 - 2", 0)]
 		public void Can_do_arithmetic_operations(string diceExpr, int expectedResult)
 		{
-			var dice = Dice.Parse(diceExpr);
+            var dice = Dice.Parse(diceExpr);
 			Assert.Equal(expectedResult, dice.Roll());
 		}
 

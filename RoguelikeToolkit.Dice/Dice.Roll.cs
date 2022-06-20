@@ -1,4 +1,4 @@
-using RandN;
+﻿using RandN;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -10,11 +10,14 @@ namespace RoguelikeToolkit.DiceExpression
 	public partial class Dice
 	{
 		//NR3Q1Generator is not thread-safe
-		private static ThreadLocal<RandomShim<IRng>> Random =
+		private static ThreadLocal<Random> Random =
 			new(() => RandomShim.Create(SmallRng.Create() as IRng));
 
-		public static void SetRandom(IRng randomImpl) =>
-			Random = new(() => RandomShim.Create(randomImpl));
+		public static void SetRandom(Random randomImpl) =>
+			Random.Value = randomImpl;
+
+		public static void SetDefaultRandom() =>
+			Random.Value = RandomShim.Create(SmallRng.Create() as IRng);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static int Roll100() => RollAndSum(1, 100);

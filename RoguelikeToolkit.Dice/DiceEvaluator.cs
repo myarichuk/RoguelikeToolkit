@@ -1,4 +1,4 @@
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 using System;
 using System.Linq;
 
@@ -25,7 +25,7 @@ namespace RoguelikeToolkit.DiceExpression
 			}
 		}
 
-		public override int VisitDiceParenthesisExpression(DiceParser.DiceParenthesisExpressionContext context) => context.dice().Accept(this);
+        public override int VisitDiceParenthesisExpression(DiceParser.DiceParenthesisExpressionContext context) => context.dice().Accept(this);
 
 		public override int VisitDice10KeepExpression(DiceParser.Dice10KeepExpressionContext context)
 		{
@@ -68,9 +68,7 @@ namespace RoguelikeToolkit.DiceExpression
 			var sides = int.Parse(context.sides.Text);
 
 			if (context.keepNum == null)
-			{
 				return Dice.RollAndSum(numOfDice, sides);
-			}
 
 			//we need to keep the highest 'keepNum' for summary
 			var rolls = Dice.Roll(numOfDice, sides).OrderByDescending(x => x);

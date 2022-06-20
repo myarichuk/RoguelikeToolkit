@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Runtime.CompilerServices;
 using Antlr4.Runtime;
 
@@ -18,8 +18,12 @@ namespace RoguelikeToolkit.DiceExpression
 
 		internal Dice(DiceParser.RootContext diceAst) => _diceAst = diceAst;
 
-		//relevant for resolving as a component of RoguelikeToolkit.Entities
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator string(Dice dice) => dice._diceAst.ToStringTree();
+
+        public override string ToString() => _diceAst?.ToStringTree() ?? string.Empty;
+
+        //relevant for resolving as a component of RoguelikeToolkit.Entities
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Dice(string diceExpression) => Parse(diceExpression);
 
 		[MethodImpl(MethodImplOptions.Synchronized)]
@@ -44,10 +48,7 @@ namespace RoguelikeToolkit.DiceExpression
 			return new Dice(diceAst);
 		}
 
-		public int Roll()
-		{
-			return new DiceEvaluator().Visit(_diceAst);
-		}
+        public int Roll() => new DiceEvaluator().Visit(_diceAst);
 
-	}
+    }
 }
