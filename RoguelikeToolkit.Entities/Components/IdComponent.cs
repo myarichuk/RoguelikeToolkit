@@ -1,7 +1,7 @@
-﻿namespace RoguelikeToolkit.Entities.Components
+namespace RoguelikeToolkit.Entities.Components
 {
-    public struct IdComponent : IValueComponent<string>
-    {
-        public string Value { get; set; }
-    }
+	public record struct IdComponent : IValueComponent<string>
+	{
+		public string Value { get; set; }
+	}
 }

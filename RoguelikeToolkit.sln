@@ -20,13 +20,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8649E0B7-12ED-4720-BD16-C0D23655AB51}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Keyboard", "RoguelikeToolkit.Keyboard\RoguelikeToolkit.Keyboard.csproj", "{5599AE5A-9C00-423A-AD5F-AB28543B8BBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.Keyboard.Tests", "RoguelikeToolkit.Keyboard.Tests\RoguelikeToolkit.Keyboard.Tests.csproj", "{598D6FB2-E440-4AFF-9D8B-9F4F010CC93C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoguelikeToolkit.PersistentArray", "RoguelikeToolkit.PersistentArray\RoguelikeToolkit.PersistentArray.csproj", "{3A4F389D-D078-4789-9B0B-041E3C79EF37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoguelikeToolkit.PersistentArray", "RoguelikeToolkit.PersistentArray\RoguelikeToolkit.PersistentArray.csproj", "{3A4F389D-D078-4789-9B0B-041E3C79EF37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
