@@ -5,7 +5,7 @@ Tags:
  - tag3
 Components:
  foobar:
-  stringPropery: abcdef
+  stringProperty: abcdef
   numProperty: 123
  barfoo:
   anotherStringProperty: defgh

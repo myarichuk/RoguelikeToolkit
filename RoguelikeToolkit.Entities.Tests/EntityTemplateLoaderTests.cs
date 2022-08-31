@@ -53,10 +53,12 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.Empty(template.ChildrenById);
 		}
 
-		[Fact]
-		public void Can_load_yaml_simple_template()
+		[Theory]
+		[InlineData("template-simple-case-sensitive-props.yaml")]
+		[InlineData("template-simple-case-sensitive-props.json")]
+		public void Can_load_simple_template(string templateFilename)
 		{
-			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-simple-case-sensitive-props.yaml")));
+			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", templateFilename)));
 
 			Assert.NotNull(template);
 			Assert.NotNull(template.Id);
@@ -74,7 +76,7 @@ namespace RoguelikeToolkit.Entities.Tests
 
 					//embedded objects yaml deserializer loads as Dictionary<object, object>
 					var valueAsDict = (Dictionary<object, object>)kvp.Value;
-					Assert.Equal("abcdef", valueAsDict["stringPropery"]);
+					Assert.Equal("abcdef", valueAsDict["stringProperty"]);
 					Assert.Equal((byte)123, valueAsDict["numProperty"]);
 				},
 				kvp =>
