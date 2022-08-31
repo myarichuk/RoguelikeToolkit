@@ -16,7 +16,6 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.NotNull(template);
 			Assert.Null(template.Id);
 			Assert.Empty(template.Inherits);
-			Assert.Empty(template.ChildrenById);
 		}
 
 		[Fact]
@@ -26,7 +25,6 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.NotNull(template);
 			Assert.Null(template.Id);
 			Assert.Empty(template.Inherits);
-			Assert.Empty(template.ChildrenById);
 		}
 
 		[Fact]
@@ -38,7 +36,6 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.NotNull(template.Id);
 			Assert.Equal("this is a value of Id property", template.Id);
 			Assert.Empty(template.Inherits);
-			Assert.Empty(template.ChildrenById);
 		}
 
 		[Fact]
@@ -50,7 +47,6 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.NotNull(template.Id);
 			Assert.Equal("this is a value of Id property", template.Id);
 			Assert.Empty(template.Inherits);
-			Assert.Empty(template.ChildrenById);
 		}
 
 		[Theory]

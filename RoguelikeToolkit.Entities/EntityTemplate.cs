@@ -13,8 +13,6 @@ namespace RoguelikeToolkit.Entities
 
 		public HashSet<string> Tags { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
-		public Dictionary<string, string> ChildrenById { get; set; } = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-
 		public EntityTemplate() { }
 	}
 }
