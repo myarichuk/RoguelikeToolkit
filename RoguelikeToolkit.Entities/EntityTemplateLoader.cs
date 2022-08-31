@@ -1,13 +1,14 @@
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.IO;
+using System;
 
 namespace RoguelikeToolkit.Entities
 {
+
 	internal class EntityTemplateLoader
 	{
 		private readonly IDeserializer _deserializer = new DeserializerBuilder()
-						.WithNamingConvention(CamelCaseNamingConvention.Instance)
 						.IgnoreUnmatchedProperties()
 						.IgnoreFields()
 						.WithAttemptingUnquotedStringTypeDeserialization()

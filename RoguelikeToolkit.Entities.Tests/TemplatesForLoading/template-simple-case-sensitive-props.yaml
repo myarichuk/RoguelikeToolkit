@@ -1,0 +1,13 @@
+Id: FooBarId
+Tags:
+ - tag1
+ - tag2
+ - tag3
+Components:
+ foobar:
+  stringPropery: abcdef
+  numProperty: 123
+ barfoo:
+  anotherStringProperty: defgh
+  anotherNumProperty: 234
+ foo: this is a test!

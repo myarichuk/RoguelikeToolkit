@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TemplatesForLoading\template-simple-case-sensitive-props.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-only-id.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
