@@ -71,6 +71,8 @@ namespace RoguelikeToolkit.Entities.Tests
 				kvp =>
 				{
 					Assert.Equal("foobar", kvp.Key);
+
+					//embedded objects yaml deserializer loads as Dictionary<object, object>
 					var valueAsDict = (Dictionary<object, object>)kvp.Value;
 					Assert.Equal("abcdef", valueAsDict["stringPropery"]);
 					Assert.Equal((byte)123, valueAsDict["numProperty"]);
@@ -85,6 +87,7 @@ namespace RoguelikeToolkit.Entities.Tests
 				},
 				kvp =>
 				{
+					//yaml deserializer loads simple objects as key-value pairs
 					Assert.Equal("foo", kvp.Key);
 					Assert.Equal("this is a test!", kvp.Value);
 				});
