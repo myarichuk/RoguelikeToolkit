@@ -21,6 +21,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="FolderForTemplateRepository\template-only-id">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FolderForTemplateRepository\template-only-id.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FolderForTemplateRepository\template-only-id.test.foobar.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FolderForTemplateRepository\template-only-id.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-simple-case-sensitive-props.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
