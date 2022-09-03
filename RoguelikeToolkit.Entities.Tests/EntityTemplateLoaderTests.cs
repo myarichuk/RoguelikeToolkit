@@ -50,8 +50,8 @@ namespace RoguelikeToolkit.Entities.Tests
 		}
 
 		[Theory]
-		[InlineData("template-simple-case-sensitive-props.yaml")]
-		[InlineData("template-simple-case-sensitive-props.json")]
+		[InlineData("template-simple-case-sensitive-props-2.yaml")]
+		[InlineData("template-simple-case-sensitive-props-1.json")]
 		public void Can_load_simple_template(string templateFilename)
 		{
 			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", templateFilename)));

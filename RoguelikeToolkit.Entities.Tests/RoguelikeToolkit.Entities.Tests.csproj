@@ -33,16 +33,16 @@
     <None Update="FolderForTemplateRepository\template-only-id.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props.json">
+    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props.yaml">
+    <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props-2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TemplatesForLoading\template-simple-case-sensitive-props.json">
+    <None Update="TemplatesForLoading\template-simple-case-sensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TemplatesForLoading\template-simple-case-sensitive-props.yaml">
+    <None Update="TemplatesForLoading\template-simple-case-sensitive-props-2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\template-only-id.json">

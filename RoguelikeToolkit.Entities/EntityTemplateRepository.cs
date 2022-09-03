@@ -37,7 +37,7 @@ namespace RoguelikeToolkit.Entities
 			if (!templateFile.Exists)
 				throw new FileNotFoundException("Template file not found", templateFile.FullName);
 
-			if (templateFile.Extension != "json" && templateFile.Extension != "yaml")
+			if (templateFile.Extension != ".json" && templateFile.Extension != ".yaml")
 				throw new InvalidOperationException("Template files must have either 'yaml' or 'json' extensions");
 
 			using var fs = templateFile.OpenRead();

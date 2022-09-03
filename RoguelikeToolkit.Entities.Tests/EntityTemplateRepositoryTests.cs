@@ -19,9 +19,10 @@ namespace RoguelikeToolkit.Entities.Tests
 		{
 			_repository.LoadTemplateFolder("FolderForTemplateRepository");
 			Assert.Collection(_repository.TemplateNames.OrderBy(x => x),
-				filename => Assert.Equal("template-only-id.yaml", filename),
-				filename => Assert.Equal("template-simple-case-sensitive-props.json", filename),
-				filename => Assert.Equal("template-simple-case-sensitive-props.yaml", filename));
+				name => Assert.Equal("template-only-id", name),
+				name => Assert.Equal("template-only-id.test.foobar", name),
+				name => Assert.Equal("template-simple-case-sensitive-props-1", name),
+				name => Assert.Equal("template-simple-case-sensitive-props-2", name));
 		}
 
 		[Theory]
