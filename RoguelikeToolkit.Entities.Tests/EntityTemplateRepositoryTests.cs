@@ -36,6 +36,22 @@ namespace RoguelikeToolkit.Entities.Tests
 		}
 
 		[Fact]
+		public void Can_query_by_tags()
+		{
+			_repository.LoadTemplateFolder("FolderForTemplateRepository");
+
+			Assert.Collection(_repository.GetByTags("tag1"),
+				template => template.Tags.Contains("xyz"));
+
+			Assert.Collection(_repository.GetByTags("tag3"),
+				template => template.Tags.Contains("xyz"),
+				template => template.Tags.Contains("aaa"));
+
+			Assert.Collection(_repository.GetByTags("tag2"),
+				template => template.Tags.Contains("aaa"));
+		}
+
+		[Fact]
 		public void Can_load_single_template()
 		{
 			string currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;

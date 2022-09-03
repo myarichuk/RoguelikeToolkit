@@ -1,6 +1,6 @@
 {
 	"Id": "FooBarId",
-	"Tags": [ "tag1", "tag2", "tag3" ],
+	"Tags": [ "tag2", "tag3", "aaa" ],
 	"Components": {
 		"foobar": {
 			"stringProperty": "abcdef",
