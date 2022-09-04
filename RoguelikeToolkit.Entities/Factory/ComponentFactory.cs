@@ -36,8 +36,16 @@ namespace RoguelikeToolkit.Entities.Factory
 				ConversionQuality.Custom);
 		}
 
+		/// <summary>
+		/// Try and create an instance of specified type from the data provided by the dictionary.
+		/// Needed for initializing components deserialized from templates.
+		/// </summary>
+		/// <typeparam name="TComponent">Type of the object to populate with the data</typeparam>
+		/// <param name="objectData">Property data, typically received from YamlDotNet deserialization</param>
+		/// <param name="instance">resulting instance of the component</param>
+		/// <returns>true if instance creation succeeded, false otherwise</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="objectData"/> is <see langword="null"/></exception>
-		public bool TryCreateInstance<TComponent>(Dictionary<object, object> objectData, out TComponent instance)
+		public bool TryCreateInstance<TComponent>(IReadOnlyDictionary<object, object> objectData, out TComponent instance)
 		{
 			if (objectData == null)
 				throw new ArgumentNullException(nameof(objectData));
@@ -50,10 +58,12 @@ namespace RoguelikeToolkit.Entities.Factory
 				if (!TryGetDestPropertyFor<TComponent>(kvp.Key, out var property))
 					continue;
 
+				//note: ConvertValueFromSrcToDestType() can call recursively to this method (TryCreateInstance)
 				if (!instanceAsObject.TrySetPropertyValue(property.Name,
 					    ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType)))
 				{
 					//TODO: add logging for the failure
+					//TODO: consider adding a switch parameter (with default = false) to throw in case of failure
 					return false;
 				}
 			}
@@ -73,7 +83,9 @@ namespace RoguelikeToolkit.Entities.Factory
 				case Dictionary<object, object> valueAsDictionary:
 				{
 					var createInstanceMethod = MakeGenericCreateInstance(destType);
-					var @params = new object[] { valueAsDictionary, null };
+
+					//TODO: this is unnecessary allocation, replace with object pool
+					var @params = new object[] { valueAsDictionary, null }; 
 					createInstanceMethod.Call(this, @params);
 					convertResult = @params[1];
 
@@ -89,12 +101,12 @@ namespace RoguelikeToolkit.Entities.Factory
 			return convertResult;
 		}
 
-		private bool TryGetDestPropertyFor<TComponent>(object srcPropertyName, out PropertyInfo property)
+		private bool TryGetDestPropertyFor<TComponent>(object destPropertyKey, out PropertyInfo property)
 		{
 			property = null;
 
 			//note: since ware deserializing yaml, kvp.Key will always be string, this is precaution
-			return srcPropertyName is string destPropertyName && 
+			return destPropertyKey is string destPropertyName && 
 			       TryGetDestPropertyFor<TComponent>(destPropertyName, out property);
 		}
 

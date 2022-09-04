@@ -63,7 +63,6 @@ public class ComponentFactoryTests
 		Assert.True(_componentFactory.TryCreateInstance<DiceAsStringComponent>(
 			template.Components["diceComponent"] as Dictionary<object, object>, out var componentInstance));
 
-
 		Assert.Equal("3d6", componentInstance.DiceProperty);
 	}
 
