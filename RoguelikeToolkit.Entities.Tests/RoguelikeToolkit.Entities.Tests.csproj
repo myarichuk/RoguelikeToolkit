@@ -42,6 +42,9 @@
     <None Update="TemplatesForComponentFactory\complex-template.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForComponentFactory\simple-template-with-dice.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForInheritanceResolver\inherited-template-non-existing-inherit.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

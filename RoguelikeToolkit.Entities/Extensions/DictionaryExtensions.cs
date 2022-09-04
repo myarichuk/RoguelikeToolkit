@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 
@@ -18,9 +19,7 @@ namespace RoguelikeToolkit.Entities
 		public static void AddIfNotExists<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue val)
 		{
 			if (!dict.ContainsKey(key))
-			{
 				dict.Add(key, val);
-			}
 		}
 
 		public static dynamic ToExpando<TValue>(this IReadOnlyDictionary<string, TValue> dict)
@@ -28,9 +27,7 @@ namespace RoguelikeToolkit.Entities
 			var result = (IDictionary<string, object>)new ExpandoObject();
 
 			foreach (var kvp in dict)
-			{
 				result.Add(kvp.Key, kvp.Value);
-			}
 
 			return result;
 		}
@@ -56,6 +53,8 @@ namespace RoguelikeToolkit.Entities
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AddOrSet<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TValue, TValue> mutator)
 		{
+			Debug.Assert(mutator != null, nameof(mutator) + " != null");
+
 			if (dict.ContainsKey(key))
 			{
 				dict[key] = mutator(dict[key]);

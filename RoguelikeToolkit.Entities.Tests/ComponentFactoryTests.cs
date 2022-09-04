@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Fasterflect;
+using RoguelikeToolkit.DiceExpression;
 using RoguelikeToolkit.Entities.Factory;
 using Xunit;
 // ReSharper disable ExceptionNotDocumented
@@ -23,6 +25,35 @@ namespace RoguelikeToolkit.Entities.Tests
 
 			Assert.Equal(123, componentInstance.NumProperty);
 			Assert.Equal("abcdef", componentInstance.StringProperty);
+		}
+
+		[Fact]
+		public void Can_create_simple_class_component_with_dice()
+		{
+			//sanity check
+			Assert.True(_repository.TryGetByName("simple-template-with-dice", out var template));
+			var componentInstance =
+				_componentFactory.CreateInstance<DiceComponent>(template.Components["diceComponent"] as Dictionary<object, object>);
+
+			Assert.Equal(GetAstStringFrom(Dice.Parse("3d6")),
+				GetAstStringFrom(componentInstance.DiceProperty));
+		}
+
+		private string GetAstStringFrom(Dice dice)
+		{
+			var ast = dice.GetFieldValue("_diceAst");
+			return ((dynamic)ast).ToStringTree(); //assuming antlr4 ast
+		}
+
+		[Fact]
+		public void Can_create_simple_class_component_with_dice_as_string()
+		{
+			//sanity check
+			Assert.True(_repository.TryGetByName("simple-template-with-dice", out var template));
+			var componentInstance =
+				_componentFactory.CreateInstance<DiceAsStringComponent>(template.Components["diceComponent"] as Dictionary<object, object>);
+
+			Assert.Equal("3d6", componentInstance.DiceProperty);
 		}
 
 		[Fact]
@@ -92,5 +123,14 @@ namespace RoguelikeToolkit.Entities.Tests
 			public bool BoolProperty { get; set; }
 		}
 
+		internal class DiceComponent
+		{
+			public Dice DiceProperty { get; set; }
+		}
+
+		internal class DiceAsStringComponent
+		{
+			public string DiceProperty { get; set; }
+		}
 	}
 }

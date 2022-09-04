@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using deniszykov.TypeConversion;
 using Fasterflect;
 using Microsoft.Extensions.Options;
+using RoguelikeToolkit.DiceExpression;
 
 namespace RoguelikeToolkit.Entities.Factory
 {
@@ -25,6 +26,14 @@ namespace RoguelikeToolkit.Entities.Factory
 		private static readonly MethodInfo CreateInstanceMethodNonGeneric =
 			typeof(ComponentFactory).Methods()
 				.FirstOrDefault(m => m.Name == nameof(CreateInstance));
+
+		public ComponentFactory()
+		{
+			_typeConversionProvider.RegisterConversion<string, Dice>(
+				(src, _, __) =>
+					Dice.Parse(src, true),
+				ConversionQuality.Custom);
+		}
 
 		public TComponent CreateInstance<TComponent>(Dictionary<object, object> objectData)
 		{
@@ -44,7 +53,8 @@ namespace RoguelikeToolkit.Entities.Factory
 				if (property == null) //we do not enforce 1:1 structural parity
 					continue;
 
-				instance.SetPropertyValue(property.Name, ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType));
+				instance.SetPropertyValue(property.Name,
+					ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType));
 			}
 
 			return instance;

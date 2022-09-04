@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
@@ -29,17 +28,17 @@ namespace RoguelikeToolkit
 
 		private static void OnEntityDisposed(in Entity entity)
 		{
-			if (entity.Has<Children>())
-			{
-				var children = entity.Get<Children>().Value;
-				entity.Remove<Children>();
+			if (!entity.Has<Children>())
+				return;
 
-				foreach (var child in children)
+			var children = entity.Get<Children>().Value;
+			entity.Remove<Children>();
+
+			foreach (var child in children)
+			{
+				if (child.IsAlive)
 				{
-					if (child.IsAlive)
-					{
-						child.Dispose();
-					}
+					child.Dispose();
 				}
 			}
 		}
@@ -94,27 +93,26 @@ namespace RoguelikeToolkit
 				yield break;
 			}
 
-			foreach (var child in parent.GetChildren().Where(ch => ch.HasTags(tags)))
+			foreach (var child in parent.GetChildren())
 			{
-				yield return child;
+				if (!child.HasTags(tags))
+					continue;
 
+				yield return child;
 				foreach (var childOfChild in child.GetChidrenWithTags(tags))
-				{
 					yield return childOfChild;
-				}
 			}
 		}
 
 		public static bool TryGet<T>(this Entity entity, out T component)
 		{
 			component = default;
-			if (entity.Has<T>())
-			{
-				component = entity.Get<T>();
-				return true;
-			}
+			if (!entity.Has<T>())
+				return false;
 
-			return false;
+			component = entity.Get<T>();
+			return true;
+
 		}
 
 
