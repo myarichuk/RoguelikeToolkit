@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -25,7 +26,7 @@ namespace RoguelikeToolkit.Entities.Factory
 
 		private static readonly MethodInfo CreateInstanceMethodNonGeneric =
 			typeof(ComponentFactory).Methods()
-				.FirstOrDefault(m => m.Name == nameof(CreateInstance));
+				.FirstOrDefault(m => m.Name == nameof(TryCreateInstance));
 
 		public ComponentFactory()
 		{
@@ -35,30 +36,34 @@ namespace RoguelikeToolkit.Entities.Factory
 				ConversionQuality.Custom);
 		}
 
-		public TComponent CreateInstance<TComponent>(Dictionary<object, object> objectData)
+		/// <exception cref="ArgumentNullException"><paramref name="objectData"/> is <see langword="null"/></exception>
+		public bool TryCreateInstance<TComponent>(Dictionary<object, object> objectData, out TComponent instance)
 		{
-			Debug.Assert(objectData != null, nameof(objectData) + " != null");
+			if (objectData == null)
+				throw new ArgumentNullException(nameof(objectData));
 
-			var componentType = typeof(TComponent);
-			var instance = (TComponent)RuntimeHelpers.GetUninitializedObject(componentType);
+			instance = default;
+			var instanceAsObject = CreateEmptyInstance<TComponent>();
 
 			foreach (var kvp in objectData)
 			{
-				//note: since ware deserializing yaml, kvp.Key will always be string
-				if (kvp.Key is not string destPropertyName) //precaution
-					continue; //TODO: add logging here (this should be a warning!)
-
-				var property = GetDestPropertyFor<TComponent>(destPropertyName);
-
-				if (property == null) //we do not enforce 1:1 structural parity
+				if (!TryGetDestPropertyFor<TComponent>(kvp.Key, out var property))
 					continue;
 
-				instance.SetPropertyValue(property.Name,
-					ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType));
+				if (!instanceAsObject.TrySetPropertyValue(property.Name,
+					    ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType)))
+				{
+					//TODO: add logging for the failure
+					return false;
+				}
 			}
 
-			return instance;
+			instance = (TComponent)instanceAsObject.UnwrapIfWrapped();
+			return true;
 		}
+
+		private static object CreateEmptyInstance<TComponent>() =>
+			RuntimeHelpers.GetUninitializedObject(typeof(TComponent)).WrapIfValueType();
 
 		private object ConvertValueFromSrcToDestType(object srcValue, Type destType)
 		{
@@ -68,7 +73,10 @@ namespace RoguelikeToolkit.Entities.Factory
 				case Dictionary<object, object> valueAsDictionary:
 				{
 					var createInstanceMethod = MakeGenericCreateInstance(destType);
-					convertResult = createInstanceMethod.Call(this, valueAsDictionary);
+					var @params = new object[] { valueAsDictionary, null };
+					createInstanceMethod.Call(this, @params);
+					convertResult = @params[1];
+
 					break;
 				}
 				//primitive or string!
@@ -81,13 +89,22 @@ namespace RoguelikeToolkit.Entities.Factory
 			return convertResult;
 		}
 
-		private PropertyInfo GetDestPropertyFor<TComponent>(string srcPropertyName)
+		private bool TryGetDestPropertyFor<TComponent>(object srcPropertyName, out PropertyInfo property)
+		{
+			property = null;
+
+			//note: since ware deserializing yaml, kvp.Key will always be string, this is precaution
+			return srcPropertyName is string destPropertyName && 
+			       TryGetDestPropertyFor<TComponent>(destPropertyName, out property);
+		}
+
+		private bool TryGetDestPropertyFor<TComponent>(string srcPropertyName, out PropertyInfo property)
 		{
 			var properties = _typePropertyCache.GetOrAdd(typeof(TComponent),
 				type => type.PropertiesWith(Flags.InstancePublic));
 
-			var property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName, StringComparison.InvariantCultureIgnoreCase));
-			return property;
+			property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName, StringComparison.InvariantCultureIgnoreCase));
+			return property != null;
 		}
 
 		private MethodInfo MakeGenericCreateInstance(Type genericParamType)

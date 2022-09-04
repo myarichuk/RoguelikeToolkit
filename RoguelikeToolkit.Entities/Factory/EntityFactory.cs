@@ -1,7 +1,8 @@
 using DefaultEcs;
 using System;
+using RoguelikeToolkit.Entities.Factory;
 
-namespace RoguelikeToolkit.Entities.Factory
+namespace RoguelikeToolkit.Entities
 {
 	public class EntityFactory
 	{
