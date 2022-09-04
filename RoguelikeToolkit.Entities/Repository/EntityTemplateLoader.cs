@@ -2,7 +2,7 @@ using YamlDotNet.Serialization;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace RoguelikeToolkit.Entities
+namespace RoguelikeToolkit.Entities.Repository
 {
 
 	internal class EntityTemplateLoader

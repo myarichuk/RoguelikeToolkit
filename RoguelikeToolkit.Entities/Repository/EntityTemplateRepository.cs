@@ -1,6 +1,5 @@
-using Esprima.Ast;
+using RoguelikeToolkit.Entities.Repository;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -17,8 +16,15 @@ namespace RoguelikeToolkit.Entities
 
 		public IEnumerable<string> TemplateNames => _entityRepository.Keys;
 
-		public bool TryGetByName(string templateName, out EntityTemplate template) =>
-			_entityRepository.TryGetValue(templateName, out template);
+		public bool TryGetByName(string templateName, out EntityTemplate template)
+		{
+			var hasFound = _entityRepository.TryGetValue(templateName, out template);
+
+			if (hasFound && string.IsNullOrWhiteSpace(template.Name))
+				template.Name = templateName;
+
+			return hasFound;
+		}
 
 		public IEnumerable<EntityTemplate> GetByTags(params string[] tags) =>
 			_entityRepository.Values.Where(t => t.Tags.IsSupersetOf(tags));

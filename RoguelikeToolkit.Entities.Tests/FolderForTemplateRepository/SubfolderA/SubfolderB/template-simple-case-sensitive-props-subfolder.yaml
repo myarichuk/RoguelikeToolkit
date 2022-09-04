@@ -1,7 +1,5 @@
 Tags:
- - tag1
- - tag2
- - tag3
+ - tagXYZABC
 Components:
  foobar:
   stringProperty: abcdef

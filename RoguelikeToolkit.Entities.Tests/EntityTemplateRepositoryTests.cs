@@ -22,7 +22,8 @@ namespace RoguelikeToolkit.Entities.Tests
 				name => Assert.Equal("template-only-id", name),
 				name => Assert.Equal("template-only-id.test.foobar", name),
 				name => Assert.Equal("template-simple-case-sensitive-props-1", name),
-				name => Assert.Equal("template-simple-case-sensitive-props-2", name));
+				name => Assert.Equal("template-simple-case-sensitive-props-2", name),
+				name => Assert.Equal("template-simple-case-sensitive-props-subfolder", name));
 		}
 
 		[Theory]
