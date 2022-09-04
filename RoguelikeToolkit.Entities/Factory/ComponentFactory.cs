@@ -32,49 +32,64 @@ namespace RoguelikeToolkit.Entities.Factory
 
 			var componentType = typeof(TComponent);
 			var instance = (TComponent)RuntimeHelpers.GetUninitializedObject(componentType);
-			var properties = _typePropertyCache.GetOrAdd(componentType,
-				type => type.PropertiesWith(Flags.InstancePublic));
 
 			foreach (var kvp in objectData)
 			{
-				//note: since we are deserializing yaml, kvp.Key will always be string
-				var property = properties.FirstOrDefault(p =>
-					p.Name.Equals(kvp.Key as string ??
-					              throw new InvalidOperationException(
-						              $"Unexpected template key type, expected string but found " +
-						              $"{kvp.Key.GetType().AssemblyQualifiedName}"), StringComparison.InvariantCultureIgnoreCase));
+				//note: since ware deserializing yaml, kvp.Key will always be string
+				if (kvp.Key is not string destPropertyName) //precaution
+					continue; //TODO: add logging here (this should be a warning!)
+
+				var property = GetDestPropertyFor<TComponent>(destPropertyName);
 
 				if (property == null) //we do not enforce 1:1 structural parity
 					continue;
 
-				object convertResult;
-				if (kvp.Value is Dictionary<object, object> valueAsDictionary)
-				{
-					var createInstanceMethod = MakeGenericCreateInstance(property);
-					convertResult = createInstanceMethod.Call(this, valueAsDictionary);
-				}
-				else //primitive or string!
-				{
-					convertResult =
-						_typeConversionProvider.Convert(kvp.Value.GetType(), property.PropertyType, kvp.Value);
-				}
-				
-				instance.SetPropertyValue(property.Name, convertResult);
+				instance.SetPropertyValue(property.Name, ConvertValueFromSrcToDestType(kvp.Value, property.PropertyType));
 			}
 
 			return instance;
 		}
 
-		private MethodInfo MakeGenericCreateInstance(PropertyInfo property)
+		private object ConvertValueFromSrcToDestType(object srcValue, Type destType)
 		{
-			var createInstanceMethod = _createInstanceMethodCache.GetOrAdd(property.PropertyType, propertyType =>
+			object convertResult;
+			switch (srcValue)
+			{
+				case Dictionary<object, object> valueAsDictionary:
+				{
+					var createInstanceMethod = MakeGenericCreateInstance(destType);
+					convertResult = createInstanceMethod.Call(this, valueAsDictionary);
+					break;
+				}
+				//primitive or string!
+				default:
+					convertResult =
+						_typeConversionProvider.Convert(srcValue.GetType(), destType, srcValue);
+					break;
+			}
+
+			return convertResult;
+		}
+
+		private PropertyInfo GetDestPropertyFor<TComponent>(string srcPropertyName)
+		{
+			var properties = _typePropertyCache.GetOrAdd(typeof(TComponent),
+				type => type.PropertiesWith(Flags.InstancePublic));
+
+			var property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName));
+			return property;
+		}
+
+		private MethodInfo MakeGenericCreateInstance(Type genericParamType)
+		{
+			var createInstanceMethod = _createInstanceMethodCache.GetOrAdd(genericParamType, propertyType =>
 			{
 				if (CreateInstanceMethodNonGeneric == null) //precaution, should never be true
 					throw new InvalidOperationException(
 						"Failed to find CreateInstance method, this is not supposed to happen and is likely a bug");
 
-				var genericParam = _createInstanceGenericsCache.GetOrAdd(property.PropertyType,
-					type => new[] { propertyType });
+				var genericParam = _createInstanceGenericsCache.GetOrAdd(propertyType,
+					type => new[] { type });
 
 				return CreateInstanceMethodNonGeneric.MakeGenericMethod(genericParam);
 			});

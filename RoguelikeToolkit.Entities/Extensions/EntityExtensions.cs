@@ -31,10 +31,10 @@ namespace RoguelikeToolkit
 		{
 			if (entity.Has<Children>())
 			{
-				HashSet<Entity> children = entity.Get<Children>().Value;
+				var children = entity.Get<Children>().Value;
 				entity.Remove<Children>();
 
-				foreach (Entity child in children)
+				foreach (var child in children)
 				{
 					if (child.IsAlive)
 					{
@@ -77,15 +77,8 @@ namespace RoguelikeToolkit
 		public static string Id(this Entity entity) =>
 			entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 
-		public static ISet<string> Tags(this Entity entity)
-		{
-			if (entity.TryGet<TagsComponent>(out var metadata))
-			{
-				return metadata.Value;
-			}
-
-			return EmptyMetadata;
-		}
+		public static ISet<string> Tags(this Entity entity) =>
+			entity.TryGet<TagsComponent>(out var metadata) ? metadata.Value : EmptyMetadata;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool HasTags(this Entity entity, IEnumerable<string> tags) => entity.Tags().IsSupersetOf(tags);
@@ -191,9 +184,7 @@ namespace RoguelikeToolkit
 		public static void RemoveFromParentsOf(this Entity parent, Entity child)
 		{
 			if (parent.Has<Children>())
-			{
 				parent.Get<Children>().Value.Remove(child);
-			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
