@@ -122,6 +122,23 @@ public class ComponentFactoryTests
 		Assert.True(componentInstance.Embedded.BoolProperty);
 	}
 
+	[Fact]
+	public void Can_create_complex_struct_component()
+	{
+		//sanity check
+		Assert.True(_repository.TryGetByName("complex-template", out var template));
+		Assert.True(_componentFactory.TryCreateInstance<ComplexFoobarAsStruct>(
+			template.Components["foobar"] as Dictionary<object, object>, out var componentInstance));
+
+		Assert.Equal(123, componentInstance.NumProperty);
+		Assert.Equal("abcdef", componentInstance.StringProperty);
+
+		Assert.Equal(234, componentInstance.Embedded.AnotherNumProperty);
+		Assert.Equal("defgh", componentInstance.Embedded.AnotherStringProperty);
+		Assert.Equal((decimal)234.1, componentInstance.Embedded.DecimalProperty);
+		Assert.True(componentInstance.Embedded.BoolProperty);
+	}
+
 	private string GetAstStringFrom(Dice dice)
 	{
 		var ast = dice.GetFieldValue("_diceAst");
@@ -158,6 +175,13 @@ public class ComponentFactoryTests
 		public BarFoo Embedded { get; set; }
 	}
 
+	internal struct ComplexFoobarAsStruct
+	{
+		public int NumProperty { get; set; }
+		public string StringProperty { get; set; }
+		public BarFoo Embedded { get; set; }
+	}
+
 	internal class BarFoo
 	{
 		public string AnotherStringProperty { get; set; }
@@ -165,6 +189,16 @@ public class ComponentFactoryTests
 		public decimal DecimalProperty { get; set; }
 		public bool BoolProperty { get; set; }
 	}
+
+	internal struct BarFooAsStruct
+	{
+		public string AnotherStringProperty { get; set; }
+		public int AnotherNumProperty { get; set; }
+		public decimal DecimalProperty { get; set; }
+		public bool BoolProperty { get; set; }
+	}
+
+
 
 	internal class DiceComponent
 	{
