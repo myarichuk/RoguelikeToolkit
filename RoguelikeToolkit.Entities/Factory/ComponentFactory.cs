@@ -76,7 +76,7 @@ namespace RoguelikeToolkit.Entities.Factory
 			var properties = _typePropertyCache.GetOrAdd(typeof(TComponent),
 				type => type.PropertiesWith(Flags.InstancePublic));
 
-			var property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName));
+			var property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName, StringComparison.InvariantCultureIgnoreCase));
 			return property;
 		}
 
