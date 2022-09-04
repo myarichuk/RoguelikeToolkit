@@ -13,7 +13,7 @@ namespace RoguelikeToolkit.Entities.Tests
 		[Fact]
 		public void Can_load_empty_yaml()
 		{
-			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "empty.yaml")));
+			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "empty-y.yaml")));
 			Assert.NotNull(template);
 			Assert.Empty(template.Inherits);
 		}
@@ -21,7 +21,7 @@ namespace RoguelikeToolkit.Entities.Tests
 		[Fact]
 		public void Can_load_empty_json()
 		{
-			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "empty.json")));
+			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "empty-j.json")));
 			Assert.NotNull(template);
 			Assert.Empty(template.Inherits);
 		}
