@@ -54,6 +54,9 @@
     <None Update="TemplatesForInheritanceResolver\base-template-1.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForInheritanceResolver\template-no-inheritance.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-simple-case-sensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
