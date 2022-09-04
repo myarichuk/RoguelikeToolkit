@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+// ReSharper disable ExceptionNotDocumented
 
 namespace RoguelikeToolkit.Entities.Tests
 {

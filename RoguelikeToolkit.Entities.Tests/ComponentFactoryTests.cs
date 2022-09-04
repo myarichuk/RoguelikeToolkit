@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RoguelikeToolkit.Entities.Factory;
 using Xunit;
+// ReSharper disable ExceptionNotDocumented
 
 namespace RoguelikeToolkit.Entities.Tests
 {
@@ -60,6 +61,8 @@ namespace RoguelikeToolkit.Entities.Tests
 
 			Assert.Equal(234, componentInstance.Embedded.AnotherNumProperty);
 			Assert.Equal("defgh", componentInstance.Embedded.AnotherStringProperty);
+			Assert.Equal((decimal)234.1, componentInstance.Embedded.DecimalProperty);
+			Assert.True(componentInstance.Embedded.BoolProperty);
 		}
 
 		internal class Foobar
@@ -85,6 +88,8 @@ namespace RoguelikeToolkit.Entities.Tests
 		{
 			public string AnotherStringProperty { get; set; }
 			public int AnotherNumProperty { get; set; }
+			public decimal DecimalProperty { get; set; }
+			public bool BoolProperty { get; set; }
 		}
 
 	}

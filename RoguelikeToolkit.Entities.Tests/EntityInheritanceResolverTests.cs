@@ -3,6 +3,7 @@ using RoguelikeToolkit.Entities.Factory;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+// ReSharper disable ExceptionNotDocumented
 
 namespace RoguelikeToolkit.Entities.Tests
 {

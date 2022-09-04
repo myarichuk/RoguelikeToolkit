@@ -9,3 +9,5 @@ Components:
   embedded:
    anotherStringProperty: defgh
    anotherNumProperty: 234
+   decimalProperty: 234.1
+   boolProperty: true
