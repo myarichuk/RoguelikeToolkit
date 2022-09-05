@@ -11,6 +11,9 @@ namespace RoguelikeToolkit.Entities
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void MergeWith<TKey, TValue>(this IDictionary<TKey, TValue> dict, IDictionary<TKey, TValue> dictToMerge)
 		{
+			if (dictToMerge == null) //just in case
+				return;
+
 			foreach (var kvp in dictToMerge)
 				dict.AddIfNotExists(kvp.Key, kvp.Value);
 		}

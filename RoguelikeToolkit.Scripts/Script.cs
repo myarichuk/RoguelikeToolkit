@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+using System;
 using System.Runtime.CompilerServices;
-using System.Text;
-using DefaultEcs;
 using Jint;
 
 namespace RoguelikeToolkit.Scripts

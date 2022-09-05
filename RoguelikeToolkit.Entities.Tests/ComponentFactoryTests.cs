@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Fasterflect;
 using RoguelikeToolkit.DiceExpression;
 using RoguelikeToolkit.Entities.Factory;
+using RoguelikeToolkit.Scripts;
 using Xunit;
 
 // ReSharper disable ExceptionNotDocumented
@@ -44,6 +45,18 @@ public class ComponentFactoryTests
 	}
 
 	[Fact]
+	public void Can_create_simple_record_struct_component()
+	{
+		//sanity check
+		Assert.True(_repository.TryGetByName("simple-template", out var template));
+		Assert.True(_componentFactory.TryCreateInstance<FoobarRecordStruct>(
+			template.Components["foobar"] as Dictionary<object, object>, out var componentInstance));
+
+		Assert.Equal(123, componentInstance.NumProperty);
+		Assert.Equal("abcdef", componentInstance.StringProperty);
+	}
+
+	[Fact]
 	public void Can_create_simple_class_component_with_dice()
 	{
 		//sanity check
@@ -53,6 +66,24 @@ public class ComponentFactoryTests
 
 		Assert.Equal(GetAstStringFrom(Dice.Parse("3d6")),
 			GetAstStringFrom(componentInstance.DiceProperty));
+	}
+
+	[Fact]
+	public void Can_create_simple_class_component_with_componentScript()
+	{
+		//sanity check
+		Assert.True(_repository.TryGetByName("simple-template-with-script", out var template));
+		Assert.True(_componentFactory.TryCreateInstance<FoobarWithComponentScript>(
+			template.Components["componentWithScript"] as Dictionary<object, object>, out var componentInstance));
+
+		Assert.Equal("component.RollResult = component.diceProperty.Roll();", GetScriptSource(componentInstance.Script));
+	}
+
+	private static string GetScriptSource(EntityComponentScript script)
+	{
+		var baseScript = script.GetFieldValue("_script", Flags.InstancePrivate);
+		return baseScript.GetFieldValue("_script", Flags.InstancePrivate) as string;
+
 	}
 
 	[Fact]
@@ -144,6 +175,13 @@ public class ComponentFactoryTests
 		return ((dynamic)ast).ToStringTree(); //assuming antlr4 ast
 	}
 
+	#region Component Definitions
+
+	internal class FoobarWithComponentScript
+	{
+		public EntityComponentScript Script { get; set; }
+	}
+
 	internal class Foobar
 	{
 		public int NumProperty { get; set; }
@@ -151,6 +189,12 @@ public class ComponentFactoryTests
 	}
 
 	internal struct FoobarStruct
+	{
+		public int NumProperty { get; set; }
+		public string StringProperty { get; set; }
+	}
+
+	internal record struct FoobarRecordStruct
 	{
 		public int NumProperty { get; set; }
 		public string StringProperty { get; set; }
@@ -178,7 +222,7 @@ public class ComponentFactoryTests
 	{
 		public int NumProperty { get; set; }
 		public string StringProperty { get; set; }
-		public BarFoo Embedded { get; set; }
+		public BarFooAsStruct Embedded { get; set; }
 	}
 
 	internal class BarFoo
@@ -197,8 +241,6 @@ public class ComponentFactoryTests
 		public bool BoolProperty { get; set; }
 	}
 
-
-
 	internal class DiceComponent
 	{
 		public Dice DiceProperty { get; set; }
@@ -208,4 +250,5 @@ public class ComponentFactoryTests
 	{
 		public string DiceProperty { get; set; }
 	}
+	#endregion
 }

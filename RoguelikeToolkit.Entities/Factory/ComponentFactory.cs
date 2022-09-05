@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,6 +8,7 @@ using deniszykov.TypeConversion;
 using Fasterflect;
 using Microsoft.Extensions.Options;
 using RoguelikeToolkit.DiceExpression;
+using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Entities.Factory
 {
@@ -34,6 +33,27 @@ namespace RoguelikeToolkit.Entities.Factory
 				(src, _, __) =>
 					Dice.Parse(src, true),
 				ConversionQuality.Custom);
+
+			_typeConversionProvider.RegisterConversion<string, EntityScript>(
+				(src, _, __) =>
+					new EntityScript(src),
+				ConversionQuality.Custom);
+
+			_typeConversionProvider.RegisterConversion<string, EntityComponentScript>(
+				(src, _, __) =>
+					new EntityComponentScript(src),
+				ConversionQuality.Custom);
+
+			_typeConversionProvider.RegisterConversion<string, EntityInteractionScript>(
+				(src, _, __) =>
+					new EntityInteractionScript(src),
+				ConversionQuality.Custom);
+
+			_typeConversionProvider.RegisterConversion<string, Script>(
+				(src, _, __) =>
+					new Script(src),
+				ConversionQuality.Custom);
+
 		}
 
 		/// <summary>

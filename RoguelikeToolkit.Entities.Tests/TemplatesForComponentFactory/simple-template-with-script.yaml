@@ -1,0 +1,3 @@
+Components:
+ componentWithScript:
+  script: component.RollResult = component.diceProperty.Roll();

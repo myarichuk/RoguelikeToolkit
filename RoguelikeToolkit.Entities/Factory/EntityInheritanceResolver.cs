@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Linq;
 
 namespace RoguelikeToolkit.Entities.Factory
 {
@@ -13,7 +15,7 @@ namespace RoguelikeToolkit.Entities.Factory
 			_tryGetByName = getByIdFunc;
 
 		//traverse the components inheritance and merge all the components
-		public EntityTemplate GetEffectiveTemplate(EntityTemplate flatTemplate, bool throwOnMissingInheritance = true)
+		public EntityTemplate GetEffectiveTemplate(EntityTemplate flatTemplate)
 		{
 			//note: this executes copy constructor (feature of C# records!)
 			//note 2: if no copy constructor present, this will create shallow clone (inner properties would be the same)
@@ -26,26 +28,30 @@ namespace RoguelikeToolkit.Entities.Factory
 				if (_tryGetByName(inheritedTemplateName, out var inheritedTemplate))
 				{
 					var embeddedEffectiveTemplate = GetEffectiveTemplate(inheritedTemplate);
-					templateCopy.Components.MergeWith(embeddedEffectiveTemplate.Components); //no key overrides!
-					templateCopy.Tags.UnionWith(embeddedEffectiveTemplate.Tags);
-					templateCopy.Inherits.UnionWith(embeddedEffectiveTemplate.Inherits);
+					MergeInheritedTemplates(embeddedEffectiveTemplate, templateCopy);
 				}
 				else
 				{
-					if (throwOnMissingInheritance)
-					{
-						throw new InvalidOperationException(
-							$"Inherited template name '{inheritedTemplateName}' in  not found. " +
-							$"(check template with name = '{flatTemplate.Name}')");
-					}
-					else
-					{
-						//TODO: add logging in this case
-					}
+					HandleMissingInheritance(flatTemplate, inheritedTemplateName);
 				}
 			}
 
 			return templateCopy;
+		}
+
+		private static void MergeInheritedTemplates(EntityTemplate srcTemplate, EntityTemplate destTemplate)
+		{
+			destTemplate.Components.MergeWith(srcTemplate.Components); //no key overrides!
+			destTemplate.Tags.UnionWith(srcTemplate.Tags ?? Enumerable.Empty<string>());
+			destTemplate.Inherits.UnionWith(srcTemplate.Inherits ?? Enumerable.Empty<string>());
+		}
+
+		private static void HandleMissingInheritance(EntityTemplate flatTemplate, string inheritedTemplateName)
+		{
+			throw new InvalidOperationException(
+				$"Inherited template name '{inheritedTemplateName}' in  not found. " +
+				$"(check template with name = '{flatTemplate.Name}')");
+			//TODO: add logging in this case
 		}
 	}
 }
