@@ -47,6 +47,7 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="ArgumentNullException"><paramref name="templateName"/> is <see langword="null"/></exception>
+		/// <exception cref="FailedToLoadException">Failed to load template.</exception>
 		public void LoadTemplate(string templateName, StreamReader reader)
 		{
 			if (templateName == null)

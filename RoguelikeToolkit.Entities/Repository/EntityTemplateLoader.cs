@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using System.IO;
@@ -35,6 +34,7 @@ namespace RoguelikeToolkit.Entities.Repository
 			return LoadFrom(sr);
 		}
 
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EntityTemplate LoadFrom(string filePath)
 		{
@@ -44,48 +44,67 @@ namespace RoguelikeToolkit.Entities.Repository
 			return LoadFrom(sr);
 		}
 
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EntityTemplate LoadFrom(StreamReader sr)
 		{
 			var rawTemplate = _deserializer.Deserialize<Dictionary<string, object>>(sr);
 
-			return TryLoadFrom(rawTemplate, out var template) ? template : null;
+			return TryLoadFrom(rawTemplate, out var template, out var failureReason) ? template : throw new FailedToParseException(failureReason);
 		}
 
-		private static bool TryLoadFrom(Dictionary<string, object> rawTemplateData, out EntityTemplate template)
+		// ReSharper disable once CognitiveComplexity
+		// ReSharper disable once MethodTooLong
+		private static bool TryLoadFrom(Dictionary<string, object> rawTemplateData, out EntityTemplate template, out string failureReason)
 		{
 			template = new EntityTemplate();
-
+			failureReason = null;
 
 			foreach (var kvp in rawTemplateData ?? Enumerable.Empty<KeyValuePair<string, object>>())
 			{
 				if (EntityTemplate.PropertyNames.TryGetValue(kvp.Key, out var properlyCasedPropertyName))
 				{
-					if (!TryHandlePropertyValue(template, properlyCasedPropertyName, kvp.Value))
-						return false;
+					if (TryHandlePropertyValue(template, properlyCasedPropertyName, kvp.Value))
+						continue;
+
+					failureReason = $"Unrecognized property name {kvp.Key}, this is not supposed to happen and is likely a bug";
+					return false;
 				}
+
 				//we have a embedded template
-				else if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
+				if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
 				{
-					HandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate.ToDictionary(valuePair => TypeConversionProvider.ConvertToString(valuePair.Key), valuePair => valuePair.Value));
+					if (TryHandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate, out var templateLoadFailureReason))
+						continue;
+
+					failureReason = templateLoadFailureReason;
+					return false;
 				}
-				else
-				{
-					throw new InvalidOperationException($"Unexpected property name '{kvp.Key}'. Check whether the template schema is correct");
-				}
+
+				failureReason = $"Unexpected property name '{kvp.Key}'. Check whether the template schema is correct";
+				return false;
 			}
 
 			//make sure ALL required properties were set
 			return true;
 		}
 
-		private static void HandleEmbeddedTemplate(EntityTemplate template, string embeddedTemplateName, Dictionary<string, object> rawTemplateData)
+		// ReSharper disable once TooManyArguments
+		private static bool TryHandleEmbeddedTemplate(EntityTemplate template, string embeddedTemplateName, Dictionary<object, object> rawTemplateData, out string failureReason)
 		{
-			if (!TryLoadFrom(rawTemplateData, out var embeddedTemplate))
-				return;
+			failureReason = null;
+			if (!TryLoadFrom(rawTemplateData.ToDictionary(
+				    valuePair => TypeConversionProvider.ConvertToString(valuePair.Key),
+				    valuePair => valuePair.Value), out var embeddedTemplate, out var loadFailureReason))
+			{
+				failureReason = loadFailureReason;
+				return false;
+			}
 
 			embeddedTemplate.Name = embeddedTemplateName;
 			template.EmbeddedTemplates.Add(embeddedTemplate);
+
+			return true;
 		}
 
 		private static object ParseTemplateField(string propertyName, object propertyValue)
