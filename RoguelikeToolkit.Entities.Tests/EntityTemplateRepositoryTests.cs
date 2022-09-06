@@ -20,16 +20,16 @@ namespace RoguelikeToolkit.Entities.Tests
 		{
 			_repository.LoadTemplateFolder("FolderForTemplateRepository");
 			Assert.Collection(_repository.TemplateNames.OrderBy(x => x),
-				name => Assert.Equal("template-only-id", name),
-				name => Assert.Equal("template-only-id.test.foobar", name),
+				name => Assert.Equal("template-only-tags", name),
+				name => Assert.Equal("template-only-tags.test.foobar", name),
 				name => Assert.Equal("template-simple-case-sensitive-props-1", name),
 				name => Assert.Equal("template-simple-case-sensitive-props-2", name),
 				name => Assert.Equal("template-simple-case-sensitive-props-subfolder", name));
 		}
 
 		[Theory]
-		[InlineData("template-only-id.txt")]
-		[InlineData("template-only-id")]
+		[InlineData("template-only-tags.txt")]
+		[InlineData("template-only-tags")]
 		public void Should_fail_load_single_template_invalid_extension(string templateFilename)
 		{
 			string currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
@@ -57,20 +57,20 @@ namespace RoguelikeToolkit.Entities.Tests
 		public void Can_load_single_template()
 		{
 			string currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
-			var path = Path.Combine(currentFolder, "FolderForTemplateRepository", "template-only-id.yaml");
+			var path = Path.Combine(currentFolder, "FolderForTemplateRepository", "template-only-tags.yaml");
 			_repository.LoadTemplate(path);
 
-			Assert.True(_repository.TryGetByName("template-only-id", out _));
+			Assert.True(_repository.TryGetByName("template-only-tags", out _));
 		}
 
 		[Fact]
 		public void Can_load_single_template_multiple_dots_in_filename()
 		{
 			string currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
-			var path = Path.Combine(currentFolder, "FolderForTemplateRepository", "template-only-id.test.foobar.yaml");
+			var path = Path.Combine(currentFolder, "FolderForTemplateRepository", "template-only-tags.test.foobar.yaml");
 			_repository.LoadTemplate(path);
 
-			Assert.True(_repository.TryGetByName("template-only-id.test.foobar", out _));
+			Assert.True(_repository.TryGetByName("template-only-tags.test.foobar", out _));
 		}
 	}
 }

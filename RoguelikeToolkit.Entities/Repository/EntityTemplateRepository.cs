@@ -53,6 +53,9 @@ namespace RoguelikeToolkit.Entities
 				throw new ArgumentNullException(nameof(templateName));
 
 			var template = _loader.LoadFrom(reader);
+			if (template == null)
+				throw new FailedToLoadException(templateName);
+
 			if (!_entityRepository.TryAdd(templateName, template))
 				throw new TemplateAlreadyExistsException(templateName);
 		}
@@ -74,7 +77,7 @@ namespace RoguelikeToolkit.Entities
 			if (!templateFile.Exists)
 				throw new FileNotFoundException("Template file not found", templateFile.FullName);
 
-			if (ValidExtensions.Contains(templateFile.Extension))
+			if (!ValidExtensions.Contains(templateFile.Extension))
 				throw new InvalidOperationException($"Template files must have either {string.Join("or", ValidExtensions)} extensions");
 
 			using var fs = templateFile.OpenRead();
@@ -128,6 +131,14 @@ namespace RoguelikeToolkit.Entities
 			static IEnumerable<FileInfo> EnumerateTemplateFiles(DirectoryInfo di) =>
 				di.EnumerateFiles("*.yaml", SearchOption.AllDirectories)
 					.Concat(di.EnumerateFiles("*.json", SearchOption.AllDirectories));
+		}
+	}
+
+	public class FailedToLoadException : Exception
+	{
+		public FailedToLoadException(string templateName): base($"Failed to load {templateName} template")
+		{
+
 		}
 	}
 }

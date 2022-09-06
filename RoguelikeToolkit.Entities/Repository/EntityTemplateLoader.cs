@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using System.IO;
@@ -70,7 +71,7 @@ namespace RoguelikeToolkit.Entities.Repository
 				}
 				else
 				{
-					return false;
+					throw new InvalidOperationException($"Unexpected property name '{kvp.Key}'. Check whether the template schema is correct");
 				}
 			}
 

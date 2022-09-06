@@ -21,16 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="FolderForTemplateRepository\template-only-id">
+    <None Update="FolderForTemplateRepository\template-only-tags">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FolderForTemplateRepository\template-only-id.txt">
+    <None Update="FolderForTemplateRepository\template-only-tags.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FolderForTemplateRepository\template-only-id.test.foobar.yaml">
+    <None Update="FolderForTemplateRepository\template-only-tags.test.foobar.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FolderForTemplateRepository\template-only-id.yaml">
+    <None Update="FolderForTemplateRepository\template-only-tags.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="FolderForTemplateRepository\template-simple-case-sensitive-props-1.json">
