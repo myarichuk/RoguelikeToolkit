@@ -76,19 +76,9 @@ namespace RoguelikeToolkit.Entities.Repository
 				//we have a embedded template
 				if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
 				{
-					if (rawEmbeddedTemplate.TryGetValue("$ref", out var refValue) && refValue is string referencedTemplateFilename)
-					{
-						var embeddedTemplate = LoadFrom(referencedTemplateFilename);
-						embeddedTemplate.Name = referencedTemplateFilename;
-						template.EmbeddedTemplates.Add(embeddedTemplate);
-
-						continue;
-					}
-
-					if (TryHandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate, out var templateLoadFailureReason))
+					if (TryHandleEmbeddedTemplate(template, rawEmbeddedTemplate, kvp.Key, ref failureReason))
 						continue;
 
-					failureReason = templateLoadFailureReason;
 					return false;
 				}
 
@@ -98,6 +88,25 @@ namespace RoguelikeToolkit.Entities.Repository
 
 			//make sure ALL required properties were set
 			return true;
+		}
+
+		private bool TryHandleEmbeddedTemplate(EntityTemplate template,
+			Dictionary<object, object> rawEmbeddedTemplate, string embeddedTemplateName, ref string failureReason)
+		{
+			if (rawEmbeddedTemplate.TryGetValue("$ref", out var refValue) && refValue is string referencedTemplateFilename)
+			{
+				var embeddedTemplate = LoadFrom(referencedTemplateFilename);
+				embeddedTemplate.Name = referencedTemplateFilename;
+				template.EmbeddedTemplates.Add(embeddedTemplate);
+
+				return true;
+			}
+
+			if (TryHandleEmbeddedTemplate(template, embeddedTemplateName, rawEmbeddedTemplate, out var templateLoadFailureReason))
+				return true;
+
+			failureReason = templateLoadFailureReason;
+			return false;
 		}
 
 		// ReSharper disable once TooManyArguments
