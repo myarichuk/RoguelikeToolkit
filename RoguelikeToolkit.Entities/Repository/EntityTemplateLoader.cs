@@ -57,7 +57,7 @@ namespace RoguelikeToolkit.Entities.Repository
 			template = new EntityTemplate();
 
 
-			foreach (var kvp in rawTemplateData)
+			foreach (var kvp in rawTemplateData ?? Enumerable.Empty<KeyValuePair<string, object>>())
 			{
 				if (EntityTemplate.PropertyNames.Contains(kvp.Key))
 				{
@@ -65,9 +65,9 @@ namespace RoguelikeToolkit.Entities.Repository
 						return false;
 				}
 				//we have a embedded template
-				else if(kvp.Value is Dictionary<string, object> rawEmbeddedTemplate)
+				else if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
 				{
-					HandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate);
+					HandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate.ToDictionary(valuePair => TypeConversionProvider.ConvertToString(valuePair.Key), valuePair => valuePair.Value));
 				}
 				else
 				{
@@ -85,7 +85,7 @@ namespace RoguelikeToolkit.Entities.Repository
 				return;
 
 			embeddedTemplate.Name = embeddedTemplateName;
-			template.Children.Add(embeddedTemplate);
+			template.EmbeddedTemplates.Add(embeddedTemplate);
 		}
 
 		private static object ParseTemplateField(string propertyName, object propertyValue)

@@ -1,0 +1,18 @@
+Tags:
+ - tag1
+ - tag2
+ - tag3
+EmbeddedTemplate1:
+ Components:
+  barfoo:
+   anotherStringProperty: defgh
+   anotherNumProperty: 234
+
+EmbeddedTemplate2:
+ Components:
+  foo: this is a test!
+
+Components:
+ foobar:
+  stringProperty: abcdef
+  numProperty: 123
