@@ -38,11 +38,13 @@ namespace RoguelikeToolkit.Entities.Tests
 				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-with-invalid-fields.yaml"))));
 		}
 
-		[Fact]
-		public void Can_load_template_with_embedded_templates()
+		[Theory]
+		[InlineData("template-with-embedded.yaml")]
+		[InlineData("template-with-reference-embedded.yaml")]
+		public void Can_load_template_with_embedded_templates(string templateFilename)
 		{
 			var template =
-				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-with-embedded.yaml")));
+				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", templateFilename)));
 			Assert.NotNull(template); //sanity check
 
 

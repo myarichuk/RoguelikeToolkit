@@ -69,6 +69,7 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="ArgumentNullException"><paramref name="templateFile"/> is <see langword="null"/></exception>
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		public void LoadTemplate(FileInfo templateFile)
 		{
 			if (templateFile == null)
@@ -98,6 +99,7 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
 		/// <exception cref="InvalidOperationException">Template files must have either 'yaml' or 'json' extensions</exception>
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void LoadTemplate(string templateFilename)
 		{
@@ -116,6 +118,8 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
 		/// <exception cref="ArgumentException">If .NET Framework and .NET Core versions older than 2.1: <paramref name="path" /> contains invalid characters such as ", &lt;, &gt;, or |.</exception>
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
+		/// <exception cref="InvalidOperationException">Template files must have either 'yaml' or 'json' extensions</exception>
 		public void LoadTemplateFolder(string templateFolder)
 		{
 			if (templateFolder == null)

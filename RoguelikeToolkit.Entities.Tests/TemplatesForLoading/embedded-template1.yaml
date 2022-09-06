@@ -1,0 +1,4 @@
+Components:
+ barfoo:
+  anotherStringProperty: defgh
+  anotherNumProperty: 234

@@ -1,0 +1,12 @@
+Tags:
+ - tag1
+ - tag2
+ - tag3
+EmbeddedTemplate1:
+ $ref: TemplatesForLoading/embedded-template1.yaml
+EmbeddedTemplate2:
+ $ref: TemplatesForLoading/embedded-template2.yaml
+Components:
+ foobar:
+  stringProperty: abcdef
+  numProperty: 123

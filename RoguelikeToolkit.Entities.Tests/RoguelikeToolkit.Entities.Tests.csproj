@@ -66,6 +66,9 @@
     <None Update="TemplatesForInheritanceResolver\template-no-inheritance.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\embedded-template2.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-simple-case-insensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -85,6 +88,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\template-simple-case-insensitive-props-2.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\embedded-template1.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-with-reference-embedded.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\template-with-invalid-fields.yaml">

@@ -26,6 +26,7 @@ namespace RoguelikeToolkit.Entities.Repository
 
 		private static readonly HashSet<string> EmptyHashSet = new();
 
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EntityTemplate LoadFrom(FileInfo file)
 		{
@@ -56,7 +57,7 @@ namespace RoguelikeToolkit.Entities.Repository
 
 		// ReSharper disable once CognitiveComplexity
 		// ReSharper disable once MethodTooLong
-		private static bool TryLoadFrom(Dictionary<string, object> rawTemplateData, out EntityTemplate template, out string failureReason)
+		private bool TryLoadFrom(Dictionary<string, object> rawTemplateData, out EntityTemplate template, out string failureReason)
 		{
 			template = new EntityTemplate();
 			failureReason = null;
@@ -75,6 +76,15 @@ namespace RoguelikeToolkit.Entities.Repository
 				//we have a embedded template
 				if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
 				{
+					if (rawEmbeddedTemplate.TryGetValue("$ref", out var refValue) && refValue is string referencedTemplateFilename)
+					{
+						var embeddedTemplate = LoadFrom(referencedTemplateFilename);
+						embeddedTemplate.Name = referencedTemplateFilename;
+						template.EmbeddedTemplates.Add(embeddedTemplate);
+
+						continue;
+					}
+
 					if (TryHandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate, out var templateLoadFailureReason))
 						continue;
 
@@ -91,7 +101,7 @@ namespace RoguelikeToolkit.Entities.Repository
 		}
 
 		// ReSharper disable once TooManyArguments
-		private static bool TryHandleEmbeddedTemplate(EntityTemplate template, string embeddedTemplateName, Dictionary<object, object> rawTemplateData, out string failureReason)
+		private bool TryHandleEmbeddedTemplate(EntityTemplate template, string embeddedTemplateName, Dictionary<object, object> rawTemplateData, out string failureReason)
 		{
 			failureReason = null;
 			if (!TryLoadFrom(rawTemplateData.ToDictionary(
