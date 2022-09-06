@@ -87,6 +87,9 @@
     <None Update="TemplatesForLoading\template-simple-case-insensitive-props-2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\template-with-invalid-fields.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-with-embedded.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

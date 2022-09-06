@@ -1,3 +1,4 @@
+using RoguelikeToolkit.Entities.Exceptions;
 using RoguelikeToolkit.Entities.Repository;
 using System;
 using System.Collections.Concurrent;
@@ -47,15 +48,13 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="ArgumentNullException"><paramref name="templateName"/> is <see langword="null"/></exception>
-		/// <exception cref="FailedToLoadException">Failed to load template.</exception>
+		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		public void LoadTemplate(string templateName, StreamReader reader)
 		{
 			if (templateName == null)
 				throw new ArgumentNullException(nameof(templateName));
 
 			var template = _loader.LoadFrom(reader);
-			if (template == null)
-				throw new FailedToLoadException(templateName);
 
 			if (!_entityRepository.TryAdd(templateName, template))
 				throw new TemplateAlreadyExistsException(templateName);
@@ -132,14 +131,6 @@ namespace RoguelikeToolkit.Entities
 			static IEnumerable<FileInfo> EnumerateTemplateFiles(DirectoryInfo di) =>
 				di.EnumerateFiles("*.yaml", SearchOption.AllDirectories)
 					.Concat(di.EnumerateFiles("*.json", SearchOption.AllDirectories));
-		}
-	}
-
-	public class FailedToLoadException : Exception
-	{
-		public FailedToLoadException(string templateName): base($"Failed to load {templateName} template")
-		{
-
 		}
 	}
 }

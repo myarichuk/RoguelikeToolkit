@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Fasterflect;
 using deniszykov.TypeConversion;
 using Microsoft.Extensions.Options;
+using RoguelikeToolkit.Entities.Exceptions;
 
 namespace RoguelikeToolkit.Entities.Repository
 {

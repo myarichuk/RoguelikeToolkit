@@ -1,10 +1,13 @@
+using System;
 using RoguelikeToolkit.Entities.Repository;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
 using Xunit;
+using RoguelikeToolkit.Entities.Exceptions;
 // ReSharper disable ExceptionNotDocumented
+// ReSharper disable MethodTooLong
 
 namespace RoguelikeToolkit.Entities.Tests
 {
@@ -26,6 +29,13 @@ namespace RoguelikeToolkit.Entities.Tests
 			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "empty-j.json")));
 			Assert.NotNull(template);
 			Assert.Empty(template.Inherits);
+		}
+
+		[Fact]
+		public void Should_fail_loading_with_unexpected_property()
+		{
+			Assert.Throws<FailedToParseException>(() =>
+				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-with-invalid-fields.yaml"))));
 		}
 
 		[Fact]
