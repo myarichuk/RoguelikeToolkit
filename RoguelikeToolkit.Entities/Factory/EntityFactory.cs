@@ -23,14 +23,26 @@ namespace RoguelikeToolkit.Entities
 		public bool TryCreate(string entityName, out Entity entity)
 		{
 			entity = default;
-			if (!_entityRepository.TryGetByName(entityName, out var template))
+			if (!_entityRepository.TryGetByName(entityName, out var rootTemplate))
 				return false;
 
-			entity = _world.CreateEntity();
-
+			var graphVisitor = new EntityGraphVisitor(rootTemplate);
 
 			return true;
+		}
 
+		private void ConstructEntity(EntityTemplate template, out Entity entity)
+		{
+			entity = _world.CreateEntity();
+
+			foreach (var componentRawData in template.Components)
+			{
+				//TODO: refactor for better error handling
+				//if (_componentFactory.TryCreateInstance<>(componentRawData, out var componentInstance))
+				{
+
+				}
+			}
 		}
 	}
 }
