@@ -66,6 +66,9 @@
     <None Update="TemplatesForInheritanceResolver\template-no-inheritance.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\template-simple-case-insensitive-props-1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-simple-case-sensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -79,6 +82,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\empty-y.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-simple-case-insensitive-props-2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\template-with-embedded.yaml">

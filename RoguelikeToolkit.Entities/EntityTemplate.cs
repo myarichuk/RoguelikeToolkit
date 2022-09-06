@@ -17,12 +17,12 @@ namespace RoguelikeToolkit.Entities
 		public IReadOnlySet<string> Tags { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		[YamlIgnore]
-		public HashSet<EntityTemplate> EmbeddedTemplates { get; set; } = new HashSet<EntityTemplate>();
+		public HashSet<EntityTemplate> EmbeddedTemplates { get; set; } = new();
 
 		internal static readonly HashSet<string> PropertyNames =
 			new(typeof(EntityTemplate).Properties(Flags.InstancePublic)
 											   .Select(p => p.Name)
-											   .Where(propertyName => propertyName != nameof(EmbeddedTemplates)));
+											   .Where(propertyName => propertyName != nameof(EmbeddedTemplates)), StringComparer.InvariantCultureIgnoreCase);
 
 		public EntityTemplate() { }
 
@@ -34,8 +34,8 @@ namespace RoguelikeToolkit.Entities
 				throw new ArgumentNullException(nameof(other));
 
 			Components = new Dictionary<string, object>(other.Components);
-			Inherits = new HashSet<string>(other.Inherits);
-			Tags = new HashSet<string>(other.Tags);
+			Inherits = new HashSet<string>(other.Inherits, StringComparer.InvariantCultureIgnoreCase);
+			Tags = new HashSet<string>(other.Tags, StringComparer.InvariantCultureIgnoreCase);
 			EmbeddedTemplates = new HashSet<EntityTemplate>(other.EmbeddedTemplates);
 		}
 	}

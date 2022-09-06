@@ -1,11 +1,11 @@
-Tags:
+TaGS:
  - tag1
  - tag2
  - tag3
-Inherits:
+inherits:
  - aa
  - bb
-Components:
+ComPoneNtS:
  foobar:
   stringProperty: abcdef
   numProperty: 123

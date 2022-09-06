@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using System.IO;
@@ -59,9 +58,9 @@ namespace RoguelikeToolkit.Entities.Repository
 
 			foreach (var kvp in rawTemplateData ?? Enumerable.Empty<KeyValuePair<string, object>>())
 			{
-				if (EntityTemplate.PropertyNames.Contains(kvp.Key))
+				if (EntityTemplate.PropertyNames.TryGetValue(kvp.Key, out var properlyCasedPropertyName))
 				{
-					if (!TryHandlePropertyValue(template, kvp))
+					if (!TryHandlePropertyValue(template, properlyCasedPropertyName, kvp.Value))
 						return false;
 				}
 				//we have a embedded template
@@ -109,13 +108,13 @@ namespace RoguelikeToolkit.Entities.Repository
 			}
 		}
 
-		private static bool TryHandlePropertyValue(EntityTemplate template, KeyValuePair<string, object> kvp)
+		private static bool TryHandlePropertyValue(EntityTemplate template, string propertyName, object propertyValue)
 		{
-			var templateFieldValue = ParseTemplateField(kvp.Key, kvp.Value);
+			var templateFieldValue = ParseTemplateField(propertyName, propertyValue);
 			if (templateFieldValue == null)
 				return false;
 
-			template.TrySetPropertyValue(kvp.Key, templateFieldValue);
+			template.TrySetPropertyValue(propertyName, templateFieldValue);
 			return true;
 		}
 	}

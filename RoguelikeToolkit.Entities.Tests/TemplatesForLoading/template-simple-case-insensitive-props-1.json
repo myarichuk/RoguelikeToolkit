@@ -1,7 +1,7 @@
 {
-	"Tags": [ "tag1", "tag2", "tag3" ],
-	"Inherits": ["aa", "bb"],
-	"Components": {
+	"TagS": [ "tag1", "tag2", "tag3" ],
+	"inherits": [ "aa", "bb" ],
+	"ComPoNents": {
 		"foobar": {
 			"stringProperty": "abcdef",
 			"numProperty": 123

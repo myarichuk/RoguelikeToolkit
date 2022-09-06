@@ -72,8 +72,10 @@ namespace RoguelikeToolkit.Entities.Tests
 		}
 
 		[Theory]
-		[InlineData("template-simple-case-sensitive-props-2.yaml")]
 		[InlineData("template-simple-case-sensitive-props-1.json")]
+		[InlineData("template-simple-case-sensitive-props-2.yaml")]
+		[InlineData("template-simple-case-insensitive-props-1.json")]
+		[InlineData("template-simple-case-insensitive-props-2.yaml")]
 		public void Can_load_simple_template(string templateFilename)
 		{
 			var template = _loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", templateFilename)));
@@ -83,6 +85,10 @@ namespace RoguelikeToolkit.Entities.Tests
 				 item => Assert.Equal("tag1", item),
 				 item => Assert.Equal("tag2", item),
 				 item => Assert.Equal("tag3", item));
+
+			Assert.Collection(template.Inherits,
+				item => Assert.Equal("aa", item),
+				item => Assert.Equal("bb", item));
 
 			Assert.Collection(template.Components,
 				kvp =>
