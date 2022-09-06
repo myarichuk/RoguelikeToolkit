@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace RoguelikeToolkit.Entities.Factory
@@ -32,7 +32,7 @@ namespace RoguelikeToolkit.Entities.Factory
 				}
 				else
 				{
-					HandleMissingInheritance(flatTemplate, inheritedTemplateName);
+					ThrowOnMissingInheritance(flatTemplate, inheritedTemplateName);
 				}
 			}
 
@@ -41,17 +41,16 @@ namespace RoguelikeToolkit.Entities.Factory
 
 		private static void MergeInheritedTemplates(EntityTemplate srcTemplate, EntityTemplate destTemplate)
 		{
-			destTemplate.Components.MergeWith(srcTemplate.Components); //no key overrides!
-			destTemplate.Tags.UnionWith(srcTemplate.Tags ?? Enumerable.Empty<string>());
-			destTemplate.Inherits.UnionWith(srcTemplate.Inherits ?? Enumerable.Empty<string>());
+			(destTemplate.Components as IDictionary<string, object>).MergeWith(srcTemplate.Components as IDictionary<string, object>); //no key overrides!
+			((ISet<string>)destTemplate.Tags).UnionWith(srcTemplate.Tags ?? Enumerable.Empty<string>());
+			((ISet<string>)destTemplate.Inherits).UnionWith(srcTemplate.Inherits ?? Enumerable.Empty<string>());
 		}
 
-		private static void HandleMissingInheritance(EntityTemplate flatTemplate, string inheritedTemplateName)
+		private static void ThrowOnMissingInheritance(EntityTemplate flatTemplate, string inheritedTemplateName)
 		{
 			throw new InvalidOperationException(
 				$"Inherited template name '{inheritedTemplateName}' in  not found. " +
 				$"(check template with name = '{flatTemplate.Name}')");
-			//TODO: add logging in this case
 		}
 	}
 }

@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Fasterflect;
+using YamlDotNet.Serialization;
 
 namespace RoguelikeToolkit.Entities
 {
@@ -7,20 +10,33 @@ namespace RoguelikeToolkit.Entities
 	{
 		public string Name { get; set; }
 
-		public Dictionary<string, object> Components { get; set; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlyDictionary<string, object> Components { get; set; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
-		public HashSet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlySet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
-		public HashSet<string> Tags { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlySet<string> Tags { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+		[YamlIgnore]
+		public HashSet<EntityTemplate> Children { get; set; } = new HashSet<EntityTemplate>();
+
+		internal static readonly HashSet<string> PropertyNames =
+			new(typeof(EntityTemplate).Properties(Flags.InstancePublic)
+											   .Select(p => p.Name)
+											   .Where(propertyName => propertyName != nameof(Children)));
 
 		public EntityTemplate() { }
 
 		//note: copy constructor needed for "shallow copy" of records
+		/// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/></exception>
 		protected EntityTemplate(EntityTemplate other)
 		{
+			if (other == null) //just in case
+				throw new ArgumentNullException(nameof(other));
+
 			Components = new Dictionary<string, object>(other.Components);
 			Inherits = new HashSet<string>(other.Inherits);
 			Tags = new HashSet<string>(other.Tags);
+			Children = new HashSet<EntityTemplate>(other.Children);
 		}
 	}
 }
