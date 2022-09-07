@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using System.IO;
@@ -28,31 +29,31 @@ namespace RoguelikeToolkit.Entities.Repository
 
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public EntityTemplate LoadFrom(FileInfo file)
+		public EntityTemplate LoadFrom(FileInfo file, bool ignoreLoadingErrors = false)
 		{
 			using var fs = file.OpenRead();
 			using var sr = new StreamReader(fs);
 
-			return LoadFrom(sr);
+			return LoadFrom(sr, ignoreLoadingErrors);
 		}
 
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public EntityTemplate LoadFrom(string filePath)
+		public EntityTemplate LoadFrom(string filePath, bool ignoreLoadingErrors = false)
 		{
 			using var fs = File.Open(filePath, FileMode.Open);
 			using var sr = new StreamReader(fs);
 
-			return LoadFrom(sr);
+			return LoadFrom(sr, ignoreLoadingErrors);
 		}
 
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public EntityTemplate LoadFrom(StreamReader sr)
+		public EntityTemplate LoadFrom(StreamReader sr, bool ignoreLoadingErrors = false)
 		{
 			var rawTemplate = _deserializer.Deserialize<Dictionary<string, object>>(sr);
 
-			return TryLoadFrom(rawTemplate, out var template, out var failureReason) ? template : throw new FailedToParseException(failureReason);
+			return TryLoadFrom(rawTemplate, out var template, out var failureReason) ? template : (ignoreLoadingErrors ? null : throw new FailedToParseException(failureReason));
 		}
 
 		// ReSharper disable once CognitiveComplexity
@@ -73,12 +74,37 @@ namespace RoguelikeToolkit.Entities.Repository
 					return false;
 				}
 
+				if (kvp.Key is { } keyAsString && 
+				    kvp.Value is string referencedTemplateFilename) //just in case
+				{
+					var embeddedTemplate = LoadFrom(referencedTemplateFilename);
+					embeddedTemplate.Name = referencedTemplateFilename;
+
+					if (keyAsString.Equals("$ref", StringComparison.InvariantCultureIgnoreCase))
+					{
+						template.EmbeddedTemplates.Add(embeddedTemplate);
+					}
+					else if (keyAsString.Equals("$merge-ref", StringComparison.InvariantCultureIgnoreCase))
+					{
+						template.MergeWith(embeddedTemplate);
+					}
+					else
+					{
+						failureReason = $"Unrecognized meta-command '{keyAsString}' in a template field. Must be either '$ref' or '$merge-ref'";
+						return false;
+					}
+					continue;
+				}
+
+				//
+
 				//we have a embedded template
 				if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
 				{
-					if (TryHandleEmbeddedTemplate(template, rawEmbeddedTemplate, kvp.Key, ref failureReason))
+					if (TryHandleEmbeddedTemplate(template, kvp.Key, rawEmbeddedTemplate, out var templateLoadFailureReason))
 						continue;
 
+					failureReason = templateLoadFailureReason;
 					return false;
 				}
 
@@ -88,25 +114,6 @@ namespace RoguelikeToolkit.Entities.Repository
 
 			//make sure ALL required properties were set
 			return true;
-		}
-
-		private bool TryHandleEmbeddedTemplate(EntityTemplate template,
-			Dictionary<object, object> rawEmbeddedTemplate, string embeddedTemplateName, ref string failureReason)
-		{
-			if (rawEmbeddedTemplate.TryGetValue("$ref", out var refValue) && refValue is string referencedTemplateFilename)
-			{
-				var embeddedTemplate = LoadFrom(referencedTemplateFilename);
-				embeddedTemplate.Name = referencedTemplateFilename;
-				template.EmbeddedTemplates.Add(embeddedTemplate);
-
-				return true;
-			}
-
-			if (TryHandleEmbeddedTemplate(template, embeddedTemplateName, rawEmbeddedTemplate, out var templateLoadFailureReason))
-				return true;
-
-			failureReason = templateLoadFailureReason;
-			return false;
 		}
 
 		// ReSharper disable once TooManyArguments
@@ -150,11 +157,36 @@ namespace RoguelikeToolkit.Entities.Repository
 
 		private static bool TryHandlePropertyValue(EntityTemplate template, string propertyName, object propertyValue)
 		{
-			var templateFieldValue = ParseTemplateField(propertyName, propertyValue);
-			if (templateFieldValue == null)
-				return false;
+			switch (propertyName)
+			{
+				case nameof(EntityTemplate.Tags):
+					var tagsCollectionValue = propertyValue is List<object> tagsObjects
+						? new HashSet<string>(tagsObjects.Cast<string>())
+						: EmptyHashSet;
+					template.Tags = new HashSet<string>(template.Tags.Union(tagsCollectionValue));
+					break;
+				case nameof(EntityTemplate.Inherits):
+					var inheritsCollectionValue = propertyValue is List<object> inheritsObjects
+						? new HashSet<string>(inheritsObjects.Cast<string>())
+						: EmptyHashSet;
+					template.Inherits = new HashSet<string>(template.Inherits.Union(inheritsCollectionValue));
+					break;
+				case nameof(EntityTemplate.Components):
+					var componentsValue = propertyValue is not Dictionary<object, object> components
+						? null
+						: components.ToDictionary(
+							kvp => TypeConversionProvider.ConvertToString(kvp.Key),
+							kvp => kvp.Value);
+					if (componentsValue == null)
+						return false;
+					componentsValue.MergeWith(template.Components);
+					template.Components = componentsValue;
 
-			template.TrySetPropertyValue(propertyName, templateFieldValue);
+					break;
+				default:
+					return false;
+			}
+
 			return true;
 		}
 	}

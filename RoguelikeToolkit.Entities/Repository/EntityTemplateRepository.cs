@@ -19,12 +19,16 @@ namespace RoguelikeToolkit.Entities
 		public IEnumerable<string> TemplateNames => _entityRepository.Keys;
 
 		/// <exception cref="ArgumentNullException"><paramref name="templateName"/> is <see langword="null"/></exception>
+		/// <exception cref="FailedToParseException">The template seems to be loaded but it is null, probably due to parsing errors.</exception>
 		public bool TryGetByName(string templateName, out EntityTemplate template)
 		{
 			if (templateName == null)
 				throw new ArgumentNullException(nameof(templateName));
 
 			var hasFound = _entityRepository.TryGetValue(templateName, out template);
+
+			if (hasFound && template == null) //precaution
+				throw new FailedToParseException(templateName, "The template seems to be loaded but it is null, probably due to parsing errors. This is not supposed to happen and is likely a bug.");
 
 			if (hasFound && string.IsNullOrWhiteSpace(template.Name))
 				template.Name = templateName;
@@ -49,12 +53,12 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="ArgumentNullException"><paramref name="templateName"/> is <see langword="null"/></exception>
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
-		public void LoadTemplate(string templateName, StreamReader reader)
+		public void LoadTemplate(string templateName, StreamReader reader, bool ignoreLoadingErrors = false)
 		{
 			if (templateName == null)
 				throw new ArgumentNullException(nameof(templateName));
 
-			var template = _loader.LoadFrom(reader);
+			var template = _loader.LoadFrom(reader, ignoreLoadingErrors);
 
 			if (!_entityRepository.TryAdd(templateName, template))
 				throw new TemplateAlreadyExistsException(templateName);
@@ -70,7 +74,7 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="OverflowException">The repository cache contains too many elements.</exception>
 		/// <exception cref="TemplateAlreadyExistsException">Template with specified name already exists.</exception>
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
-		public void LoadTemplate(FileInfo templateFile)
+		public void LoadTemplate(FileInfo templateFile, bool ignoreLoadingErrors = false)
 		{
 			if (templateFile == null)
 				throw new ArgumentNullException(nameof(templateFile));
@@ -85,7 +89,7 @@ namespace RoguelikeToolkit.Entities
 			using var reader = new StreamReader(fs);
 
 			var dot = templateFile.Name.LastIndexOf('.');
-			LoadTemplate(templateFile.Name[..dot], reader);
+			LoadTemplate(templateFile.Name[..dot], reader, ignoreLoadingErrors);
 		}
 
 
@@ -101,10 +105,11 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="InvalidOperationException">Template files must have either 'yaml' or 'json' extensions</exception>
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void LoadTemplate(string templateFilename)
+		public void LoadTemplate(string templateFilename, bool ignoreLoadingErrors = false)
 		{
-			if (templateFilename == null) throw new ArgumentNullException(nameof(templateFilename));
-			LoadTemplate(new FileInfo(templateFilename));
+			if (templateFilename == null)
+				throw new ArgumentNullException(nameof(templateFilename));
+			LoadTemplate(new FileInfo(templateFilename), ignoreLoadingErrors);
 		}
 
 		/// <exception cref="SecurityException">The caller does not have the required permission for the repository folder.</exception>
@@ -120,7 +125,7 @@ namespace RoguelikeToolkit.Entities
 		/// <exception cref="ArgumentException">If .NET Framework and .NET Core versions older than 2.1: <paramref name="path" /> contains invalid characters such as ", &lt;, &gt;, or |.</exception>
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
 		/// <exception cref="InvalidOperationException">Template files must have either 'yaml' or 'json' extensions</exception>
-		public void LoadTemplateFolder(string templateFolder)
+		public void LoadTemplateFolder(string templateFolder, bool ignoreLoadingErrors = false)
 		{
 			if (templateFolder == null)
 				throw new ArgumentNullException(nameof(templateFolder));
@@ -130,7 +135,7 @@ namespace RoguelikeToolkit.Entities
 				throw new DirectoryNotFoundException($"Template directory not found (path = {templateFolder})");
 
 			foreach (var fi in EnumerateTemplateFiles(di))
-				LoadTemplate(fi);
+				LoadTemplate(fi, ignoreLoadingErrors);
 
 			static IEnumerable<FileInfo> EnumerateTemplateFiles(DirectoryInfo di) =>
 				di.EnumerateFiles("*.yaml", SearchOption.AllDirectories)

@@ -30,7 +30,7 @@ namespace RoguelikeToolkit.Entities.Factory
 
 				var componentTypes =
 					from type in nonFrameworkAssemblies.SelectMany(assembly => assembly.GetTypes())
-					where type.HasAttribute<ComponentAttribute>() || IsValueComponent(type)
+					where type.HasAttribute<ComponentAttribute>() || type.IsValueComponentType()
 					select type;
 
 				foreach (var type in componentTypes)
@@ -56,9 +56,6 @@ namespace RoguelikeToolkit.Entities.Factory
 			static bool IsFrameworkAssembly(Assembly assembly) =>
 				(assembly.FullName?.Contains("Microsoft.") ?? false) ||
 				(assembly.FullName?.Contains("System.") ?? false);
-
-			static bool IsValueComponent(Type type) =>
-				type.GetInterfaces().Any(i => i.FullName?.Contains("IValueComponent`1") ?? false);
 		}
 
 		public bool TryGetComponentType(string typeName, out Type type) =>

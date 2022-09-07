@@ -77,6 +77,13 @@ namespace RoguelikeToolkit.Entities.Tests
 			Assert.Collection(embeddedTemplate2.Components,
 				kvp =>
 				{
+					Assert.Equal("barfoo", kvp.Key);
+					var valueAsDict = (Dictionary<object, object>)kvp.Value;
+					Assert.Equal("defgh", valueAsDict["anotherStringProperty"]);
+					Assert.Equal((byte)234, valueAsDict["anotherNumProperty"]);
+				},
+				kvp =>
+				{
 					//yaml deserializer loads simple objects as key-value pairs
 					Assert.Equal("foo", kvp.Key);
 					Assert.Equal("this is a test!", kvp.Value);

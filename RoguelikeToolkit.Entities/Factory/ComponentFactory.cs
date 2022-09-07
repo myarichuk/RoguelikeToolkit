@@ -8,6 +8,7 @@ using deniszykov.TypeConversion;
 using Fasterflect;
 using Microsoft.Extensions.Options;
 using RoguelikeToolkit.DiceExpression;
+using RoguelikeToolkit.Entities.Components;
 using RoguelikeToolkit.Scripts;
 
 namespace RoguelikeToolkit.Entities.Factory
@@ -60,22 +61,54 @@ namespace RoguelikeToolkit.Entities.Factory
 		/// Try and create an instance of specified type from the data provided by the dictionary.
 		/// Needed for initializing components deserialized from templates.
 		/// </summary>
-		/// <typeparam name="TComponent">Type of the object to populate with the data</typeparam>
+		/// <param name="componentType">Component type to create</param>
 		/// <param name="objectData">Property data, typically received from YamlDotNet deserialization</param>
 		/// <param name="instance">resulting instance of the component</param>
 		/// <returns>true if instance creation succeeded, false otherwise</returns>
+		/// <remarks>This overload is intended for value-type components</remarks>
 		/// <exception cref="ArgumentNullException"><paramref name="objectData"/> is <see langword="null"/></exception>
-		public bool TryCreateInstance<TComponent>(IReadOnlyDictionary<object, object> objectData, out TComponent instance)
+		/// <exception cref="ArgumentException">The parameter componentType doesn't implement <see cref="IValueComponent{TValue}"/>.</exception>
+		public bool TryCreateInstance(Type componentType, object objectData, out object instance)
 		{
+			if (!componentType.IsValueComponentType())
+				throw new ArgumentException($"The type doesn't implement IValueComponent<T>", nameof(componentType));
+
 			if (objectData == null)
 				throw new ArgumentNullException(nameof(objectData));
 
 			instance = default;
-			var instanceAsObject = CreateEmptyInstance<TComponent>();
+			var instanceAsObject = CreateEmptyInstance(componentType);
+
+
+			instance = instanceAsObject.UnwrapIfWrapped();
+			return true;
+		}
+
+		/// <summary>
+		/// Try and create an instance of specified type from the data provided by the dictionary.
+		/// Needed for initializing components deserialized from templates.
+		/// </summary>
+		/// <param name="componentType">Component type to create</param>
+		/// <param name="objectData">Property data, typically received from YamlDotNet deserialization</param>
+		/// <param name="instance">resulting instance of the component</param>
+		/// <returns>true if instance creation succeeded, false otherwise</returns>
+		/// <remarks>This overload is intended for object components with properties</remarks>
+		/// <exception cref="ArgumentNullException"><paramref name="objectData"/> is <see langword="null"/></exception>
+		/// <exception cref="ArgumentException">The type implements <see cref="IValueComponent{TValue}"/>, use the other overload for correct functionality.</exception>
+		public bool TryCreateInstance(Type componentType, IReadOnlyDictionary<object, object> objectData, out object instance)
+		{
+			if (objectData == null)
+				throw new ArgumentNullException(nameof(objectData));
+
+			if (componentType.IsValueComponentType())
+				throw new ArgumentException($"The type implements IValueComponent<T>, use the other overload for correct functionality", nameof(componentType));
+
+			instance = default;
+			var instanceAsObject = CreateEmptyInstance(componentType);
 
 			foreach (var kvp in objectData)
 			{
-				if (!TryGetDestPropertyFor<TComponent>(kvp.Key, out var property))
+				if (!TryGetDestPropertyFor(componentType, kvp.Key, out var property))
 					continue;
 
 				//note: ConvertValueFromSrcToDestType() can call recursively to this method (TryCreateInstance)
@@ -88,12 +121,28 @@ namespace RoguelikeToolkit.Entities.Factory
 				}
 			}
 
-			instance = (TComponent)instanceAsObject.UnwrapIfWrapped();
+			instance = instanceAsObject.UnwrapIfWrapped();
 			return true;
 		}
 
-		private static object CreateEmptyInstance<TComponent>() =>
-			RuntimeHelpers.GetUninitializedObject(typeof(TComponent)).WrapIfValueType();
+		/// <summary>
+		/// Try and create an instance of specified type from the data provided by the dictionary.
+		/// Needed for initializing components deserialized from templates.
+		/// </summary>
+		/// <typeparam name="TComponent">Type of the object to populate with the data</typeparam>
+		/// <param name="objectData">Property data, typically received from YamlDotNet deserialization</param>
+		/// <param name="instance">resulting instance of the component</param>
+		/// <returns>true if instance creation succeeded, false otherwise</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="objectData"/> is <see langword="null"/></exception>
+		public bool TryCreateInstance<TComponent>(IReadOnlyDictionary<object, object> objectData, out TComponent instance)
+		{
+			var success = TryCreateInstance(typeof(TComponent), objectData, out var instanceAsObject);
+			instance = (TComponent)instanceAsObject;
+			return success;
+		}
+
+		private static object CreateEmptyInstance(Type type) =>
+			RuntimeHelpers.GetUninitializedObject(type).WrapIfValueType();
 
 		private object ConvertValueFromSrcToDestType(object srcValue, Type destType)
 		{
@@ -102,13 +151,7 @@ namespace RoguelikeToolkit.Entities.Factory
 			{
 				case Dictionary<object, object> valueAsDictionary:
 				{
-					var createInstanceMethod = MakeGenericCreateInstance(destType);
-
-					//TODO: this is unnecessary allocation, replace with object pool
-					var @params = new object[] { valueAsDictionary, null }; 
-					createInstanceMethod.Call(this, @params);
-					convertResult = @params[1];
-
+					TryCreateInstance(destType, valueAsDictionary, out convertResult);
 					break;
 				}
 				//primitive or string!
@@ -121,38 +164,22 @@ namespace RoguelikeToolkit.Entities.Factory
 			return convertResult;
 		}
 
-		private bool TryGetDestPropertyFor<TComponent>(object destPropertyKey, out PropertyInfo property)
+		private bool TryGetDestPropertyFor(Type componentType, object destPropertyKey, out PropertyInfo property)
 		{
 			property = null;
 
 			//note: since ware deserializing yaml, kvp.Key will always be string, this is precaution
 			return destPropertyKey is string destPropertyName && 
-			       TryGetDestPropertyFor<TComponent>(destPropertyName, out property);
+			       TryGetDestPropertyFor(componentType, destPropertyName, out property);
 		}
 
-		private bool TryGetDestPropertyFor<TComponent>(string srcPropertyName, out PropertyInfo property)
+		private bool TryGetDestPropertyFor(Type componentType, string srcPropertyName, out PropertyInfo property)
 		{
-			var properties = _typePropertyCache.GetOrAdd(typeof(TComponent),
+			var properties = _typePropertyCache.GetOrAdd(componentType,
 				type => type.PropertiesWith(Flags.InstancePublic));
 
 			property = properties.FirstOrDefault(p => p.Name.Equals(srcPropertyName, StringComparison.InvariantCultureIgnoreCase));
 			return property != null;
-		}
-
-		private MethodInfo MakeGenericCreateInstance(Type genericParamType)
-		{
-			var createInstanceMethod = _createInstanceMethodCache.GetOrAdd(genericParamType, propertyType =>
-			{
-				if (CreateInstanceMethodNonGeneric == null) //precaution, should never be true
-					throw new InvalidOperationException(
-						"Failed to find CreateInstance method, this is not supposed to happen and is likely a bug");
-
-				var genericParam = _createInstanceGenericsCache.GetOrAdd(propertyType,
-					type => new[] { type });
-
-				return CreateInstanceMethodNonGeneric.MakeGenericMethod(genericParam);
-			});
-			return createInstanceMethod;
 		}
 	}
 }

@@ -66,6 +66,9 @@
     <None Update="TemplatesForInheritanceResolver\template-no-inheritance.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\embedded-template3.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\embedded-template2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -91,6 +94,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\embedded-template1.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-simple.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TemplatesForLoading\template-with-reference-embedded.yaml">
