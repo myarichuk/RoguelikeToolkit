@@ -88,6 +88,21 @@ namespace RoguelikeToolkit.Entities.Tests
 					Assert.Equal("foo", kvp.Key);
 					Assert.Equal("this is a test!", kvp.Value);
 				});
+
+			Assert.Single(embeddedTemplate2.EmbeddedTemplates);
+
+			var embeddedTemplate3 = embeddedTemplate2.EmbeddedTemplates.First();
+			Assert.Collection(embeddedTemplate3.Components,
+				kvp =>
+				{
+					Assert.Equal("foobar", kvp.Key);
+
+					//embedded objects yaml deserializer loads as Dictionary<object, object>
+					var valueAsDict = (Dictionary<object, object>)kvp.Value;
+					Assert.Equal("abcdef", valueAsDict["stringProperty"]);
+					Assert.Equal((byte)123, valueAsDict["numProperty"]);
+
+				});
 		}
 
 		[Theory]
