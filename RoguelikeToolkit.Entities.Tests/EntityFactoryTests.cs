@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DefaultEcs;
 using RoguelikeToolkit.Entities.Components;
 using Xunit;
@@ -25,9 +21,27 @@ namespace RoguelikeToolkit.Entities.Tests
 		public string AnotherStringProperty { get; set; }
 	}
 
-	public class Foo: IValueComponent<string>
+	[Component(IsGlobal = true)]
+	public class Attributes
+	{
+		public int Strength { get; set; }
+		public int Agility { get; set; }
+	}
+
+	public class Foo : IValueComponent<string>
 	{
 		public string Value { get; set; }
+	}
+
+	public struct AnotherFoobar : IValueComponent<int>
+	{
+		public int Value { get; set; }
+	}
+
+	[Component(Name = "Health")]
+	public struct UnitHealth : IValueComponent<decimal>
+	{
+		public decimal Value { get; set; }
 	}
 
 	public class EntityFactoryTests
@@ -64,13 +78,35 @@ namespace RoguelikeToolkit.Entities.Tests
 		}
 
 		[Fact]
+		public void Can_create_entity_with_global_component()
+		{
+			Assert.True(_entityFactory.TryCreate("template-with-global", out var entityA));
+			Assert.True(_entityFactory.TryCreate("template-with-global", out var entityB));
+
+			var attributesA = entityA.Get<Attributes>();
+			var attributesB = entityB.Get<Attributes>();
+
+			Assert.Same(attributesA, attributesB);
+		}
+
+		[Fact]
+		public void Can_create_simple_entity_custom_name()
+		{
+			Assert.True(_entityFactory.TryCreate("template-simple3", out var entity));
+
+			Assert.True(entity.Has<UnitHealth>());
+			var health = entity.Get<UnitHealth>();
+			Assert.Equal((decimal)123.3, health.Value);
+		}
+
+		[Fact]
 		public void Can_create_complex_entity()
 		{
 			Assert.True(_entityFactory.TryCreate("template-with-embedded", out var entity));
 
 			//sanity check
 			Assert.True(entity.Has<Foobar>());
-
+			
 			var entityTemplate2 = entity.GetChildren().FirstOrDefault(e => e.Has<Barfoo>() && e.Has<Foo>());
 			Assert.NotEqual(default, entityTemplate2);
 
@@ -80,6 +116,45 @@ namespace RoguelikeToolkit.Entities.Tests
 
 			var valueComponent = entityTemplate2.Get<Foo>();
 			Assert.Equal("this is a test!", valueComponent.Value);
+		}
+
+		[Fact]
+		public void Can_create_entity_with_inherit()
+		{
+			Assert.True(_entityFactory.TryCreate("template-with-inherit", out var entity));
+
+			Assert.True(entity.Has<Foobar>());
+			var fetchedFoobar = entity.Get<Foobar>();
+			Assert.Equal(123, fetchedFoobar.NumProperty);
+			Assert.Equal("abcdef", fetchedFoobar.StringProperty);
+
+			var barfooComponent = entity.Get<Barfoo>();
+			Assert.Equal("defgh", barfooComponent.AnotherStringProperty);
+			Assert.Equal(234, barfooComponent.AnotherNumProperty);
+
+			var valueComponent = entity.Get<Foo>();
+			Assert.Equal("this is a test!", valueComponent.Value);
+		}
+
+		[Fact]
+		public void Can_create_entity_with_two_level_inherit()
+		{
+			Assert.True(_entityFactory.TryCreate("template-with-inherit-two-levels", out var entity));
+
+			Assert.True(entity.Has<Foobar>());
+			var fetchedFoobar = entity.Get<Foobar>();
+			Assert.Equal(123, fetchedFoobar.NumProperty);
+			Assert.Equal("abcdef", fetchedFoobar.StringProperty);
+
+			var barfooComponent = entity.Get<Barfoo>();
+			Assert.Equal("defgh", barfooComponent.AnotherStringProperty);
+			Assert.Equal(234, barfooComponent.AnotherNumProperty);
+
+			var valueComponent = entity.Get<Foo>();
+			Assert.Equal("this is a test!", valueComponent.Value);
+
+			var valueComponent2 = entity.Get<AnotherFoobar>();
+			Assert.Equal(123, valueComponent2.Value);
 		}
 	}
 }

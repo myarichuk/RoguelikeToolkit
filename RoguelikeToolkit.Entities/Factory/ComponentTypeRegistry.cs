@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Esprima.Ast;
@@ -35,7 +36,11 @@ namespace RoguelikeToolkit.Entities.Factory
 
 				foreach (var type in componentTypes)
 				{
-					if (!_typeRegistry.TryAdd(type.Name, type))
+					var componentTypeName = type.Name;
+					if (type.HasAttribute<ComponentAttribute>())
+						componentTypeName = type.Attribute<ComponentAttribute>().Name ?? type.Name;
+
+					if (!_typeRegistry.TryAdd(componentTypeName, type))
 						ThrowConflictingComponentType(type);
 				}
 			}

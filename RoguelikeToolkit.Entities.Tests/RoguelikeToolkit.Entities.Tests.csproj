@@ -72,6 +72,21 @@
     <None Update="TemplatesForLoading\embedded-template2.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\template-with-global.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-simple3.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-simple2.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-with-inherit-two-levels.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-with-inherit.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-simple-case-insensitive-props-1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
