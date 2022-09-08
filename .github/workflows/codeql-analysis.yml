@@ -45,6 +45,8 @@ jobs:
         # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
         distribution: microsoft
         java-version: 11
+    - name: Install ANTLR4 tool (required for build)
+      run:  sudo apt-get install -y antlr4
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
