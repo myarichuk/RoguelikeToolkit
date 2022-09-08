@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Xunit;
 using RoguelikeToolkit.Entities.Exceptions;
+using System.Runtime.InteropServices;
 
 // ReSharper disable ExceptionNotDocumented
 // ReSharper disable MethodTooLong
@@ -38,9 +39,11 @@ namespace RoguelikeToolkit.Entities.Tests
 				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-with-invalid-fields.yaml"))));
 		}
 
-		[Fact]
+		[SkippableFact]
 		public void Should_fail_loading_with_invalid_path_chars()
 		{
+			Skip.If(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
 			Assert.Throws<IOException>(() =>
 				_loader.LoadFrom(Path.Combine("TemplatesForLoading", "template-with-reference-invalid-path-chars.yaml")));
 		}

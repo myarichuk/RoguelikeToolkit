@@ -70,7 +70,6 @@ namespace RoguelikeToolkit.Entities
 			if (WorldHasMethod == null)
 				throw new InvalidOperationException(
 					"Failed to detect World::Has<T>() method, this probably means DefaultEcs was updated and had a breaking change. This is not supposed to happen and should be reported");
-
 		}
 
 		/// <exception cref="FailedToParseException">The template seems to be loaded but it is null, probably due to parsing errors.</exception>

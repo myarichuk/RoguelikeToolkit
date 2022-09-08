@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using RoguelikeToolkit.DiceExpression;
-using Syllabore;
 
 namespace RoguelikeToolkit.Tryouts
 {
