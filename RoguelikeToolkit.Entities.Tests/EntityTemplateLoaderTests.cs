@@ -1,13 +1,13 @@
-using System;
 using RoguelikeToolkit.Entities.Repository;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security;
 using Xunit;
 using RoguelikeToolkit.Entities.Exceptions;
+
 // ReSharper disable ExceptionNotDocumented
 // ReSharper disable MethodTooLong
+// ReSharper disable ExceptionNotDocumentedOptional
 
 namespace RoguelikeToolkit.Entities.Tests
 {
