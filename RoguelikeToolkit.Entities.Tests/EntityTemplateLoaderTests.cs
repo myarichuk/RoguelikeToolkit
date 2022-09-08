@@ -74,19 +74,21 @@ namespace RoguelikeToolkit.Entities.Tests
 				});
 
 			var embeddedTemplate2 = template.EmbeddedTemplates.Skip(1).First();
-			Assert.Collection(embeddedTemplate2.Components,
+			Assert.Contains(embeddedTemplate2.Components,
+				kvp => kvp.Key == "foo" && kvp.Value.Equals("this is a test!"));
+
+			//since dictionary merging doesn't guarantee order we have to do checks like this
+			Assert.Contains(embeddedTemplate2.Components,
 				kvp =>
 				{
-					Assert.Equal("barfoo", kvp.Key);
+					if(kvp.Key != "barfoo")
+						return false;
+
 					var valueAsDict = (Dictionary<object, object>)kvp.Value;
-					Assert.Equal("defgh", valueAsDict["anotherStringProperty"]);
-					Assert.Equal((byte)234, valueAsDict["anotherNumProperty"]);
-				},
-				kvp =>
-				{
-					//yaml deserializer loads simple objects as key-value pairs
-					Assert.Equal("foo", kvp.Key);
-					Assert.Equal("this is a test!", kvp.Value);
+					if (!valueAsDict.TryGetValue("anotherStringProperty", out var stringValue) || !stringValue.Equals("defgh"))
+						return false;
+
+					return valueAsDict.TryGetValue("anotherNumProperty", out var numValue) && numValue.Equals((byte)234);
 				});
 
 			Assert.Single(embeddedTemplate2.EmbeddedTemplates);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Fasterflect;
 using YamlDotNet.Serialization;
 
@@ -31,19 +32,24 @@ namespace RoguelikeToolkit.Entities
 		public static IEqualityComparer<EntityTemplate> EqualityComparer { get; } = new NameEqualityComparer();
 		#endregion
 
-		public IReadOnlyDictionary<string, object> Components { get; set; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlyDictionary<string, object> Components => _components;
 
-		public IReadOnlySet<string> Inherits { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlySet<string> Inherits => _inherits;
 
-		public IReadOnlySet<string> Tags { get; set; } = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		public IReadOnlySet<string> Tags => _tags;
 
 		[YamlIgnore]
-		public HashSet<EntityTemplate> EmbeddedTemplates { get; set; } = new(EqualityComparer);
+		public HashSet<EntityTemplate> EmbeddedTemplates => _embeddedTemplates;
 
 		internal static readonly HashSet<string> PropertyNames =
 			new(typeof(EntityTemplate).Properties(Flags.InstancePublic)
 											   .Select(p => p.Name)
 											   .Where(propertyName => propertyName != nameof(EmbeddedTemplates)), StringComparer.InvariantCultureIgnoreCase);
+
+		private readonly Dictionary<string, object> _components = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> _inherits = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> _tags = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<EntityTemplate> _embeddedTemplates = new(EqualityComparer);
 
 		public EntityTemplate() { }
 
@@ -54,21 +60,35 @@ namespace RoguelikeToolkit.Entities
 			if (other == null) //just in case
 				throw new ArgumentNullException(nameof(other));
 
-			Components = new Dictionary<string, object>(other.Components, StringComparer.InvariantCultureIgnoreCase);
-			Inherits = new HashSet<string>(other.Inherits, StringComparer.InvariantCultureIgnoreCase);
-			Tags = new HashSet<string>(other.Tags, StringComparer.InvariantCultureIgnoreCase);
-			EmbeddedTemplates = new HashSet<EntityTemplate>(other.EmbeddedTemplates);
+			_components = new Dictionary<string, object>(other.Components, StringComparer.InvariantCultureIgnoreCase);
+			_inherits = new HashSet<string>(other.Inherits, StringComparer.InvariantCultureIgnoreCase);
+			_tags = new HashSet<string>(other.Tags, StringComparer.InvariantCultureIgnoreCase);
+			_embeddedTemplates = new HashSet<EntityTemplate>(other.EmbeddedTemplates);
 		}
 
 		internal void MergeWith(EntityTemplate other)
 		{
-			var newComponents = new Dictionary<string, object>(other.Components, StringComparer.InvariantCultureIgnoreCase);
-			newComponents.MergeWith(Components);
-			Components = newComponents;
-			
-			Inherits = new HashSet<string>(other.Inherits.Union(Inherits), StringComparer.InvariantCultureIgnoreCase);
-			Tags = new HashSet<string>(other.Tags.Union(Tags), StringComparer.InvariantCultureIgnoreCase);
-			EmbeddedTemplates = new HashSet<EntityTemplate>(other.EmbeddedTemplates.Union(EmbeddedTemplates, EqualityComparer), EqualityComparer);
+			MergeComponents(other.Components);
+			MergeInherits(other.Inherits);
+			MergeTags(other.Tags);
+			MergeEmbeddedTemplates(other.EmbeddedTemplates);
 		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void MergeComponents(IReadOnlyDictionary<string, object> otherComponents) =>
+			_components.MergeWith(otherComponents);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void MergeInherits(IReadOnlySet<string> otherInherits) =>
+			_inherits.UnionWith(otherInherits);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void MergeTags(IReadOnlySet<string> otherTags) =>
+			_tags.UnionWith(otherTags);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void MergeEmbeddedTemplates(IReadOnlySet<EntityTemplate> otherEmbeddedTemplates) =>
+			_embeddedTemplates.UnionWith(otherEmbeddedTemplates);
+
 	}
 }

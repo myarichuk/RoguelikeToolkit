@@ -163,13 +163,13 @@ namespace RoguelikeToolkit.Entities.Repository
 					var tagsCollectionValue = propertyValue is List<object> tagsObjects
 						? new HashSet<string>(tagsObjects.Cast<string>())
 						: EmptyHashSet;
-					template.Tags = new HashSet<string>(template.Tags.Union(tagsCollectionValue));
+					template.MergeTags(tagsCollectionValue);
 					break;
 				case nameof(EntityTemplate.Inherits):
 					var inheritsCollectionValue = propertyValue is List<object> inheritsObjects
 						? new HashSet<string>(inheritsObjects.Cast<string>())
 						: EmptyHashSet;
-					template.Inherits = new HashSet<string>(template.Inherits.Union(inheritsCollectionValue));
+					template.MergeInherits(inheritsCollectionValue);
 					break;
 				case nameof(EntityTemplate.Components):
 					var componentsValue = propertyValue is not Dictionary<object, object> components
@@ -179,9 +179,7 @@ namespace RoguelikeToolkit.Entities.Repository
 							kvp => kvp.Value);
 					if (componentsValue == null)
 						return false;
-					componentsValue.MergeWith(template.Components);
-					template.Components = componentsValue;
-
+					template.MergeComponents(componentsValue);
 					break;
 				default:
 					return false;
