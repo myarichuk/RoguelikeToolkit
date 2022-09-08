@@ -79,6 +79,10 @@ namespace RoguelikeToolkit.Entities.Factory
 			instance = default;
 			var instanceAsObject = CreateEmptyInstance(componentType);
 
+			var valueComponentType = componentType.GetInterfaces()
+				.First(i => i.FullName.Contains(nameof(IValueComponent<object>)));
+
+			instanceAsObject.SetPropertyValue(nameof(IValueComponent<object>.Value), _typeConversionProvider.Convert(objectData.GetType(), valueComponentType.GenericTypeArguments[0], objectData));
 
 			instance = instanceAsObject.UnwrapIfWrapped();
 			return true;

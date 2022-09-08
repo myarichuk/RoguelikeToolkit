@@ -156,6 +156,7 @@ namespace RoguelikeToolkit
 			}
 		}
 
+		/// <exception cref="InvalidOperationException"><see cref="Entity" /> was not created from a <see cref="World" />.</exception>
 		public static void SetAsParentOf(this Entity parent, Entity child)
 		{
 			if (Worlds.Add(parent.World))

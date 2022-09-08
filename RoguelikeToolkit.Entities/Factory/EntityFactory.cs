@@ -7,6 +7,7 @@ using System.Reflection;
 using deniszykov.TypeConversion;
 using Fasterflect;
 using Microsoft.Extensions.Options;
+using RoguelikeToolkit.Entities.Exceptions;
 using RoguelikeToolkit.Entities.Factory;
 
 namespace RoguelikeToolkit.Entities
@@ -44,6 +45,9 @@ namespace RoguelikeToolkit.Entities
 			}
 		}
 
+		/// <exception cref="FailedToParseException">The template seems to be loaded but it is null, probably due to parsing errors.</exception>
+		public bool HasTemplateFor(string entityName) =>
+			_entityRepository.TryGetByName(entityName, out _);
 
 		/// <exception cref="ArgumentNullException">templateName is <see langword="null"/></exception>
 		public bool TryCreate(string entityName, out Entity entity)
@@ -60,19 +64,22 @@ namespace RoguelikeToolkit.Entities
 			if (rootTemplate == null)
 				throw new ArgumentNullException(nameof(rootTemplate));
 
-			var graphVisitor = new EntityGraphVisitor(rootTemplate);
+			var effectiveRootTemplate = _inheritanceResolver.GetEffectiveTemplate(rootTemplate);
 
-			ConstructEntity(rootTemplate, out var rootEntity);
+			var graphWalker = new EntityGraphWalker(effectiveRootTemplate);
 
-			graphVisitor.Traverse(template =>
+			ConstructEntity(effectiveRootTemplate, out var rootEntity);
+
+			graphWalker.Traverse(template =>
 			{
-				if (template.Name == rootTemplate.Name)
+				if (template.Name == effectiveRootTemplate.Name)
 					return;
-
+				template = _inheritanceResolver.GetEffectiveTemplate(template);
 				if (TryCreate(template, out var childEntity))
 					rootEntity.SetAsParentOf(childEntity);
-			});
 
+			});
+			
 			entity = rootEntity;
 
 			return true;
@@ -90,8 +97,18 @@ namespace RoguelikeToolkit.Entities
 						$"Component type '{componentRawData.Key}' is not registered. Check the spelling of the component name in the template.");
 
 				var rawComponentType = componentRawData.Value.GetType();
+				object componentInstance = null;
 				if (rawComponentType.IsValueType || rawComponentType.Name == nameof(String))
 				{
+					if (!componentType.IsValueComponentType())
+						throw new InvalidOperationException("Cannot set value type component with incompatible type. The component type must inherit from IValueComponent<TValue>");
+					//TODO: refactor for better error handling
+					if (!_componentFactory.TryCreateInstance(componentType, componentRawData.Value,
+						    out componentInstance))
+					{
+						throw new InvalidOperationException(
+							$"Failed to create an instance of a component (type = {componentType.FullName})");
+					}
 
 				}
 				else
@@ -103,19 +120,18 @@ namespace RoguelikeToolkit.Entities
 
 					//TODO: refactor for better error handling
 					if (!_componentFactory.TryCreateInstance(componentType, componentObjectData,
-						    out var componentInstance))
+						    out componentInstance))
 					{
 						throw new InvalidOperationException(
 							$"Failed to create an instance of a component (type = {componentType.FullName})");
 					}
-
-					//TODO: ensure this line works properly, probably it doesn't
-					var genericEntitySetMethod =
-						EntitySetMethodCache.GetOrAdd(componentType, type => EntitySetMethod.MakeGenericMethod(type));
-
-					genericEntitySetMethod.Call(entity.WrapIfValueType(),
-						_typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
 				}
+
+				var genericEntitySetMethod =
+					EntitySetMethodCache.GetOrAdd(componentType, type => EntitySetMethod.MakeGenericMethod(type));
+
+				genericEntitySetMethod.Call(entity.WrapIfValueType(),
+					_typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
 			}
 		}
 	}

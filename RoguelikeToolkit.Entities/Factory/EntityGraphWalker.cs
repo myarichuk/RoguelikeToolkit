@@ -5,7 +5,7 @@ using Microsoft.Extensions.ObjectPool;
 namespace RoguelikeToolkit.Entities.Factory
 {
 	//a utility to traverse the entity graph
-	internal struct EntityGraphVisitor
+	internal struct EntityGraphWalker
 	{
 		private readonly EntityTemplate _root;
 		private readonly GraphTraversalType _traversalType;
@@ -13,7 +13,7 @@ namespace RoguelikeToolkit.Entities.Factory
 		private static readonly ObjectPool<Queue<EntityTemplate>> QueuePool =
 			ObjectPoolProvider.Instance.Create<Queue<EntityTemplate>>();
 
-		public EntityGraphVisitor(EntityTemplate root, GraphTraversalType traversalType = GraphTraversalType.BFS)
+		public EntityGraphWalker(EntityTemplate root, GraphTraversalType traversalType = GraphTraversalType.BFS)
 		{
 			_root = root;
 			_traversalType = traversalType;
