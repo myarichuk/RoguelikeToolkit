@@ -74,14 +74,23 @@ namespace RoguelikeToolkit.Entities
 		}
 
 		/// <exception cref="FailedToParseException">The template seems to be loaded but it is null, probably due to parsing errors.</exception>
-		public bool HasTemplateFor(string entityName) =>
-			_entityRepository.TryGetByName(entityName, out _);
+		/// <exception cref="ArgumentNullException"><paramref name="entityName"/> is <see langword="null"/></exception>
+		public bool HasTemplateFor(string entityName)
+		{
+			if (entityName == null)
+				throw new ArgumentNullException(nameof(entityName));
+
+			return _entityRepository.TryGetByName(entityName, out _);
+		}
 
 		/// <exception cref="ArgumentNullException">templateName is <see langword="null"/></exception>
+		/// <exception cref="FailedToParseException">The template seems to be loaded but it is null, probably due to parsing errors.</exception>
 		public bool TryCreate(string entityName, out Entity entity)
 		{
+			if (entityName == null)
+				throw new ArgumentNullException(nameof(entityName));
+
 			entity = default;
-			
 			return _entityRepository.TryGetByName(entityName, out var rootTemplate) &&
 			       TryCreate(rootTemplate, out entity);
 		}
@@ -126,67 +135,80 @@ namespace RoguelikeToolkit.Entities
 
 				var rawComponentType = componentRawData.Value.GetType();
 				object componentInstance = null;
-				if (rawComponentType.IsValueType || rawComponentType.Name == nameof(String))
-				{
-					if (!componentType.IsValueComponentType())
-						throw new InvalidOperationException("Cannot set value type component with incompatible type. The component type must inherit from IValueComponent<TValue>");
-					//TODO: refactor for better error handling
-					if (!_componentFactory.TryCreateInstance(componentType, componentRawData.Value,
-						    out componentInstance))
-					{
-						throw new InvalidOperationException(
-							$"Failed to create an instance of a component (type = {componentType.FullName})");
-					}
-
-				}
-				else
-				{
-
-					if (componentRawData.Value is not Dictionary<object, object> componentObjectData)
-						throw new InvalidOperationException(
-							"Invalid data received from the template after deserialization. This is not supposed to happen and is likely a bug.");
-
-					//TODO: refactor for better error handling
-					if (!_componentFactory.TryCreateInstance(componentType, componentObjectData,
-						    out componentInstance))
-					{
-						throw new InvalidOperationException(
-							$"Failed to create an instance of a component (type = {componentType.FullName})");
-					}
-				}
+				componentInstance = CreateComponentInstance(rawComponentType, componentType, componentRawData);
 
 				if (IsGlobalComponent(componentType))
-				{
-					var genericWorldHasMethod =
-						WorldHasMethodCache.GetOrAdd(componentType, type => WorldHasMethod.MakeGenericMethod(type));
-
-					var hasSuchComponent = (bool)genericWorldHasMethod.Call(_world);
-					if (!hasSuchComponent)
-					{
-						var genericWorldSetMethod = WorldSetMethodCache.GetOrAdd(componentType,
-							type => WorldSetMethod.MakeGenericMethod(type));
-
-						genericWorldSetMethod.Call(_world, _typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
-					}
-
-					var genericSetSameAsWorldMethod = EntitySetSameAsWorldMethodCache.GetOrAdd(componentType,
-						type => EntitySetSameAsWorldMethod.MakeGenericMethod(type));
-
-					genericSetSameAsWorldMethod.Call(entity.WrapIfValueType());
-
-				}
+					SetGlobalComponentInEntity(entity, componentType, componentInstance);
 				else
-				{
-					var genericEntitySetMethod =
-						EntitySetMethodCache.GetOrAdd(componentType, type => EntitySetMethod.MakeGenericMethod(type));
-
-					genericEntitySetMethod.Call(entity.WrapIfValueType(),
-						_typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
-				}
+					SetRegularComponentInEntity(entity, componentType, componentInstance);
 
 				bool IsGlobalComponent(Type type) =>
 					type.HasAttribute<ComponentAttribute>() && type.Attribute<ComponentAttribute>().IsGlobal;
 			}
+		}
+
+		private void SetRegularComponentInEntity(in Entity entity, Type componentType, object componentInstance)
+		{
+			var genericEntitySetMethod =
+				EntitySetMethodCache.GetOrAdd(componentType, type => EntitySetMethod.MakeGenericMethod(type));
+
+			genericEntitySetMethod.Call(entity.WrapIfValueType(),
+				_typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
+		}
+
+		private void SetGlobalComponentInEntity(in Entity entity, Type componentType, object componentInstance)
+		{
+			var genericWorldHasMethod =
+				WorldHasMethodCache.GetOrAdd(componentType, type => WorldHasMethod.MakeGenericMethod(type));
+
+			var hasSuchComponent = (bool)genericWorldHasMethod.Call(_world);
+			if (!hasSuchComponent)
+			{
+				var genericWorldSetMethod = WorldSetMethodCache.GetOrAdd(componentType,
+					type => WorldSetMethod.MakeGenericMethod(type));
+
+				genericWorldSetMethod.Call(_world,
+					_typeConversionProvider.Convert(typeof(object), componentType, componentInstance));
+			}
+
+			var genericSetSameAsWorldMethod = EntitySetSameAsWorldMethodCache.GetOrAdd(componentType,
+				type => EntitySetSameAsWorldMethod.MakeGenericMethod(type));
+
+			genericSetSameAsWorldMethod.Call(entity.WrapIfValueType());
+		}
+
+		private object CreateComponentInstance(Type componentRawType, Type componentType, KeyValuePair<string, object> componentRawData)
+		{
+			object componentInstance;
+			if (componentRawType.IsValueType || componentRawType.Name == nameof(String))
+			{
+				if (!componentType.IsValueComponentType())
+					throw new InvalidOperationException(
+						"Cannot set value type component with incompatible type. The component type must inherit from IValueComponent<TValue>");
+				//TODO: refactor for better error handling
+				if (!_componentFactory.TryCreateInstance(componentType, componentRawData.Value,
+					    out componentInstance))
+				{
+					throw new InvalidOperationException(
+						$"Failed to create an instance of a component (type = {componentType.FullName})");
+				}
+			}
+			else
+			{
+				if (componentRawData.Value is not Dictionary<object, object> componentObjectData)
+					throw new InvalidOperationException(
+						"Invalid data received from the template after deserialization. This is not supposed to happen and is likely a bug.");
+
+				//TODO: refactor for better error handling
+				if (!_componentFactory.TryCreateInstance(componentType, componentObjectData,
+					    out componentInstance))
+				{
+					throw new InvalidOperationException(
+						$"Failed to create an instance of a component (type = {componentType.FullName})");
+				}
+			}
+
+			return componentInstance;
 		}
 	}
 }
