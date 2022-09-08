@@ -1,0 +1,10 @@
+EmbeddedTemplate2:
+ $merge-ref: TemplatesForLoading/non-existing-file.yaml
+ Components:
+  barfoo:
+    anotherStringProperty: defgh
+    anotherNumProperty: 234
+Components:
+ foobar:
+  stringProperty: abcdef
+  numProperty: 123

@@ -99,6 +99,15 @@
     <None Update="TemplatesForLoading\template-simple.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TemplatesForLoading\template-with-reference-nonexisting-merge-ref.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-with-reference-invalid-path-chars.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplatesForLoading\template-with-reference-nonexisting-ref.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TemplatesForLoading\template-with-reference-embedded.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

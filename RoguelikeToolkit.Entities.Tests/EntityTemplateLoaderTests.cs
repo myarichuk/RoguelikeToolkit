@@ -38,6 +38,22 @@ namespace RoguelikeToolkit.Entities.Tests
 				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", "template-with-invalid-fields.yaml"))));
 		}
 
+		[Fact]
+		public void Should_fail_loading_with_invalid_path_chars()
+		{
+			Assert.Throws<IOException>(() =>
+				_loader.LoadFrom(Path.Combine("TemplatesForLoading", "template-with-reference-invalid-path-chars.yaml")));
+		}
+
+		[Theory]
+		[InlineData("template-with-reference-nonexisting-ref.yaml")]
+		[InlineData("template-with-reference-nonexisting-merge-ref.yaml")]
+		public void Should_fail_loading_with_non_existing_template_ref_file(string templateFilename)
+		{
+			Assert.Throws<FileNotFoundException>(() =>
+				_loader.LoadFrom(new FileInfo(Path.Combine("TemplatesForLoading", templateFilename))));
+		}
+
 		[Theory]
 		[InlineData("template-with-embedded.yaml")]
 		[InlineData("template-with-reference-embedded.yaml")]

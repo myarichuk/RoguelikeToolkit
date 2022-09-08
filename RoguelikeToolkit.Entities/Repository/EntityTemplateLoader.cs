@@ -4,6 +4,9 @@ using YamlDotNet.Serialization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security;
+using DefaultEcs.System;
 using Fasterflect;
 using deniszykov.TypeConversion;
 using Microsoft.Extensions.Options;
@@ -27,24 +30,60 @@ namespace RoguelikeToolkit.Entities.Repository
 
 		private static readonly HashSet<string> EmptyHashSet = new();
 
-		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
+		/// <exception cref="FileNotFoundException">Failed to find template file at specified path.</exception>
+		/// <exception cref="InvalidOperationException">Failed to open template file (environmental reason - path too long, security, etc)</exception>
+		/// <exception cref="IOException">Failed to open template file</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EntityTemplate LoadFrom(FileInfo file, bool ignoreLoadingErrors = false)
 		{
-			using var fs = file.OpenRead();
-			using var sr = new StreamReader(fs);
+			try
+			{
+				using var fs = file.OpenRead();
+				using var sr = new StreamReader(fs);
 
-			return LoadFrom(sr, ignoreLoadingErrors);
+				return LoadFrom(sr, ignoreLoadingErrors);
+			}
+
+			catch (DirectoryNotFoundException e)
+			{
+				throw new FileNotFoundException($"Failed to find template file at specified path ({file.FullName})", e);
+			}
+			catch (FileNotFoundException e)
+			{
+				throw new FileNotFoundException($"Failed to find template file at specified path ({file.FullName})", e);
+			}
+			catch (IOException e)
+			{
+				throw new IOException($"Failed to open template file. Under normal conditions this is not supposed to happen and should be reported. Reason: {e.Message}", e);
+			}
+			catch (Exception e) when (e is PathTooLongException or UnauthorizedAccessException or NotSupportedException or SecurityException)
+			{
+				throw new InvalidOperationException($"Failed to open template file. Under normal conditions this is not supposed to happen and should be reported. Reason: {e.Message}", e);
+			}
 		}
 
-		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
+		/// <exception cref="FileNotFoundException">Failed to find template file at specified path.</exception>
+		/// <exception cref="InvalidOperationException">Failed to open template file (environmental reason - path too long, security, etc)</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="filePath"/> is <see langword="null"/></exception>
+		/// <exception cref="IOException">Failed to open template file</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EntityTemplate LoadFrom(string filePath, bool ignoreLoadingErrors = false)
 		{
-			using var fs = File.Open(filePath, FileMode.Open);
-			using var sr = new StreamReader(fs);
+			if (filePath == null)
+				throw new ArgumentNullException(nameof(filePath));
 
-			return LoadFrom(sr, ignoreLoadingErrors);
+			try
+			{
+				return LoadFrom(new FileInfo(filePath), ignoreLoadingErrors);
+			}
+			catch (SecurityException e)
+			{
+				throw new InvalidOperationException($"Failed to open template file. Under normal conditions this is not supposed to happen and should be reported. Reason: {e.Message}", e);
+			}
+			catch (UnauthorizedAccessException e)
+			{
+				throw new InvalidOperationException($"Failed to open template file. Under normal conditions this is not supposed to happen and should be reported. Reason: {e.Message}", e);
+			}
 		}
 
 		/// <exception cref="FailedToParseException">Failed to parse the template for any reason.</exception>
@@ -77,26 +116,12 @@ namespace RoguelikeToolkit.Entities.Repository
 				if (kvp.Key is { } keyAsString && 
 				    kvp.Value is string referencedTemplateFilename) //just in case
 				{
-					var embeddedTemplate = LoadFrom(referencedTemplateFilename);
-					embeddedTemplate.Name = referencedTemplateFilename;
+					if (ТryHandleMetaProperty(template, referencedTemplateFilename, keyAsString))
+						continue;
 
-					if (keyAsString.Equals("$ref", StringComparison.InvariantCultureIgnoreCase))
-					{
-						template.EmbeddedTemplates.Add(embeddedTemplate);
-					}
-					else if (keyAsString.Equals("$merge-ref", StringComparison.InvariantCultureIgnoreCase))
-					{
-						template.MergeWith(embeddedTemplate);
-					}
-					else
-					{
-						failureReason = $"Unrecognized meta-command '{keyAsString}' in a template field. Must be either '$ref' or '$merge-ref'";
-						return false;
-					}
-					continue;
+					failureReason = $"Unrecognized meta-property '{keyAsString}' in a template field. Property name must be either '$ref' or '$merge-ref'";
+					return false;
 				}
-
-				//
 
 				//we have a embedded template
 				if(kvp.Value is Dictionary<object, object> rawEmbeddedTemplate)
@@ -114,6 +139,29 @@ namespace RoguelikeToolkit.Entities.Repository
 
 			//make sure ALL required properties were set
 			return true;
+		}
+
+		private bool ТryHandleMetaProperty(EntityTemplate template, string referencedTemplateFilename, string keyAsString)
+		{
+			if (keyAsString.Equals("$ref", StringComparison.InvariantCultureIgnoreCase))
+			{
+				var embeddedTemplate = LoadFrom(referencedTemplateFilename);
+				embeddedTemplate.Name = referencedTemplateFilename;
+
+				template.EmbeddedTemplates.Add(embeddedTemplate);
+				return true;
+			}
+
+			if (keyAsString.Equals("$merge-ref", StringComparison.InvariantCultureIgnoreCase))
+			{
+				var embeddedTemplate = LoadFrom(referencedTemplateFilename);
+				embeddedTemplate.Name = referencedTemplateFilename;
+
+				template.MergeWith(embeddedTemplate);
+				return true;
+			}
+
+			return false;
 		}
 
 		// ReSharper disable once TooManyArguments
