@@ -1,0 +1,6 @@
+Tags:
+ - tag2
+Components:
+ barfoo:
+  anotherStringProperty: defgh
+  anotherNumProperty: 234

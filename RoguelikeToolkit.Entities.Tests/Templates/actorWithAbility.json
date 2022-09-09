@@ -1,9 +1,0 @@
-{
-  "Id": "actorWithAbility",
-  "Components": {
-    "KickAbility": {
-      "Strength": "2d6+3",
-      "Effect": "var targetHealth = target.GetComponent(HealthComponent); var kickStrength = source.GetComponent(KickAbility).Strength; targetHealth.Value -= kickStrength.Roll(); target.SetComponent(HealthComponent, targetHealth);"
-    }
-  }
-}

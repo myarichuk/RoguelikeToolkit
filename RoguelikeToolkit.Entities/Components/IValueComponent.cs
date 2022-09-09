@@ -1,4 +1,4 @@
-﻿namespace RoguelikeToolkit.Entities
+namespace RoguelikeToolkit.Entities.Components
 {
     public interface IValueComponent<TValue>
     {

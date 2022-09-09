@@ -1,9 +1,0 @@
-{
-  "Id": "actorWithAbility2",
-  "Components": {
-    "KickAbility": {
-      "Strength": "2d6+3",
-      "Effect": "file(Templates/Scripts/KickScript.csx)"
-    }
-  }
-}

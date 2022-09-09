@@ -1,8 +1,0 @@
-﻿{
-  "Id": "object",
-  "Components": {
-    "Health": 100.0,
-    "Weight": 1.0,
-    "Dirt": 0.0
-  }
-}

@@ -1,0 +1,7 @@
+Inherits:
+ - inherited-template-level1
+ - non-existing-template-name
+Tags:
+ - tag4
+Components:
+ bar: this is also a test!

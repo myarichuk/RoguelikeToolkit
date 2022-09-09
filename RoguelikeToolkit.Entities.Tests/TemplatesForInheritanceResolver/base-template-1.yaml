@@ -1,0 +1,6 @@
+Tags:
+ - tag1
+Components:
+ foobar:
+  stringProperty: abcdef
+  numProperty: 123

@@ -1,0 +1,4 @@
+Inherits:
+ - template-with-inherit
+Components:
+ anotherFoobar: 123

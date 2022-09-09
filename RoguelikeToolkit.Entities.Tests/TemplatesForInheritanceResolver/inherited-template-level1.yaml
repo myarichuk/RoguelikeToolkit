@@ -1,0 +1,7 @@
+Inherits:
+ - base-template-1
+ - base-template-2
+Tags:
+ - tag3
+Components:
+ foo: this is a test!

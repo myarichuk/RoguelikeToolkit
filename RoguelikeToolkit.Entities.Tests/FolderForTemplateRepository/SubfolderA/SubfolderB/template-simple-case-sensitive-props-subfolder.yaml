@@ -1,0 +1,10 @@
+Tags:
+ - tagXYZABC
+Components:
+ foobar:
+  stringProperty: abcdef
+  numProperty: 123
+ barfoo:
+  anotherStringProperty: defgh
+  anotherNumProperty: 234
+ foo: this is a test!

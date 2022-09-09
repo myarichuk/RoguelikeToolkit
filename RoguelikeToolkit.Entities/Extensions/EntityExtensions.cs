@@ -1,206 +1,195 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using DefaultEcs;
 using Microsoft.Extensions.ObjectPool;
-using RoguelikeToolkit.Entities;
-using RoguelikeToolkit.Entities.Components;
-using System.Threading.Tasks;
 using System;
-using System.Threading;
-using System.Reflection;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices.ComTypes;
 using RoguelikeToolkit.Scripts;
+using RoguelikeToolkit.Entities.Components;
 
 namespace RoguelikeToolkit
 {
-    //credit: taken from https://github.com/Doraku/DefaultEcs/blob/master/source/DefaultEcs.Extension/Children/EntityExtension.cs
-    //note: license is MIT, so copying this should be ok (https://github.com/Doraku/DefaultEcs/blob/master/LICENSE.md)
-    public static class EntityExtension
-    {
-        private readonly struct Children
-        {
-            public readonly HashSet<Entity> Value;
+	//credit: taken from https://github.com/Doraku/DefaultEcs/blob/master/source/DefaultEcs.Extension/Children/EntityExtension.cs
+	//note: license is MIT, so copying this should be ok (https://github.com/Doraku/DefaultEcs/blob/master/LICENSE.md)
+	public static class EntityExtension
+	{
+		private readonly struct Children
+		{
+			public readonly HashSet<Entity> Value;
 
-            public Children(HashSet<Entity> value)
-            {
-                Value = value;
-            }
-        }
+			public Children(HashSet<Entity> value)
+			{
+				Value = value;
+			}
+		}
 
-        private static readonly HashSet<string> EmptyMetadata = new();
-        private static readonly HashSet<World> Worlds = new();
-        private static readonly ObjectPool<HashSet<Entity>> VisitedPool = Entities.ObjectPoolProvider.Instance.Create(new Entities.ThreadSafeObjectPoolPolicy<HashSet<Entity>>());
+		private static readonly HashSet<string> EmptyMetadata = new();
+		private static readonly HashSet<World> Worlds = new();
+		private static readonly ObjectPool<HashSet<Entity>> VisitedPool = Entities.ObjectPoolProvider.Instance.Create(new Entities.ThreadSafeObjectPoolPolicy<HashSet<Entity>>());
 
-        private static void OnEntityDisposed(in Entity entity)
-        {
-            if (entity.Has<Children>())
-            {
-                HashSet<Entity> children = entity.Get<Children>().Value;
-                entity.Remove<Children>();
+		private static void OnEntityDisposed(in Entity entity)
+		{
+			if (!entity.Has<Children>())
+				return;
 
-                foreach (Entity child in children)
-                {
-                    if (child.IsAlive)
-                    {
-                        child.Dispose();
-                    }
-                }
-            }
-        }
+			var children = entity.Get<Children>().Value;
+			entity.Remove<Children>();
 
-        public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
-        {
-            if (!entity.Has<TComponent>())
-                return;
+			foreach (var child in children)
+			{
+				if (child.IsAlive)
+				{
+					child.Dispose();
+				}
+			}
+		}
 
-            var script = scriptSelector(entity.Get<TComponent>());
+		public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+		{
+			if (!entity.Has<TComponent>())
+				return;
 
-            script.ExecuteOn(ref entity, @params);
-        }
+			var script = scriptSelector(entity.Get<TComponent>());
 
-        public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
-        {
-            if (!entity.Has<TComponent>())
-                return;
+			script.ExecuteOn(ref entity, @params);
+		}
 
-            var script = scriptSelector(entity.Get<TComponent>());
+		public static void ExecuteScriptFrom<TComponent>(this ref Entity entity, Func<TComponent, EntityComponentScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+		{
+			if (!entity.Has<TComponent>())
+				return;
 
-            script.TryExecuteOn<TComponent>(ref entity, @params);
-        }
+			var script = scriptSelector(entity.Get<TComponent>());
 
-        public static void ExecuteScriptFrom<TComponent>(this ref Entity source, ref Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
-        {
-            if (!source.Has<TComponent>())
-                return;
+			script.TryExecuteOn<TComponent>(ref entity, @params);
+		}
 
-            var script = scriptSelector(source.Get<TComponent>());
+		public static void ExecuteScriptFrom<TComponent>(this ref Entity source, ref Entity target, Func<TComponent, EntityInteractionScript> scriptSelector, params (string instanceName, dynamic value)[] @params)
+		{
+			if (!source.Has<TComponent>())
+				return;
 
-            script.ExecuteOn(ref source, ref target, @params);
-        }
+			var script = scriptSelector(source.Get<TComponent>());
 
-        public static string Id(this Entity entity) =>
-            entity.TryGet<IdComponent>(out var id) ? id.Value : null;
+			script.ExecuteOn(ref source, ref target, @params);
+		}
 
-        public static ISet<string> Metadata(this Entity entity)
-        {
-            if (entity.TryGet<MetadataComponent>(out var metadata))
-            {
-                return metadata.Value;
-            }
+		public static string Id(this Entity entity) =>
+			entity.TryGet<IdComponent>(out var id) ? id.Value : null;
 
-            return EmptyMetadata;
-        }
+		public static ISet<string> Tags(this Entity entity) =>
+			entity.TryGet<TagsComponent>(out var metadata) ? metadata.Value : EmptyMetadata;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasTags(this Entity entity, params string[] tags) => entity.Metadata().IsSupersetOf(tags);
-
-        public static IEnumerable<Entity> GetChidrenWithTags(this Entity parent, params string[] tags)
-        {
-            if (!parent.Has<Children>())
-            {
-                yield break;
-            }
-
-            foreach (var child in parent.GetChildren().Where(ch => ch.HasTags(tags)))
-            {
-                yield return child;
-
-                foreach (var childOfChild in child.GetChidrenWithTags(tags))
-                {
-                    yield return childOfChild;
-                }
-            }
-        }
-        public static bool TryGet<T>(this Entity entity, out T component)
-        {
-            component = default;
-            if (entity.Has<T>())
-            {
-                component = entity.Get<T>();
-                return true;
-            }
-
-            return false;
-        }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool HasTags(this Entity entity, IEnumerable<string> tags) => entity.Tags().IsSupersetOf(tags);
 
 
-        public static IEnumerable<Entity> GetChildren(this Entity parent)
-        {
-            if (!parent.Has<Children>())
-            {
-                yield break;
-            }
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool HasTags(this Entity entity, string tag) => entity.Tags().Contains(tag);
 
-            HashSet<Entity> visited = null;
+		public static IEnumerable<Entity> GetChidrenWithTags(this Entity parent, params string[] tags)
+		{
+			if (!parent.Has<Children>())
+			{
+				yield break;
+			}
 
-            try
-            {
-                visited = VisitedPool.Get();
-                var children = parent.Get<Children>().Value;
+			foreach (var child in parent.GetChildren())
+			{
+				if (!child.HasTags(tags))
+					continue;
 
-                foreach (var child in children)
-                {
-                    if (visited.Contains(child))
-                    {
-                        continue;
-                    }
+				yield return child;
+				foreach (var childOfChild in child.GetChidrenWithTags(tags))
+					yield return childOfChild;
+			}
+		}
 
-                    visited.Add(child);
-                    yield return child;
+		public static bool TryGet<T>(this Entity entity, out T component)
+		{
+			component = default;
+			if (!entity.Has<T>())
+				return false;
 
-                    foreach (var childOfChild in child.GetChildren())
-                    {
-                        yield return childOfChild;
-                    }
-                }
-            }
-            finally
-            {
-                if (visited != null)
-                {
-                    visited.Clear();
-                    VisitedPool.Return(visited);
-                }
-            }
-        }
+			component = entity.Get<T>();
+			return true;
 
-        public static void SetAsParentOf(this Entity parent, Entity child)
-        {
-            if (Worlds.Add(parent.World))
-            {
-                parent.World.SubscribeEntityDisposed(OnEntityDisposed);
-                parent.World.SubscribeWorldDisposed(w => Worlds.Remove(w));
-            }
+		}
 
-            HashSet<Entity> children;
-            if (!parent.Has<Children>())
-            {
-                children = new HashSet<Entity>();
-                parent.Set(new Children(children));
-            }
-            else
-            {
-                children = parent.Get<Children>().Value;
-            }
 
-            children.Add(child);
-        }
+		public static IEnumerable<Entity> GetChildren(this Entity parent)
+		{
+			if (!parent.Has<Children>())
+			{
+				yield break;
+			}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RemoveFromParentsOf(this Entity parent, Entity child)
-        {
-            if (parent.Has<Children>())
-            {
-                parent.Get<Children>().Value.Remove(child);
-            }
-        }
+			HashSet<Entity> visited = null;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetAsChildOf(this Entity child, Entity parent) => parent.SetAsParentOf(child);
+			try
+			{
+				visited = VisitedPool.Get();
+				var children = parent.Get<Children>().Value;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RemoveFromChildrenOf(this Entity child, Entity parent) => parent.RemoveFromParentsOf(child);
-    }
+				foreach (var child in children)
+				{
+					if (visited.Contains(child))
+					{
+						continue;
+					}
+
+					visited.Add(child);
+					yield return child;
+
+					foreach (var childOfChild in child.GetChildren())
+					{
+						yield return childOfChild;
+					}
+				}
+			}
+			finally
+			{
+				if (visited != null)
+				{
+					visited.Clear();
+					VisitedPool.Return(visited);
+				}
+			}
+		}
+
+		/// <exception cref="InvalidOperationException"><see cref="Entity" /> was not created from a <see cref="World" />.</exception>
+		public static void SetAsParentOf(this Entity parent, Entity child)
+		{
+			if (Worlds.Add(parent.World))
+			{
+				parent.World.SubscribeEntityDisposed(OnEntityDisposed);
+				parent.World.SubscribeWorldDisposed(w => Worlds.Remove(w));
+			}
+
+			HashSet<Entity> children;
+			if (!parent.Has<Children>())
+			{
+				children = new HashSet<Entity>();
+				parent.Set(new Children(children));
+			}
+			else
+			{
+				children = parent.Get<Children>().Value;
+			}
+
+			children.Add(child);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void RemoveFromParentsOf(this Entity parent, Entity child)
+		{
+			if (parent.Has<Children>())
+				parent.Get<Children>().Value.Remove(child);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void SetAsChildOf(this Entity child, Entity parent) => parent.SetAsParentOf(child);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void RemoveFromChildrenOf(this Entity child, Entity parent) => parent.RemoveFromParentsOf(child);
+	}
 }

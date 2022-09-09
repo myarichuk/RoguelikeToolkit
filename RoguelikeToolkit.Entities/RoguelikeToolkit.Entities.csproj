@@ -25,13 +25,20 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
+	
   <ItemGroup>
-    <PackageReference Include="DefaultEcs" Version="0.17.2" />
-    <PackageReference Include="FastMember" Version="1.5.0" />
-    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.3" />
+	<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+		<_Parameter1>RoguelikeToolkit.Entities.Tests</_Parameter1>
+	</AssemblyAttribute>
+  </ItemGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="DefaultEcs" Version="*" />
+    <PackageReference Include="deniszykov.TypeConversion" Version="*" />
+    <PackageReference Include="fasterflect" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="*" />
     <PackageReference Include="RoguelikeToolkit.Dice" Version="*" />
     <PackageReference Include="RoguelikeToolkit.Scripts" Version="*" />
-    <PackageReference Include="Utf8Json" Version="1.3.7" />
+    <PackageReference Include="YamlDotNet" Version="*" />
   </ItemGroup>
 </Project>

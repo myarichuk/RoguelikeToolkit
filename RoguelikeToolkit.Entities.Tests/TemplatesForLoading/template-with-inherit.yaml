@@ -1,0 +1,7 @@
+Inherits:
+ - template-simple
+ - template-simple2
+Components:
+ barfoo:
+  anotherStringProperty: defgh
+  anotherNumProperty: 234

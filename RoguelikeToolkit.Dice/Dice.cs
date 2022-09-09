@@ -24,7 +24,7 @@ namespace RoguelikeToolkit.DiceExpression
 
         public static Dice Parse(string diceExpression, bool throwOnParsingError = false)
         {
-            Lexer.SetInputStream(new AntlrInputStream(diceExpression));
+	        Lexer.SetInputStream(new AntlrInputStream(diceExpression));
             Parser.SetInputStream(new CommonTokenStream(Lexer));
 
             if (throwOnParsingError)
