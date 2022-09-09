@@ -1,3 +1,8 @@
+# Note: this repository will not be updated due to
+* Heavy refactorings for all of the projects
+* Set up unified template for all sub-projects
+* Splitting of the monorepo to separate projects (easier automated NuGet deployments)
+
 # The What
 This is a loosely coupled collection of tool libs I wrote to myself for a roguelike I hopefully will finish in the future. 
 
