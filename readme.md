@@ -3,6 +3,8 @@
 * Set up unified template for all sub-projects
 * Splitting of the monorepo to separate projects (easier automated NuGet deployments)
 
+*This repo will be converted to a "hub" that will host links to other repositories*
+
 # The What
 This is a loosely coupled collection of tool libs I wrote to myself for a roguelike I hopefully will finish in the future. 
 
